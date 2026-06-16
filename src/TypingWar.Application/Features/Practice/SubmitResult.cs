@@ -1,10 +1,7 @@
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using TypingWar.Application.Common.Interfaces;
-using TypingWar.Domain.Entities;
 using TypingWar.Domain.Enums;
-using TypingWar.Domain.Services;
 
 namespace TypingWar.Application.Features.Practice;
 
@@ -29,72 +26,22 @@ public class SubmitResultCommandValidator : AbstractValidator<SubmitResultComman
 
 public class SubmitResultCommandHandler : IRequestHandler<SubmitResultCommand, RaceResultDto>
 {
-    private readonly IApplicationDbContext _db;
     private readonly ICurrentUserService _currentUser;
-    private readonly ILeaderboardService _leaderboard;
+    private readonly ISender _mediator;
 
-    public SubmitResultCommandHandler(IApplicationDbContext db, ICurrentUserService currentUser, ILeaderboardService leaderboard)
+    public SubmitResultCommandHandler(ICurrentUserService currentUser, ISender mediator)
     {
-        _db = db;
         _currentUser = currentUser;
-        _leaderboard = leaderboard;
+        _mediator = mediator;
     }
 
-    public async Task<RaceResultDto> Handle(SubmitResultCommand request, CancellationToken cancellationToken)
+    public Task<RaceResultDto> Handle(SubmitResultCommand request, CancellationToken cancellationToken)
     {
         var userId = _currentUser.UserId
             ?? throw new UnauthorizedAccessException("Natijani saqlash uchun tizimga kiring.");
 
-        var metrics = TypingCalculator.Calculate(request.CorrectChars, request.IncorrectChars, request.ElapsedSeconds);
-
-        // Aldash himoyasi (CLAUDE.md §12: >250 WPM rad etiladi)
-        if (!TypingCalculator.IsPlausible(metrics.Wpm) || !TypingCalculator.IsPlausible(metrics.RawWpm))
-            throw new InvalidOperationException($"Natija haqiqiy emas (WPM={metrics.Wpm}). Maksimal ruxsat etilgan: 250.");
-
-        var result = new RaceResult
-        {
-            UserId = userId,
-            TimeMode = request.TimeMode,
-            Wpm = metrics.Wpm,
-            RawWpm = metrics.RawWpm,
-            Accuracy = metrics.Accuracy,
-            TextId = request.TextId,
-            PlayedAt = DateTime.UtcNow
-        };
-        _db.RaceResults.Add(result);
-
-        // PersonalBest upsert (faqat PersonalBest leaderboard ga tushadi)
-        bool isNewPb = false;
-        var pb = await _db.PersonalBests
-            .FirstOrDefaultAsync(p => p.UserId == userId && p.TimeMode == request.TimeMode, cancellationToken);
-
-        if (pb is null)
-        {
-            _db.PersonalBests.Add(new PersonalBest
-            {
-                UserId = userId,
-                TimeMode = request.TimeMode,
-                BestWpm = metrics.Wpm,
-                Accuracy = metrics.Accuracy,
-                AchievedAt = DateTime.UtcNow
-            });
-            isNewPb = true;
-        }
-        else if (metrics.Wpm > pb.BestWpm)
-        {
-            pb.BestWpm = metrics.Wpm;
-            pb.Accuracy = metrics.Accuracy;
-            pb.AchievedAt = DateTime.UtcNow;
-            isNewPb = true;
-        }
-
-        await _db.SaveChangesAsync(cancellationToken);
-
-        // Yangi PersonalBest bo'lsa — Redis leaderboard ni yangilash
-        if (isNewPb)
-            await _leaderboard.UpdateAsync(userId, request.TimeMode, metrics.Wpm, cancellationToken);
-
-        return new RaceResultDto(result.Id, metrics.Wpm, metrics.RawWpm, metrics.Accuracy,
-            request.TimeMode, isNewPb, result.PlayedAt);
+        return _mediator.Send(new RecordResultCommand(
+            userId, request.TimeMode, request.CorrectChars, request.IncorrectChars,
+            request.ElapsedSeconds, request.TextId), cancellationToken);
     }
 }

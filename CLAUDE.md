@@ -297,29 +297,30 @@ dotnet test
 ## 15. JORIY HOLAT
 
 ```
-Bosqich: 4 (Do'stlar musobaqasi) — TUGALLANDI ✅
-Keyingi vazifa: Bosqich 5 — AI + Ghost
+Bosqich: 5 (AI + Ghost) — TUGALLANDI ✅
+Keyingi vazifa: Bosqich 6 — 5x5 Jamoaviy
 Tugallangan:
   - Bosqich 1 (Foundation): solution, 6 loyiha, Docker, 14 entity, EF Core,
-    Identity, JWT HttpOnly cookie, Google OAuth (backend), Redis, migration
-  - Bosqich 2 (Typing Engine): UserSettings (15 sozlama), TypingCalculator,
-    4 rejim, WordBanks (uz/en/ru), DataSeeder, /Practice + /Settings
-  - Bosqich 3 (Auth + Leaderboard): register/login/logout/me (JWT cookie),
-    lockout (5/15daq), /Login + /Register; Redis leaderboard (top 50 +
-    user rank), /Leaderboard (5 tab)
-  - Bosqich 4 (Do'stlar musobaqasi): RoomCodeGenerator (8 belgi), Create/
-    GetRoom (Redis kod 30daq TTL), RoomLiveState (in-memory), LobbyHub
-    (/hubs/lobby: join/start/countdown/progress/finish), /Rooms + /Room
-    (SignalR client, live progress, 3-2-1), 11 unit test, negotiate OK
+    Identity, JWT cookie, Google OAuth (backend), Redis, migration
+  - Bosqich 2 (Typing Engine): UserSettings, TypingCalculator, 4 rejim,
+    WordBanks, DataSeeder, /Practice + /Settings
+  - Bosqich 3 (Auth + Leaderboard): auth (JWT cookie, lockout), /Login +
+    /Register; Redis leaderboard (top 50 + user rank), /Leaderboard
+  - Bosqich 4 (Do'stlar musobaqasi): RoomCodeGenerator, Create/GetRoom
+    (Redis kod 30daq TTL), RoomLiveState, LobbyHub (/hubs/lobby), /Rooms + /Room
+  - Bosqich 5 (AI + Ghost): AiTypingSimulator (jadval), AiOpponentService
+    (avg10+delta, ai_delta_{userId}), RaceHub (/hubs/race: StartAiRace/
+    FinishAiRace), RecordResultCommand refaktor, GetPersonalBest, /Race
+    (AI/Ghost/Blind Duel), 16 unit test, negotiate OK
 Hal qilinmagan muammolar:
   - PostgreSQL porti 5434:5432 (5433 ni meningvaqtim loyihasi band qilgan)
   - Redis DI ulanishi eager (Connect) — keyin lazy qilish
-  - RaceHub hali yo'q (Bosqich 5 — AI/Ghost/Blind Duel)
+  - 1vs1 (ikki inson) matchmaking yo'q (RaceHub keyin kengaytiriladi)
   - Host chiqsa qayta tayinlash yo'q; RoomPlayers DB persist faqat host
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
-  - Real-time oqim brauzerda qo'lda sinalishi kerak (curl negotiate bilan OK)
-Oxirgi git commit: Bosqich 4 — Do'stlar musobaqasi
+  - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
+Oxirgi git commit: Bosqich 5 — AI + Ghost
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.

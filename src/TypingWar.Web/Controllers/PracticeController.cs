@@ -28,4 +28,12 @@ public class PracticeController : ApiControllerBase
         var dto = await Mediator.Send(command);
         return Ok(dto);
     }
+
+    /// <summary>Ghost rejimi uchun shaxsiy rekord WPM (anonim — 0).</summary>
+    [HttpGet("personalbest")]
+    public async Task<ActionResult<object>> PersonalBest([FromQuery] TimeMode timeMode = TimeMode.Thirty)
+    {
+        var wpm = await Mediator.Send(new GetPersonalBestQuery(timeMode));
+        return Ok(new { bestWpm = wpm });
+    }
 }

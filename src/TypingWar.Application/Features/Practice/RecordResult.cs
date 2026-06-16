@@ -1,0 +1,85 @@
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using TypingWar.Application.Common.Interfaces;
+using TypingWar.Domain.Entities;
+using TypingWar.Domain.Enums;
+using TypingWar.Domain.Services;
+
+namespace TypingWar.Application.Features.Practice;
+
+/// <summary>
+/// Natijani saqlaydi (RaceResult + PersonalBest + leaderboard). UserId aniq beriladi,
+/// shuning uchun ICurrentUserService ga bog'liq emas — SignalR hub lardan ham chaqirsa bo'ladi.
+/// </summary>
+public record RecordResultCommand(
+    Guid UserId,
+    TimeMode TimeMode,
+    int CorrectChars,
+    int IncorrectChars,
+    double ElapsedSeconds,
+    Guid? TextId) : IRequest<RaceResultDto>;
+
+public class RecordResultCommandHandler : IRequestHandler<RecordResultCommand, RaceResultDto>
+{
+    private readonly IApplicationDbContext _db;
+    private readonly ILeaderboardService _leaderboard;
+
+    public RecordResultCommandHandler(IApplicationDbContext db, ILeaderboardService leaderboard)
+    {
+        _db = db;
+        _leaderboard = leaderboard;
+    }
+
+    public async Task<RaceResultDto> Handle(RecordResultCommand request, CancellationToken cancellationToken)
+    {
+        var metrics = TypingCalculator.Calculate(request.CorrectChars, request.IncorrectChars, request.ElapsedSeconds);
+
+        // Aldash himoyasi (CLAUDE.md §12: >250 WPM rad etiladi)
+        if (!TypingCalculator.IsPlausible(metrics.Wpm) || !TypingCalculator.IsPlausible(metrics.RawWpm))
+            throw new InvalidOperationException($"Natija haqiqiy emas (WPM={metrics.Wpm}). Maksimal ruxsat etilgan: 250.");
+
+        var result = new RaceResult
+        {
+            UserId = request.UserId,
+            TimeMode = request.TimeMode,
+            Wpm = metrics.Wpm,
+            RawWpm = metrics.RawWpm,
+            Accuracy = metrics.Accuracy,
+            TextId = request.TextId,
+            PlayedAt = DateTime.UtcNow
+        };
+        _db.RaceResults.Add(result);
+
+        bool isNewPb = false;
+        var pb = await _db.PersonalBests
+            .FirstOrDefaultAsync(p => p.UserId == request.UserId && p.TimeMode == request.TimeMode, cancellationToken);
+
+        if (pb is null)
+        {
+            _db.PersonalBests.Add(new PersonalBest
+            {
+                UserId = request.UserId,
+                TimeMode = request.TimeMode,
+                BestWpm = metrics.Wpm,
+                Accuracy = metrics.Accuracy,
+                AchievedAt = DateTime.UtcNow
+            });
+            isNewPb = true;
+        }
+        else if (metrics.Wpm > pb.BestWpm)
+        {
+            pb.BestWpm = metrics.Wpm;
+            pb.Accuracy = metrics.Accuracy;
+            pb.AchievedAt = DateTime.UtcNow;
+            isNewPb = true;
+        }
+
+        await _db.SaveChangesAsync(cancellationToken);
+
+        if (isNewPb)
+            await _leaderboard.UpdateAsync(request.UserId, request.TimeMode, metrics.Wpm, cancellationToken);
+
+        return new RaceResultDto(result.Id, metrics.Wpm, metrics.RawWpm, metrics.Accuracy,
+            request.TimeMode, isNewPb, result.PlayedAt);
+    }
+}

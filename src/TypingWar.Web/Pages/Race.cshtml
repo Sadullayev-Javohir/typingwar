@@ -1,0 +1,52 @@
+@page
+@model RaceModel
+@{
+    ViewData["Title"] = "AI bilan poyga";
+}
+
+<div id="tw-racepage" class="tw-racepage">
+    <h2 class="tw-accent text-center mb-3">Poyga</h2>
+
+    <div class="tw-config text-center mb-3">
+        <div class="tw-config-group">
+            <span class="tw-config-label">Rejim:</span>
+            <button class="tw-opt tw-active" data-mode="AI">🤖 AI raqib</button>
+            <button class="tw-opt" data-mode="Ghost">👻 Ghost (rekordingiz)</button>
+            <button class="tw-opt" data-mode="Blind">🙈 Blind Duel</button>
+        </div>
+    </div>
+
+    <div class="text-center mb-3">
+        <button id="tw-race-start" class="btn btn-tw">Boshlash</button>
+        <div id="tw-race-err" class="text-danger mt-2"></div>
+    </div>
+
+    <div id="tw-vs" class="tw-vs d-none">
+        <div class="tw-vs-row">
+            <span class="tw-vs-name">Siz</span>
+            <div class="tw-bar"><div id="tw-you-bar" class="tw-bar-fill"></div></div>
+            <span id="tw-you-wpm" class="tw-vs-wpm">0</span>
+        </div>
+        <div class="tw-vs-row">
+            <span id="tw-opp-name" class="tw-vs-name">Raqib</span>
+            <div class="tw-bar"><div id="tw-opp-bar" class="tw-bar-fill tw-opp"></div></div>
+            <span id="tw-opp-wpm" class="tw-vs-wpm">0</span>
+        </div>
+    </div>
+
+    <div id="tw-race-countdown" class="tw-countdown d-none"></div>
+    <div id="tw-race-area" class="d-none">
+        <div id="tw-race-words" class="tw-words" tabindex="0"></div>
+    </div>
+
+    <div id="tw-race-result" class="tw-result d-none">
+        <h3 id="tw-race-verdict" class="tw-accent text-center"></h3>
+        <p class="text-center" id="tw-race-detail"></p>
+        <div class="text-center"><button id="tw-race-again" class="btn btn-tw">Yana</button></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+    <script src="~/js/race.js" asp-append-version="true"></script>
+}

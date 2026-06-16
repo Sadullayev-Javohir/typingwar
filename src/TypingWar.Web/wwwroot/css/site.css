@@ -182,3 +182,13 @@ body[data-tw-theme="Sepia"] .tw-words { color: #b9a888; }
 .tw-ranks { list-style: none; padding: 0; max-width: 480px; margin: 1rem auto 0; }
 .tw-ranks li { display: flex; justify-content: space-between; padding: .6rem .9rem;
     background: var(--tw-bg); border-radius: 8px; margin-bottom: .5rem; }
+
+/* ───── Poyga (AI/Ghost/Blind) ───── */
+.tw-racepage { max-width: 900px; margin: 1.5rem auto; }
+.tw-vs { max-width: 700px; margin: 0 auto 1.5rem; }
+.tw-vs-row { display: flex; align-items: center; gap: .75rem; margin-bottom: .6rem; }
+.tw-vs-name { width: 160px; font-size: .9rem; }
+.tw-vs-wpm { width: 50px; text-align: right; color: var(--tw-gold); font-weight: 700; }
+.tw-vs .tw-bar { flex: 1; height: 14px; }
+.tw-bar-fill.tw-opp { background: linear-gradient(90deg, #6a6a80, #9a9ab0); }
+.tw-blind .tw-letter { color: #6a6a80 !important; }

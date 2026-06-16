@@ -50,6 +50,9 @@ public static class DependencyInjection
         // Real-time xona holati (in-memory singleton)
         services.AddSingleton<Realtime.RoomLiveState>();
 
+        // Adaptiv AI raqib
+        services.AddScoped<IAiOpponentService, Ai.AiOpponentService>();
+
         // Redis
         var redisConn = configuration.GetConnectionString("Redis") ?? "localhost:6380";
         services.AddSingleton<IConnectionMultiplexer>(
