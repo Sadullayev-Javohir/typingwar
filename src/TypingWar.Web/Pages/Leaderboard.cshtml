@@ -1,0 +1,36 @@
+@page
+@model LeaderboardModel
+@{
+    ViewData["Title"] = "Reyting";
+}
+
+<div class="tw-lb">
+    <h2 class="tw-accent text-center mb-3">🏆 Reyting</h2>
+
+    <div class="tw-lb-tabs text-center mb-3">
+        <button class="tw-tab" data-mode="Ten">10s</button>
+        <button class="tw-tab" data-mode="Fifteen">15s</button>
+        <button class="tw-tab tw-active" data-mode="Thirty">30s</button>
+        <button class="tw-tab" data-mode="Sixty">60s</button>
+        <button class="tw-tab" data-mode="OneTwenty">120s</button>
+    </div>
+
+    <table class="table tw-lb-table">
+        <thead>
+            <tr>
+                <th style="width:60px">#</th>
+                <th>Foydalanuvchi</th>
+                <th>Hudud</th>
+                <th class="text-end">WPM</th>
+                <th class="text-end">Aniqlik</th>
+            </tr>
+        </thead>
+        <tbody id="tw-lb-body">
+            <tr><td colspan="5" class="text-center text-secondary">Yuklanmoqda…</td></tr>
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="~/js/leaderboard.js" asp-append-version="true"></script>
+}

@@ -31,11 +31,13 @@ public class SubmitResultCommandHandler : IRequestHandler<SubmitResultCommand, R
 {
     private readonly IApplicationDbContext _db;
     private readonly ICurrentUserService _currentUser;
+    private readonly ILeaderboardService _leaderboard;
 
-    public SubmitResultCommandHandler(IApplicationDbContext db, ICurrentUserService currentUser)
+    public SubmitResultCommandHandler(IApplicationDbContext db, ICurrentUserService currentUser, ILeaderboardService leaderboard)
     {
         _db = db;
         _currentUser = currentUser;
+        _leaderboard = leaderboard;
     }
 
     public async Task<RaceResultDto> Handle(SubmitResultCommand request, CancellationToken cancellationToken)
@@ -87,6 +89,10 @@ public class SubmitResultCommandHandler : IRequestHandler<SubmitResultCommand, R
         }
 
         await _db.SaveChangesAsync(cancellationToken);
+
+        // Yangi PersonalBest bo'lsa — Redis leaderboard ni yangilash
+        if (isNewPb)
+            await _leaderboard.UpdateAsync(userId, request.TimeMode, metrics.Wpm, cancellationToken);
 
         return new RaceResultDto(result.Id, metrics.Wpm, metrics.RawWpm, metrics.Accuracy,
             request.TimeMode, isNewPb, result.PlayedAt);

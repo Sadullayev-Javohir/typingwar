@@ -39,9 +39,13 @@ public static class DependencyInjection
         // Parol xeshlash — BCrypt (Identity default PBKDF2 emas)
         services.AddScoped<IPasswordHasher<ApplicationUser>, BCryptPasswordHasher>();
 
-        // JWT
+        // JWT + Auth
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
         services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IIdentityService, AuthService>();
+
+        // Leaderboard (Redis Sorted Set)
+        services.AddScoped<ILeaderboardService, Leaderboard.LeaderboardService>();
 
         // Redis
         var redisConn = configuration.GetConnectionString("Redis") ?? "localhost:6380";

@@ -22,7 +22,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav me-auto">
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-page="/Index">Bosh sahifa</a>
                         </li>
@@ -30,8 +30,27 @@
                             <a class="nav-link" asp-area="" asp-page="/Practice">Mashq</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-page="/Leaderboard">Reyting</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-page="/Settings">Sozlamalar</a>
                         </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item d-flex align-items-center">
+                                <span class="nav-link tw-accent">@User.Identity!.Name</span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" id="tw-logout">Chiqish</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-page="/Login">Kirish</a></li>
+                            <li class="nav-item"><a class="nav-link tw-accent" asp-page="/Register">Ro'yxat</a></li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -53,6 +72,13 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/typing-settings.js" asp-append-version="true"></script>
+    <script>
+        document.getElementById("tw-logout")?.addEventListener("click", async (e) => {
+            e.preventDefault();
+            await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
+            window.location.href = "/";
+        });
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -297,24 +297,25 @@ dotnet test
 ## 15. JORIY HOLAT
 
 ```
-Bosqich: 2 (Typing Engine) — TUGALLANDI ✅
-Keyingi vazifa: Bosqich 3 — Leaderboard
+Bosqich: 3 (Leaderboard + Auth) — TUGALLANDI ✅
+Keyingi vazifa: Bosqich 4 — Do'stlar musobaqasi
 Tugallangan:
   - Bosqich 1 (Foundation): solution, 6 loyiha, Docker, 14 entity, EF Core,
-    Identity, JWT HttpOnly cookie, Google OAuth, Redis, migration
+    Identity, JWT HttpOnly cookie, Google OAuth (backend), Redis, migration
   - Bosqich 2 (Typing Engine): UserSettings (15 sozlama), TypingCalculator
-    (WPM/Raw/Accuracy + aldash himoyasi), 4 rejim (Words/Sentences/Numbers/Code),
-    WordBanks (uz/en/ru), DataSeeder, CQRS (Practice + Settings), API
-    kontrollerlar, /Practice + /Settings sahifalar, typing-engine.js
-    (keystroke handler, jonli WPM, karet, temalar), 9 unit test
+    (WPM/Raw/Accuracy + aldash himoyasi), 4 rejim, WordBanks (uz/en/ru),
+    DataSeeder, CQRS (Practice + Settings), /Practice + /Settings, 9 unit test
+  - Bosqich 3 (Auth + Leaderboard): register/login/logout/me (JWT HttpOnly
+    cookie), Identity lockout (5/15daq), /Login + /Register + navbar holati;
+    Redis Sorted Set leaderboard (top 50 + user rank), PB hook, /Leaderboard
+    (5 tab), end-to-end smoke test o'tdi
 Hal qilinmagan muammolar:
   - PostgreSQL porti 5434:5432 (5433 ni meningvaqtim loyihasi band qilgan)
   - Redis DI ulanishi eager (Connect) — keyin lazy qilish
-  - Auth endpointlari (register/login) hali yo'q — natija saqlash [Authorize]
-    talab qiladi, hozir anonim natijalar faqat ekranda
+  - Google OAuth backend tayyor, lekin UI tugmasi yo'q + ClientId/Secret bo'sh
   - SoundOnClick UI da bor, ovoz ijrosi ulanmagan; Theme=Custom = Dark
-  - Google OAuth ClientId/Secret bo'sh
-Oxirgi git commit: Bosqich 2 — Typing Engine
+  - Antiforgery API POST larga majburiy emas (SameSite=Lax bilan yumshatilgan)
+Oxirgi git commit: Bosqich 3 — Leaderboard + Auth
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.

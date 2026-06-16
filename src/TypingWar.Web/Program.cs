@@ -105,7 +105,7 @@ using (var scope = app.Services.CreateScope())
 
 // ── Middleware pipeline ───────────────────────────────────────
 app.UseForwardedHeaders();
-app.UseMiddleware<ApiExceptionMiddleware>();
+app.UseSerilogRequestLogging();   // tashqarida — API exception handler 400 ni toza loglaydi
 
 if (!app.Environment.IsDevelopment())
 {
@@ -113,7 +113,9 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseSerilogRequestLogging();
+// API xatolarini (ValidationException→400, Unauthorized→401) JSON ko'rinishida
+app.UseMiddleware<ApiExceptionMiddleware>();
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
