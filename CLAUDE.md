@@ -297,8 +297,8 @@ dotnet test
 ## 15. JORIY HOLAT
 
 ```
-Bosqich: 5 (AI + Ghost) — TUGALLANDI ✅
-Keyingi vazifa: Bosqich 6 — 5x5 Jamoaviy
+Bosqich: 6 (5x5 Jamoaviy) — TUGALLANDI ✅
+Keyingi vazifa: Bosqich 7 — Sabotaj (5 tur effekt, RaceHub.SabotageAttack)
 Tugallangan:
   - Bosqich 1 (Foundation): solution, 6 loyiha, Docker, 14 entity, EF Core,
     Identity, JWT cookie, Google OAuth (backend), Redis, migration
@@ -312,6 +312,10 @@ Tugallangan:
     (avg10+delta, ai_delta_{userId}), RaceHub (/hubs/race: StartAiRace/
     FinishAiRace), RecordResultCommand refaktor, GetPersonalBest, /Race
     (AI/Ghost/Blind Duel), 16 unit test, negotiate OK
+  - Bosqich 6 (5x5 Jamoaviy): TeamRace/TeamMember, TeamSide, TeamRaceScoring,
+    Create/GetTeamRace (Redis tr:{code} 30daq TTL), TeamRaceLiveState
+    (singleton, jamoa WPM yig'indisi), TeamRaceHub (/hubs/teamrace: Join/
+    ChangeSide/Start/ReportProgress/Finish, DB persist), /Teams + /Team
 Hal qilinmagan muammolar:
   - PostgreSQL porti 5434:5432 (5433 ni meningvaqtim loyihasi band qilgan)
   - Redis DI ulanishi eager (Connect) — keyin lazy qilish
@@ -320,7 +324,7 @@ Hal qilinmagan muammolar:
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
   - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
-Oxirgi git commit: Bosqich 5 — AI + Ghost
+Oxirgi git commit: Bosqich 6 — 5x5 Jamoaviy
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.

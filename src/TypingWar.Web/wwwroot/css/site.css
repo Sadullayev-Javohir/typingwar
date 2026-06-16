@@ -183,6 +183,21 @@ body[data-tw-theme="Sepia"] .tw-words { color: #b9a888; }
 .tw-ranks li { display: flex; justify-content: space-between; padding: .6rem .9rem;
     background: var(--tw-bg); border-radius: 8px; margin-bottom: .5rem; }
 
+/* ───── 5x5 Jamoaviy ───── */
+.tw-team-page { max-width: 960px; margin: 1.5rem auto; }
+.tw-team-scores { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin: 1rem 0 .5rem; }
+.tw-team-score { text-align: center; min-width: 110px; padding: .6rem 1rem; border-radius: 12px;
+    background: var(--tw-surface); }
+.tw-team-score span { display: block; font-size: 2.4rem; font-weight: 800; font-family: var(--tw-font); }
+.tw-team-score label { font-size: .75rem; text-transform: uppercase; color: #8a8aa0; }
+.tw-team-score.tw-side-a { border-bottom: 3px solid var(--tw-gold); }
+.tw-team-score.tw-side-a span { color: var(--tw-gold); }
+.tw-team-score.tw-side-b { border-bottom: 3px solid #5aa0ff; }
+.tw-team-score.tw-side-b span { color: #5aa0ff; }
+.tw-vs-mid { font-size: 1.4rem; font-weight: 800; color: #8a8aa0; }
+.tw-side-a-label { color: var(--tw-gold); }
+.tw-side-b-label { color: #5aa0ff; }
+
 /* ───── Poyga (AI/Ghost/Blind) ───── */
 .tw-racepage { max-width: 900px; margin: 1.5rem auto; }
 .tw-vs { max-width: 700px; margin: 0 auto 1.5rem; }

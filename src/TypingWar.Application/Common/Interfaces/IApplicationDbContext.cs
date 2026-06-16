@@ -12,6 +12,8 @@ public interface IApplicationDbContext
     DbSet<UserSettings> UserSettings { get; }
     DbSet<Room> Rooms { get; }
     DbSet<RoomPlayer> RoomPlayers { get; }
+    DbSet<TeamRace> TeamRaces { get; }
+    DbSet<TeamMember> TeamMembers { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

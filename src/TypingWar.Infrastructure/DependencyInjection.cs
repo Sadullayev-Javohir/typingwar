@@ -47,8 +47,9 @@ public static class DependencyInjection
         // Leaderboard (Redis Sorted Set)
         services.AddScoped<ILeaderboardService, Leaderboard.LeaderboardService>();
 
-        // Real-time xona holati (in-memory singleton)
+        // Real-time holat (in-memory singletonlar)
         services.AddSingleton<Realtime.RoomLiveState>();
+        services.AddSingleton<Realtime.TeamRaceLiveState>();
 
         // Adaptiv AI raqib
         services.AddScoped<IAiOpponentService, Ai.AiOpponentService>();

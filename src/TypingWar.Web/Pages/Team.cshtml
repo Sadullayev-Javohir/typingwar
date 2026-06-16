@@ -1,0 +1,56 @@
+@page
+@model TeamModel
+@{
+    ViewData["Title"] = "Jamoaviy musobaqa";
+}
+
+<div id="tw-team"
+     class="tw-team-page"
+     data-authenticated="@Model.IsAuthenticated.ToString().ToLower()"
+     data-username="@Model.Username">
+
+    <div class="text-center mb-2">
+        <span class="text-secondary">Kod:</span>
+        <span id="tw-team-code" class="tw-room-code"></span>
+        <button id="tw-team-copy" class="btn btn-sm btn-outline-warning ms-2">nusxa</button>
+    </div>
+    <div id="tw-team-err" class="text-danger text-center"></div>
+
+    <div class="tw-team-scores">
+        <div class="tw-team-score tw-side-a"><span id="tw-score-a">0</span><label>Jamoa A</label></div>
+        <div class="tw-vs-mid">VS</div>
+        <div class="tw-team-score tw-side-b"><span id="tw-score-b">0</span><label>Jamoa B</label></div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-6">
+            <h6 class="text-center tw-side-a-label">Jamoa A</h6>
+            <ul id="tw-team-a" class="tw-players"></ul>
+        </div>
+        <div class="col-6">
+            <h6 class="text-center tw-side-b-label">Jamoa B</h6>
+            <ul id="tw-team-b" class="tw-players"></ul>
+        </div>
+    </div>
+
+    <div class="text-center mt-2">
+        <button id="tw-switch" class="btn btn-sm btn-outline-warning">Jamoani almashtirish</button>
+        <button id="tw-team-start" class="btn btn-tw ms-2 d-none">Boshlash (host)</button>
+        <p id="tw-team-wait" class="text-secondary small mt-2">Host boshlashini kuting…</p>
+    </div>
+
+    <div id="tw-team-countdown" class="tw-countdown d-none"></div>
+    <div id="tw-team-race" class="d-none mt-3">
+        <div id="tw-team-words" class="tw-words" tabindex="0"></div>
+    </div>
+
+    <div id="tw-team-result" class="tw-result d-none">
+        <h3 id="tw-team-verdict" class="tw-accent text-center"></h3>
+        <p class="text-center" id="tw-team-detail"></p>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+    <script src="~/js/team.js" asp-append-version="true"></script>
+}

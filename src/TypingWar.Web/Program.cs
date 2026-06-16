@@ -136,6 +136,7 @@ app.MapRazorPages();
 app.MapControllers();
 app.MapHub<TypingWar.Web.Hubs.LobbyHub>("/hubs/lobby");
 app.MapHub<TypingWar.Web.Hubs.RaceHub>("/hubs/race");
+app.MapHub<TypingWar.Web.Hubs.TeamRaceHub>("/hubs/teamrace");
 
 app.Run();
 

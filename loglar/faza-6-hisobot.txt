@@ -1,0 +1,94 @@
+═══════════════════════════════════════════════════════════════
+  TypingWar.uz — BOSQICH 6 (5x5 JAMOAVIY) HISOBOTI
+  Sana: 2026-06-16
+═══════════════════════════════════════════════════════════════
+
+MAQSAD
+------
+5x5 jamoaviy musobaqa: A va B jamolari, bir xil matn, har a'zoning
+WPM lari qo'shilib jamoa balli hosil bo'ladi, jamolar solishtiriladi.
+Real-time (SignalR TeamRaceHub) — qo'shilish, jamoa tanlash, host
+boshlashi, 3-2-1, live progress va jamoa WPM yig'indisi, natija.
+
+ESLATMA
+-------
+Bu bosqich avvalgi (boshqa) sessiyada boshlangan, Claude limit berib
+to'xtagan edi. Shu sessiyada kod tekshirildi, yetishmagan qismlar
+(navigatsiya havolasi + jamoaviy ballar paneli CSS) tugatildi va
+butun bosqich build + integratsiya jihatidan yakunlandi.
+
+BAJARILGAN ISHLAR
+-----------------
+1. Domain
+   - TeamRace entity (Status, TeamAScore, TeamBScore, TextId, StartedAt,
+     Members), TeamMember entity (TeamRaceId, UserId, Team, Wpm, Accuracy).
+   - TeamSide enum (A, B).
+   - TeamRaceScoring (sof statik): Winner(aScore, bScore) — katta balli
+     jamoa, teng bo'lsa null (durrang).
+   - GameConstants.TeamSize = 5.
+
+2. Application
+   - TeamRaceDto (TeamRaceId, Code, HostId, Status, IsHost).
+   - CreateTeamRaceCommand + Handler: host = kirgan user; 8 xonali kod
+     (RoomCodeGenerator), Redis da "tr:{code}" → "{raceId}|{hostId}",
+     30 daqiqa TTL; TeamRaces jadvaliga Waiting holatda yoziladi.
+     Kod faqat Redis da (jadvalda Code ustuni yo'q).
+   - GetTeamRaceQuery + Handler: kod bo'yicha Redis dan topib, DB dagi
+     race bilan tasdiqlaydi; topilmasa/muddati tugasa null.
+
+3. Infrastructure
+   - TeamRaceLiveState (singleton, in-memory): barcha live musobaqalar
+     registri. TeamRaceLive — Players (ConcurrentDictionary), CountSide,
+     TeamScore (tomon WPM yig'indisi). TeamPlayerLive — Side, Progress,
+     Wpm, Accuracy, Finished, IsHost.
+   - DI: AddSingleton<TeamRaceLiveState>.
+
+4. Web (SignalR + API)
+   - TeamRaceHub (/hubs/teamrace):
+       JoinTeamRace(code, name, side) → jamoa to'la (maks 5) tekshiruvi,
+         TeamState (caller) + PlayerJoined (boshqalar).
+       ChangeSide(code, side) — faqat Waiting da, to'lmagan jamoaga.
+       StartRace(code) — faqat host; matn (Sentences/Uzbek/Normal/25),
+         TeamRaceStarting (text, countdown=3), holat InProgress.
+       ReportProgress(code, progress, wpm) → ProgressUpdate + jamoa ballari.
+       FinishRace(code, wpm, accuracy) → PlayerFinished; hamma tugagach
+         TeamRaceFinished (scores, winner) + DB persist (TeamRace natija +
+         TeamMember lar, faqat ro'yxatdan o'tgan userlar).
+       LeaveTeamRace / OnDisconnected — o'yinchini olib tashlash, bo'sh
+         musobaqani registrdan o'chirish.
+   - TeamRacesController: POST /api/teamraces (Authorize) — yaratish;
+     GET /api/teamraces/{code} — tekshirish (NotFound bilan).
+   - Program.cs: MapHub<TeamRaceHub>("/hubs/teamrace").
+
+5. Frontend
+   - /Teams: yaratish (POST → /Team?code=&side=A) va qo'shilish formasi
+     (kod + jamoa A/B tanlash). teams.js.
+   - /Team: kod + nusxa, jamoa ballari paneli (A vs B), ikki jamoa
+     ro'yxati (progress bar + WPM + 👑 host), jamoa almashtirish,
+     host "Boshlash", 3-2-1 countdown, typing maydoni, natija (g'olib
+     jamoa / durrang). team.js — SignalR ulanishi, keystroke engine,
+     WPM/accuracy hisoblash, throttled ReportProgress (400ms).
+   - _Layout: navigatsiyaga "5x5 Jamoa" havolasi (/Teams).
+   - site.css: jamoaviy ballar paneli stillari (tw-team-scores,
+     tw-team-score, tw-side-a/b, tw-vs-mid, label lar). Qolgan klasslar
+     (tw-player, tw-bar, tw-countdown, tw-words, tw-letter ...) Room/Race
+     bosqichlaridan qayta ishlatildi.
+
+MA'LUMOTLAR BAZASI
+------------------
+TeamRaces va TeamMembers jadvallari InitialCreate migratsiyasida mavjud;
+yangi migratsiya talab qilinmadi (model snapshot bilan sinxron).
+
+BUILD
+-----
+dotnet build → Build succeeded. 0 Warning, 0 Error.
+
+YECHILMAGAN / KEYINGI
+---------------------
+- 1vs1 (ikki inson) matchmaking hali yo'q.
+- Host chiqib ketsa qayta tayinlash yo'q (musobaqa davom etadi, lekin
+  yangi boshlovchi belgilanmaydi).
+- SignalR client hali CDN dan (PWA bosqichida local ga ko'chiriladi).
+- Real-time oqim brauzerda qo'lda sinalishi kerak (negotiate + bo'laklar OK).
+- Keyingi vazifa: Bosqich 7 — Sabotaj (5 tur effekt, RaceHub.SabotageAttack).
+═══════════════════════════════════════════════════════════════

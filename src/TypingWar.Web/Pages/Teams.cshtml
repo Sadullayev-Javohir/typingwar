@@ -1,0 +1,41 @@
+@page
+@model TeamsModel
+@{
+    ViewData["Title"] = "5x5 Jamoaviy";
+}
+
+<div class="tw-rooms">
+    <h2 class="tw-accent text-center mb-4">5x5 Jamoaviy musobaqa</h2>
+
+    <div class="row g-4 justify-content-center">
+        <div class="col-md-5">
+            <div class="tw-room-card text-center">
+                <h5>Musobaqa yaratish</h5>
+                <p class="text-secondary">Yangi jamoaviy musobaqa ochib, kodni ulashing.</p>
+                <button id="tw-tcreate" class="btn btn-tw">Yaratish</button>
+                <div id="tw-tcreate-err" class="text-danger mt-2"></div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="tw-room-card text-center">
+                <h5>Qo'shilish</h5>
+                <p class="text-secondary">Kod va jamoani tanlang.</p>
+                <form id="tw-tjoin" class="d-flex flex-column gap-2 align-items-center">
+                    <input class="form-control text-uppercase" name="code" maxlength="8" placeholder="ABCD2345"
+                           style="max-width:160px; letter-spacing:.2em; text-align:center" required>
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="side" id="sA" value="A" checked>
+                        <label class="btn btn-outline-warning" for="sA">Jamoa A</label>
+                        <input type="radio" class="btn-check" name="side" id="sB" value="B">
+                        <label class="btn btn-outline-warning" for="sB">Jamoa B</label>
+                    </div>
+                    <button class="btn btn-tw" type="submit">Qo'shilish</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/teams.js" asp-append-version="true"></script>
+}
