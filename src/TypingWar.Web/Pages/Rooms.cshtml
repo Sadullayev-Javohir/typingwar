@@ -1,0 +1,35 @@
+@page
+@model RoomsModel
+@{
+    ViewData["Title"] = "Do'stlar musobaqasi";
+}
+
+<div class="tw-rooms">
+    <h2 class="tw-accent text-center mb-4">Do'stlar musobaqasi</h2>
+
+    <div class="row g-4 justify-content-center">
+        <div class="col-md-5">
+            <div class="tw-room-card text-center">
+                <h5>Xona yaratish</h5>
+                <p class="text-secondary">Yangi xona ochib, kodni do'stlaringizga ulashing.</p>
+                <button id="tw-create" class="btn btn-tw">Xona yaratish</button>
+                <div id="tw-create-err" class="text-danger mt-2"></div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="tw-room-card text-center">
+                <h5>Kodga qo'shilish</h5>
+                <p class="text-secondary">Do'stingiz bergan 8 xonali kodni kiriting.</p>
+                <form id="tw-join" class="d-flex gap-2 justify-content-center">
+                    <input class="form-control text-uppercase" name="code" maxlength="8" placeholder="ABCD2345"
+                           style="max-width:160px; letter-spacing:.2em; text-align:center" required>
+                    <button class="btn btn-tw" type="submit">Qo'shilish</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/rooms.js" asp-append-version="true"></script>
+}

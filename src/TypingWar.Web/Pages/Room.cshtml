@@ -1,0 +1,44 @@
+@page
+@model RoomModel
+@{
+    ViewData["Title"] = "Xona";
+}
+
+<div id="tw-room"
+     class="tw-room-page"
+     data-authenticated="@Model.IsAuthenticated.ToString().ToLower()"
+     data-username="@Model.Username">
+
+    <div class="tw-room-head text-center mb-3">
+        <span class="text-secondary">Xona kodi:</span>
+        <span id="tw-room-code" class="tw-room-code"></span>
+        <button id="tw-copy" class="btn btn-sm btn-outline-warning ms-2">nusxa</button>
+    </div>
+
+    <div id="tw-room-err" class="text-danger text-center"></div>
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <h6 class="text-secondary">O'yinchilar</h6>
+            <ul id="tw-players" class="tw-players"></ul>
+            <button id="tw-start" class="btn btn-tw w-100 mt-2 d-none">Boshlash (host)</button>
+            <p id="tw-wait" class="text-secondary small mt-2">Host boshlashini kuting…</p>
+        </div>
+
+        <div class="col-md-8">
+            <div id="tw-countdown" class="tw-countdown d-none"></div>
+            <div id="tw-race" class="d-none">
+                <div id="tw-room-words" class="tw-words" tabindex="0"></div>
+            </div>
+            <div id="tw-room-result" class="tw-result d-none">
+                <h4 class="tw-accent text-center">Natijalar</h4>
+                <ol id="tw-room-ranks" class="tw-ranks"></ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+    <script src="~/js/room.js" asp-append-version="true"></script>
+}

@@ -47,6 +47,9 @@ public static class DependencyInjection
         // Leaderboard (Redis Sorted Set)
         services.AddScoped<ILeaderboardService, Leaderboard.LeaderboardService>();
 
+        // Real-time xona holati (in-memory singleton)
+        services.AddSingleton<Realtime.RoomLiveState>();
+
         // Redis
         var redisConn = configuration.GetConnectionString("Redis") ?? "localhost:6380";
         services.AddSingleton<IConnectionMultiplexer>(

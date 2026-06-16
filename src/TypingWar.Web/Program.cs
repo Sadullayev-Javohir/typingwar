@@ -134,6 +134,7 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();
+app.MapHub<TypingWar.Web.Hubs.LobbyHub>("/hubs/lobby");
 
 app.Run();
 

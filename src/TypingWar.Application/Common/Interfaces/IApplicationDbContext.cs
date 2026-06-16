@@ -10,6 +10,8 @@ public interface IApplicationDbContext
     DbSet<RaceResult> RaceResults { get; }
     DbSet<PersonalBest> PersonalBests { get; }
     DbSet<UserSettings> UserSettings { get; }
+    DbSet<Room> Rooms { get; }
+    DbSet<RoomPlayer> RoomPlayers { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
