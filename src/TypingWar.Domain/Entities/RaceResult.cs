@@ -11,7 +11,8 @@ public class RaceResult : BaseEntity
     public double Wpm { get; set; }
     public double RawWpm { get; set; }
     public double Accuracy { get; set; }
-    public Guid TextId { get; set; }
+    /// <summary>Seed qilingan matn (sentences rejimi). Generatsiya qilingan matnlar (words/numbers/code) uchun null.</summary>
+    public Guid? TextId { get; set; }
     public RaceText? Text { get; set; }
     public DateTime PlayedAt { get; set; } = DateTime.UtcNow;
 }

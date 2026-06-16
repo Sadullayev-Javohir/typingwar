@@ -19,6 +19,10 @@ public static class DependencyInjection
         // EF Core — PostgreSQL (parametrli query)
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("Postgres")));
+        services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AppDbContext>());
+
+        // Typing matn provayderi
+        services.AddScoped<ITextProvider, Text.TextProvider>();
 
         // ASP.NET Core Identity — Users menejment
         services.AddIdentityCore<ApplicationUser>(options =>

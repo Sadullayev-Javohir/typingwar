@@ -1,0 +1,83 @@
+@page
+@model SettingsModel
+@{
+    ViewData["Title"] = "Sozlamalar";
+}
+
+<h2 class="tw-accent mb-4">Sozlamalar</h2>
+<p class="text-secondary">O'zgarishlar avtomatik saqlanadi (tizimga kirsangiz — hisobingizga, aks holda brauzerga).</p>
+
+<div class="tw-settings row g-4">
+    <div class="col-md-6">
+        <h5 class="tw-accent">Test</h5>
+        <div class="mb-2"><label>Matn rejimi</label>
+            <select class="form-select" data-tw="textMode" data-type="str">
+                <option value="Words">So'zlar</option><option value="Sentences">Jumlalar</option>
+                <option value="Numbers">Raqamlar</option><option value="Code">Kod</option>
+            </select></div>
+        <div class="mb-2"><label>So'z soni</label>
+            <select class="form-select" data-tw="wordCount" data-type="int">
+                <option value="10">10</option><option value="25">25</option>
+                <option value="50">50</option><option value="100">100</option>
+            </select></div>
+        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" data-tw="timedMode" data-type="bool" id="timedMode">
+            <label class="form-check-label" for="timedMode">Vaqt rejimi</label></div>
+        <div class="mb-2"><label>Vaqt chegarasi (s)</label>
+            <select class="form-select" data-tw="timeLimitSeconds" data-type="int">
+                <option value="10">10</option><option value="15">15</option><option value="30">30</option>
+                <option value="60">60</option><option value="120">120</option>
+            </select></div>
+        <div class="mb-2"><label>Qiyinlik</label>
+            <select class="form-select" data-tw="difficulty" data-type="str">
+                <option value="Easy">Oson</option><option value="Normal">O'rtacha</option>
+                <option value="Hard">Qiyin</option><option value="Expert">Ekspert</option>
+            </select></div>
+        <div class="mb-2"><label>Til</label>
+            <select class="form-select" data-tw="language" data-type="str">
+                <option value="Uzbek">O'zbek</option><option value="English">English</option>
+                <option value="Russian">Русский</option>
+            </select></div>
+    </div>
+
+    <div class="col-md-6">
+        <h5 class="tw-accent">Ko'rinish</h5>
+        <div class="mb-2"><label>Mavzu</label>
+            <select class="form-select" data-tw="theme" data-type="str">
+                <option value="Dark">Qorong'i</option><option value="Light">Yorug'</option>
+                <option value="Sepia">Sepia</option><option value="Custom">Maxsus</option>
+            </select></div>
+        <div class="mb-2"><label>Shrift</label>
+            <select class="form-select" data-tw="fontFamily" data-type="str">
+                <option value="JetBrains Mono">JetBrains Mono</option>
+                <option value="Consolas">Consolas</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Segoe UI">Segoe UI</option>
+            </select></div>
+        <div class="mb-2"><label>Shrift o'lchami: <span id="fsVal"></span>px</label>
+            <input class="form-range" type="range" min="14" max="24" data-tw="fontSize" data-type="int" id="fontSize"></div>
+        <div class="mb-2"><label>Karet</label>
+            <select class="form-select" data-tw="caretStyle" data-type="str">
+                <option value="Line">Chiziq</option><option value="Block">Blok</option>
+                <option value="Underline">Tag chizig'i</option><option value="Off">O'chiq</option>
+            </select></div>
+        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" data-tw="smoothCaret" data-type="bool" id="smoothCaret">
+            <label class="form-check-label" for="smoothCaret">Silliq karet</label></div>
+
+        <h5 class="tw-accent mt-3">Xulq-atvor</h5>
+        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" data-tw="showLiveWpm" data-type="bool" id="showLiveWpm">
+            <label class="form-check-label" for="showLiveWpm">Jonli WPM</label></div>
+        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" data-tw="blindMode" data-type="bool" id="blindMode">
+            <label class="form-check-label" for="blindMode">Ko'r rejim (xatolar ko'rsatilmaydi)</label></div>
+        <div class="form-check mb-2"><input class="form-check-input" type="checkbox" data-tw="stopOnError" data-type="bool" id="stopOnError">
+            <label class="form-check-label" for="stopOnError">Xatoda to'xtash</label></div>
+        <div class="mb-2"><label>Tugma ovozi</label>
+            <select class="form-select" data-tw="soundOnClick" data-type="str">
+                <option value="Off">O'chiq</option><option value="Soft">Yumshoq</option>
+                <option value="Mechanical">Mexanik</option><option value="Typewriter">Mashinka</option>
+            </select></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/settings-page.js" asp-append-version="true"></script>
+}

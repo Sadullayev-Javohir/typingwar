@@ -55,3 +55,78 @@ body {
 .tw-hero { text-align: center; padding: 4rem 1rem; }
 .tw-hero h1 { color: var(--tw-gold); font-weight: 800; }
 .tw-hero .lead { color: var(--tw-text); }
+
+/* ───── Typing engine ───── */
+:root { --tw-font: "JetBrains Mono", monospace; --tw-fontsize: 18px; --tw-caret-anim: .1s; }
+
+.tw-practice { outline: none; max-width: 980px; margin: 1.5rem auto; }
+
+.tw-config {
+    display: flex; flex-wrap: wrap; gap: 1.25rem;
+    justify-content: center; margin-bottom: 1.5rem;
+    background: var(--tw-surface); padding: .75rem 1rem; border-radius: 10px;
+}
+.tw-config-group { display: flex; align-items: center; gap: .35rem; }
+.tw-config-label { color: #8a8aa0; font-size: .85rem; margin-right: .15rem; }
+.tw-opt {
+    background: transparent; border: none; color: #8a8aa0;
+    padding: .15rem .5rem; border-radius: 6px; cursor: pointer; font-size: .9rem;
+}
+.tw-opt:hover { color: var(--tw-text); }
+.tw-opt.tw-active { color: var(--tw-gold); font-weight: 700; }
+
+.tw-stats {
+    display: flex; gap: 2.5rem; justify-content: center; margin-bottom: 1rem;
+}
+.tw-stat { text-align: center; }
+.tw-stat span { font-size: 2rem; font-weight: 700; color: var(--tw-gold); }
+.tw-stat label { display: block; font-size: .7rem; color: #8a8aa0; text-transform: uppercase; }
+
+.tw-words {
+    position: relative;
+    font-family: var(--tw-font);
+    font-size: var(--tw-fontsize);
+    line-height: 1.9;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: #6a6a80;
+    user-select: none;
+    padding: .5rem 0;
+    min-height: 6rem;
+}
+.tw-letter { position: relative; }
+.tw-correct { color: var(--tw-text); }
+.tw-incorrect { color: #ff5555; text-decoration: underline; }
+
+.tw-caret {
+    position: absolute; left: 0; top: 0;
+    width: 2px; background: var(--tw-gold);
+    transition: transform var(--tw-caret-anim) ease;
+    animation: tw-blink 1s steps(1) infinite;
+    pointer-events: none;
+}
+@keyframes tw-blink { 50% { opacity: 0; } }
+
+body[data-tw-caret="Block"] .tw-caret { width: .6em; opacity: .35; }
+body[data-tw-caret="Underline"] .tw-caret { width: .6em; height: 2px !important; top: auto; bottom: 0;
+    transform-origin: bottom; }
+body[data-tw-caret="Off"] .tw-caret { display: none; }
+
+.tw-actions { text-align: center; margin-top: 1.5rem; }
+.tw-hint { display: block; margin-top: .75rem; color: #8a8aa0; font-size: .85rem; transition: opacity .2s; }
+
+.tw-result {
+    margin: 2rem auto 0; max-width: 600px; text-align: center;
+    background: var(--tw-surface); border-radius: 12px; padding: 1.5rem;
+    border-top: 3px solid var(--tw-gold);
+}
+.tw-result-grid { display: flex; justify-content: space-around; margin: 1rem 0; }
+.tw-result-grid span { font-size: 1.8rem; font-weight: 700; color: var(--tw-gold); display: block; }
+.tw-result-grid label { font-size: .7rem; color: #8a8aa0; text-transform: uppercase; }
+.tw-r-msg { color: var(--tw-accent); font-weight: 600; min-height: 1.2em; }
+
+/* ───── Temalar ───── */
+body[data-tw-theme="Light"] { background: #f4f4f8; --tw-text: #1a1a2e; --tw-surface: #ffffff; color: #1a1a2e; }
+body[data-tw-theme="Light"] .tw-words { color: #b0b0c0; }
+body[data-tw-theme="Sepia"] { background: #f4ecd8; --tw-text: #433422; --tw-surface: #efe3c8; color: #433422; }
+body[data-tw-theme="Sepia"] .tw-words { color: #b9a888; }

@@ -1,11 +1,14 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using TypingWar.Application;
 using TypingWar.Application.Common.Interfaces;
 using TypingWar.Infrastructure;
+using TypingWar.Infrastructure.Persistence;
+using TypingWar.Web.Middleware;
 using TypingWar.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -77,7 +80,8 @@ builder.Services.AddAuthorization();
 
 // ── Razor Pages / Controllers / SignalR ───────────────────────
 builder.Services.AddRazorPages();
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(o =>
+    o.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 builder.Services.AddSignalR();
 builder.Services.AddAntiforgery(o => o.HeaderName = "X-CSRF-TOKEN");
 
@@ -91,8 +95,17 @@ builder.Services.Configure<ForwardedHeadersOptions>(o =>
 
 var app = builder.Build();
 
+// ── Boshlang'ich ma'lumotlarni seed qilish ────────────────────
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
+    await DataSeeder.SeedAsync(db);
+}
+
 // ── Middleware pipeline ───────────────────────────────────────
 app.UseForwardedHeaders();
+app.UseMiddleware<ApiExceptionMiddleware>();
 
 if (!app.Environment.IsDevelopment())
 {

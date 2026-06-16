@@ -103,3 +103,30 @@ public enum FriendshipStatus
     Declined = 2,
     Blocked = 3
 }
+
+/// <summary>UI mavzusi.</summary>
+public enum Theme
+{
+    Dark = 0,
+    Light = 1,
+    Sepia = 2,
+    Custom = 3
+}
+
+/// <summary>Karet (kursor) ko'rinishi.</summary>
+public enum CaretStyle
+{
+    Line = 0,
+    Block = 1,
+    Underline = 2,
+    Off = 3
+}
+
+/// <summary>Tugma bosilganda ovoz.</summary>
+public enum SoundOnClick
+{
+    Off = 0,
+    Soft = 1,
+    Mechanical = 2,
+    Typewriter = 3
+}

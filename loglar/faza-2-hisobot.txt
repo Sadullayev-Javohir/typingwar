@@ -1,0 +1,97 @@
+═══════════════════════════════════════════════════════════════
+  TypingWar.uz — BOSQICH 2 (TYPING ENGINE) HISOBOTI
+  Sana: 2026-06-16
+═══════════════════════════════════════════════════════════════
+
+MAQSAD
+------
+Keystroke handler, WPM/aniqlik hisoblash, solo practice (4 rejim),
+15 ta foydalanuvchi sozlamasi (DB + LocalStorage sinxron).
+
+BAJARILGAN ISHLAR
+-----------------
+1. Domain
+   - 3 yangi enum: Theme, CaretStyle, SoundOnClick.
+   - UserSettings entity (15 sozlama, PK: UserId).
+   - RaceResult.TextId → nullable (generatsiya qilingan matnlar uchun).
+   - TypingCalculator (sof, testlanadigan): WPM, Raw WPM, Accuracy
+     (§8 formulalari, 5 harf = 1 so'z, backspace Raw WPM ga ta'sir qilmaydi)
+     + IsPlausible (>250 WPM rad).
+
+2. Application (CQRS)
+   - IApplicationDbContext (Application qatlami uchun DbContext abstraktsiyasi).
+   - ITextProvider (matn so'rovi).
+   - GetPracticeTextQuery + handler.
+   - SubmitResultCommand + handler + validator (WPM hisoblash, aldash
+     himoyasi, RaceResult saqlash, PersonalBest upsert).
+   - GetUserSettingsQuery / SaveUserSettingsCommand + validator
+     (WordCount 10/25/50/100, TimeLimit 10/15/30/60/120, FontSize 14–24).
+   - ValidationBehavior — MediatR pipeline da FluentValidation avtomatik.
+
+3. Infrastructure
+   - AppDbContext : IApplicationDbContext, UserSettings DbSet + config.
+   - WordBanks: uz (100), en (100), ru (70) so'z + 10 kod parchasi,
+     Difficulty bo'yicha so'z uzunligi filtri.
+   - TextProvider: Words/Numbers/Code — generatsiya (TextId=null),
+     Sentences — bazadan (seeded RaceText).
+   - DataSeeder: 8 ta sentence matn (uz/en/ru × difficulty), idempotent.
+
+4. Web
+   - JSON enum converter (enum'lar nom sifatida — JS bilan moslik).
+   - ApiControllerBase (MediatR), PracticeController (GET text / POST result),
+     SettingsController (GET / PUT).
+   - ApiExceptionMiddleware: ValidationException→400, Unauthorized→401,
+     InvalidOperation→400, 500 log.
+   - Startup: MigrateAsync + DataSeeder.SeedAsync.
+   - Razor sahifalar: /Practice (typing test UI), /Settings (15 sozlama).
+   - JS: typing-settings.js (LocalStorage + server sinxron + tema/shrift),
+     typing-engine.js (keystroke handler, jonli WPM, karet, natija topshirish),
+     settings-page.js (boshqaruvlarni bog'lash).
+   - CSS: typing UI (so'z/harf rang holati, karet 4 uslub, blink),
+     temalar (Dark/Light/Sepia), config va natija paneli.
+   - Layout: "Mashq" va "Sozlamalar" nav linklari, typing-settings.js global.
+
+5. Migration
+   - AddUserSettingsAndNullableTextId yaratildi va qo'llandi.
+
+TEKSHIRUV
+---------
+- dotnet build (solution): 0 Warning, 0 Error.
+- dotnet test (UnitTests): 9/9 o'tdi (TypingCalculator).
+- Ishlaydigan ilova (DLL, port 5210, Development):
+    GET /              → 200
+    GET /Practice      → 200
+    GET /Settings      → 200
+    GET /api/practice/text?mode=Words&language=Uzbek&wordCount=10
+        → {"content":"shaftoli hafta ...","mode":"Words", ...}  (generatsiya)
+    GET ...mode=Sentences&language=English
+        → textId + seeded matn  (DataSeeder ishlayapti)
+    GET ...mode=Numbers&wordCount=5  → "253 7310 2493 1232 2526"
+    GET /api/settings (anonim)  → default sozlamalar (enum'lar nom sifatida)
+    POST /api/practice/result (auth'siz)  → 401  (middleware to'g'ri)
+
+QARORLAR / IZOHLAR
+------------------
+1. IApplicationDbContext abstraktsiyasi uchun Application qatlamiga
+   Microsoft.EntityFrameworkCore qo'shildi (Clean Architecture standart —
+   Jason Taylor shabloni uslubi). Application hali ham Infrastructure ga
+   bog'lanmaydi.
+2. RaceResult.TextId nullable qilindi — Words/Numbers/Code generatsiya
+   qilingani uchun DB da RaceText yozuvi shart emas (Ghost/AI uchun ham qulay).
+3. Natija saqlash [Authorize] talab qiladi. Login endpointlari hali yo'q
+   (Bosqich 1 dan qoldi), shuning uchun hozircha anonim mashq natijalari
+   faqat ekranda ko'rsatiladi, DB ga yozilmaydi (dizaynga mos — faqat
+   PersonalBest leaderboard ga tushadi).
+4. WPM aldash himoyasi server tomonda (TypingCalculator.IsPlausible),
+   frontend hisobiga ishonilmaydi.
+
+HAL QILINMAGAN / KEYINGI BOSQICHGA
+----------------------------------
+- Login/Register endpointlari hali yo'q — auth bo'lgach natija saqlash
+  to'liq sinaladi (haqiqiy foydalanuvchi bilan).
+- SoundOnClick sozlamasi UI da bor, lekin ovoz fayllari/ijro hali ulanmagan.
+- Theme="Custom" hozircha Dark kabi ishlaydi (maxsus rang tanlash keyin).
+- Redis DI eager (Bosqich 1 dan qolgan).
+
+KEYINGI BOSQICH: Bosqich 3 — Leaderboard
+═══════════════════════════════════════════════════════════════

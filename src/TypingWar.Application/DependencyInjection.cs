@@ -2,7 +2,9 @@ using System.Reflection;
 using FluentValidation;
 using Mapster;
 using MapsterMapper;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using TypingWar.Application.Common.Behaviors;
 
 namespace TypingWar.Application;
 
@@ -13,8 +15,12 @@ public static class DependencyInjection
     {
         var assembly = Assembly.GetExecutingAssembly();
 
-        // MediatR — barcha Command/Query handlerlar
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
+        // MediatR — barcha Command/Query handlerlar + validatsiya pipeline
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(assembly);
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+        });
 
         // FluentValidation — barcha validatorlar
         services.AddValidatorsFromAssembly(assembly);

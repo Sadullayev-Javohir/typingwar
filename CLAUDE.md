@@ -297,17 +297,24 @@ dotnet test
 ## 15. JORIY HOLAT
 
 ```
-Bosqich: 1 (Foundation) — TUGALLANDI ✅
-Keyingi vazifa: Bosqich 2 — Typing Engine
-Tugallangan: Bosqich 1 (solution, 6 loyiha, Docker, 14 entity, EF Core,
-             Identity, JWT HttpOnly cookie, Google OAuth, Redis, migration)
+Bosqich: 2 (Typing Engine) — TUGALLANDI ✅
+Keyingi vazifa: Bosqich 3 — Leaderboard
+Tugallangan:
+  - Bosqich 1 (Foundation): solution, 6 loyiha, Docker, 14 entity, EF Core,
+    Identity, JWT HttpOnly cookie, Google OAuth, Redis, migration
+  - Bosqich 2 (Typing Engine): UserSettings (15 sozlama), TypingCalculator
+    (WPM/Raw/Accuracy + aldash himoyasi), 4 rejim (Words/Sentences/Numbers/Code),
+    WordBanks (uz/en/ru), DataSeeder, CQRS (Practice + Settings), API
+    kontrollerlar, /Practice + /Settings sahifalar, typing-engine.js
+    (keystroke handler, jonli WPM, karet, temalar), 9 unit test
 Hal qilinmagan muammolar:
-  - PostgreSQL porti 5434:5432 ga o'zgartirildi (5433 ni meningvaqtim
-    loyihasi band qilgan, foydalanuvchi roziligi bilan)
+  - PostgreSQL porti 5434:5432 (5433 ni meningvaqtim loyihasi band qilgan)
   - Redis DI ulanishi eager (Connect) — keyin lazy qilish
-  - Auth endpointlari (register/login) hali yo'q
+  - Auth endpointlari (register/login) hali yo'q — natija saqlash [Authorize]
+    talab qiladi, hozir anonim natijalar faqat ekranda
+  - SoundOnClick UI da bor, ovoz ijrosi ulanmagan; Theme=Custom = Dark
   - Google OAuth ClientId/Secret bo'sh
-Oxirgi git commit: Bosqich 1 — Foundation
+Oxirgi git commit: Bosqich 2 — Typing Engine
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.

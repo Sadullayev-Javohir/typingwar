@@ -142,3 +142,12 @@ public class FriendshipConfiguration : IEntityTypeConfiguration<Friendship>
         b.HasIndex(x => new { x.RequesterId, x.AddresseeId }).IsUnique();
     }
 }
+
+public class UserSettingsConfiguration : IEntityTypeConfiguration<UserSettings>
+{
+    public void Configure(EntityTypeBuilder<UserSettings> b)
+    {
+        b.HasKey(x => x.UserId);
+        b.Property(x => x.FontFamily).HasMaxLength(64);
+    }
+}

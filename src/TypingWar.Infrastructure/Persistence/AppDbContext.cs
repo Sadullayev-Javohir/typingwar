@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using TypingWar.Application.Common.Interfaces;
 using TypingWar.Domain.Entities;
 using TypingWar.Infrastructure.Identity;
 
@@ -10,7 +11,7 @@ namespace TypingWar.Infrastructure.Persistence;
 /// Asosiy EF Core konteksti. Identity (Users, Roles) + barcha domen jadvallari.
 /// PostgreSQL, parametrli query (xom SQL ishlatilmaydi).
 /// </summary>
-public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
+public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>, IApplicationDbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -27,6 +28,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<DailyContest> DailyContests => Set<DailyContest>();
     public DbSet<RegionStats> RegionStats => Set<RegionStats>();
     public DbSet<Friendship> Friendships => Set<Friendship>();
+    public DbSet<UserSettings> UserSettings => Set<UserSettings>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

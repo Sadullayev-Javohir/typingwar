@@ -1,0 +1,67 @@
+@page
+@model PracticeModel
+@{
+    ViewData["Title"] = "Mashq";
+}
+
+<div id="tw-practice" class="tw-practice" tabindex="0">
+
+    <div class="tw-config">
+        <div class="tw-config-group" data-group="language">
+            <span class="tw-config-label">Til:</span>
+            <button class="tw-opt" data-key="language" data-value="Uzbek">uz</button>
+            <button class="tw-opt" data-key="language" data-value="English">en</button>
+            <button class="tw-opt" data-key="language" data-value="Russian">ru</button>
+        </div>
+        <div class="tw-config-group" data-group="mode">
+            <span class="tw-config-label">Rejim:</span>
+            <button class="tw-opt" data-key="textMode" data-value="Words">so'z</button>
+            <button class="tw-opt" data-key="textMode" data-value="Sentences">jumla</button>
+            <button class="tw-opt" data-key="textMode" data-value="Numbers">raqam</button>
+            <button class="tw-opt" data-key="textMode" data-value="Code">kod</button>
+        </div>
+        <div class="tw-config-group" data-group="count">
+            <span class="tw-config-label">So'z:</span>
+            <button class="tw-opt" data-key="wordCount" data-value="10">10</button>
+            <button class="tw-opt" data-key="wordCount" data-value="25">25</button>
+            <button class="tw-opt" data-key="wordCount" data-value="50">50</button>
+            <button class="tw-opt" data-key="wordCount" data-value="100">100</button>
+        </div>
+        <div class="tw-config-group" data-group="timed">
+            <span class="tw-config-label">Vaqt:</span>
+            <button class="tw-opt" data-key="timedMode" data-value="false">o'chiq</button>
+            <button class="tw-opt" data-key="timeLimitSeconds" data-value="15">15s</button>
+            <button class="tw-opt" data-key="timeLimitSeconds" data-value="30">30s</button>
+            <button class="tw-opt" data-key="timeLimitSeconds" data-value="60">60s</button>
+        </div>
+    </div>
+
+    <div class="tw-stats">
+        <div class="tw-stat"><span id="tw-wpm">0</span><label>WPM</label></div>
+        <div class="tw-stat"><span id="tw-acc">100</span><label>aniqlik %</label></div>
+        <div class="tw-stat"><span id="tw-timer">0</span><label>soniya</label></div>
+    </div>
+
+    <div id="tw-words" class="tw-words" aria-label="typing matni"></div>
+
+    <div class="tw-actions">
+        <button id="tw-restart" class="btn btn-tw">↻ Qaytadan (Tab)</button>
+        <span class="tw-hint">Yozishni boshlash uchun shu yerga bosing va yozing</span>
+    </div>
+
+    <div id="tw-result" class="tw-result d-none">
+        <h3 class="tw-accent">Natija</h3>
+        <div class="tw-result-grid">
+            <div><span id="tw-r-wpm">0</span><label>WPM</label></div>
+            <div><span id="tw-r-raw">0</span><label>Raw WPM</label></div>
+            <div><span id="tw-r-acc">0</span><label>aniqlik %</label></div>
+            <div><span id="tw-r-time">0</span><label>soniya</label></div>
+        </div>
+        <p id="tw-r-msg" class="tw-r-msg"></p>
+        <button id="tw-again" class="btn btn-tw mt-2">Yana bir bor</button>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/typing-engine.js" asp-append-version="true"></script>
+}
