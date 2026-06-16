@@ -1,0 +1,103 @@
+═══════════════════════════════════════════════════════════════
+  TypingWar.uz — BOSQICH 1 (FOUNDATION) HISOBOTI
+  Sana: 2026-06-16
+═══════════════════════════════════════════════════════════════
+
+MAQSAD
+------
+Solution, Docker, entitylar, EF Core, Identity, JWT, OAuth, Redis —
+loyihaning poydevorini qurish (Clean Architecture + CQRS tayyorgarligi).
+
+BAJARILGAN ISHLAR
+-----------------
+1. Sozlash
+   - global.json → .NET 8.0.128 SDK fiksatsiya qilindi (mashinada .NET 10 ham bor).
+   - .gitignore, .dockerignore yaratildi.
+   - Solution + 6 loyiha: Domain, Application, Infrastructure, Web,
+     UnitTests, IntegrationTests.
+   - Qatlam bog'liqliklari (faqat ichkariga):
+       Application → Domain
+       Infrastructure → Domain + Application
+       Web → hammasiga
+       UnitTests → Domain + Application
+       IntegrationTests → Web + Infrastructure
+
+2. Domain qatlam (bog'liqliksiz)
+   - 13 enum: RaceStatus, RoomStatus, TimeMode, Language, Difficulty,
+     TextMode, SabotageType, TournamentStatus, BracketType, ContestStatus,
+     TeamSide, FriendshipStatus.
+   - BaseEntity (Guid Id + CreatedAt).
+   - 13 entity: RaceText, RaceResult, PersonalBest (composite PK),
+     Room, RoomPlayer, Tournament, TournamentMatch, TeamRace, TeamMember,
+     TypingFingerprint, DailyContest, RegionStats, Friendship.
+   - Konstantalar: UzbekistanRegions (14 hudud), GameConstants
+     (room kodi alfaviti, WPM standartlari).
+
+3. Application qatlam
+   - Interfeyslar: IJwtTokenService, ICacheService (Redis), ICurrentUserService.
+   - DI: MediatR 12.4.1, FluentValidation 11.10.0, Mapster 7.4.0
+     (AutoMapper EMAS — qoida #2).
+
+4. Infrastructure qatlam
+   - AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>.
+   - ApplicationUser : IdentityUser<Guid> + EloRating, RegionCode, AvatarUrl.
+   - 13 entity konfiguratsiya (composite key, unique indeks, jsonb ustunlar).
+   - JwtTokenService (HMAC-SHA256), JwtSettings.
+   - BCryptPasswordHasher : IPasswordHasher<ApplicationUser> (BCrypt.Net-Next).
+   - RedisCacheService (StackExchange.Redis, sorted set leaderboard uchun).
+   - EF Core 8.0.11 + Npgsql 8.0.11 (PostgreSQL, parametrli query).
+
+5. Web qatlam
+   - Program.cs: Serilog, Application+Infrastructure DI, JWT bearer
+     (token HttpOnly cookie "access_token" dan o'qiladi — Authorization
+     header da EMAS, qoida #11), Google OAuth (shartli), Identity,
+     Razor Pages, Controllers, SignalR, Antiforgery, ForwardedHeaders,
+     xavfsizlik headerlari (X-Content-Type-Options, X-Frame-Options).
+   - CurrentUserService (HttpContext claims).
+   - appsettings.json: connection strings, JWT, Google OAuth bo'sh.
+   - Brending: dark tema, #E8A020 oltin, gepard logo, "Bosh sahifa".
+   - favicon.ico → wwwroot/, typingwar-logo.png → wwwroot/img/.
+
+6. Docker
+   - docker-compose.yml: PostgreSQL 16 + Redis 7, healthcheck.
+   - Redis: 6380:6379 (qoida #4 bo'yicha).
+
+7. Migration
+   - InitialCreate yaratildi va bazaga qo'llandi.
+   - 21 jadval: Users, Roles, 13 domen jadvali, 5 Identity jadvali,
+     __EFMigrationsHistory.
+
+TEKSHIRUV
+---------
+- dotnet build (butun solution): 0 Warning, 0 Error.
+- docker compose up -d: postgres + redis ishlayapti (healthy).
+- dotnet ef database update: Done — 21 jadval yaratildi.
+- Smoke test: ilova ishga tushdi, GET / → HTTP 200,
+  <title>Bosh sahifa - TypingWar.uz</title>, Serilog request logging ishlayapti.
+
+QARORLAR / IZOHLAR
+------------------
+1. ASP.NET Identity vs "Domain bog'liqliksiz" to'qnashuvi:
+   Yechim — ApplicationUser Infrastructure qatlamida (Identity infra
+   concern). Domain entitylari faqat Guid UserId ishlatadi. Ikkala qoida
+   ham buzilmadi. BCrypt Identity ning IPasswordHasher orqali ulandi.
+
+2. PostgreSQL porti 5433 (qoida #4) host da boshqa loyiha (meningvaqtim)
+   tomonidan band edi. Foydalanuvchi roziligi bilan TypingWar postgres
+   5434:5432 ga o'tkazildi (docker-compose.yml + connection string).
+   Konflikt oldini olish maqsadi saqlandi.
+
+3. AddDefaultTokenProviders Foundation da olib tashlandi (parol tiklash /
+   email tasdiqlash tokenlari keyingi auth bosqichida qo'shiladi).
+
+HAL QILINMAGAN / KEYINGI BOSQICHGA
+----------------------------------
+- Auth endpointlari (register/login/logout, JWT cookie set) — Bosqich 1.5
+  yoki kerakli joyda.
+- Hangfire hali ulanmagan (Bosqich 8 — Daily Contest).
+- Redis ulanishi DI da eager (ConnectionMultiplexer.Connect). Production
+  uchun lazy qilish tavsiya etiladi.
+- Google OAuth ClientId/Secret bo'sh — sozlanishi kerak.
+
+KEYINGI BOSQICH: Bosqich 2 — Typing Engine
+═══════════════════════════════════════════════════════════════

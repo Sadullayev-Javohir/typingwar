@@ -1,0 +1,29 @@
+## .NET
+bin/
+obj/
+out/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+[Dd]ebug/
+[Rr]elease/
+[Bb]uild/
+
+## Rider / VS
+.idea/
+.vs/
+.vscode/
+
+## Logs
+loglar/*.log
+*.log
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Secrets
+appsettings.*.Local.json
+*.pfx
+.env

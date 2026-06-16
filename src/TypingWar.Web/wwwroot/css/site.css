@@ -1,0 +1,57 @@
+:root {
+    --tw-gold: #E8A020;       /* asosiy rang */
+    --tw-bg: #0F0F1A;         /* fon */
+    --tw-accent: #FF9900;     /* ko'z rangi */
+    --tw-surface: #1A1A2E;
+    --tw-text: #E6E6F0;
+}
+
+html { font-size: 14px; position: relative; min-height: 100%; }
+@media (min-width: 768px) { html { font-size: 16px; } }
+
+body {
+    margin-bottom: 60px;
+    background-color: var(--tw-bg);
+    color: var(--tw-text);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+.tw-navbar {
+    background-color: var(--tw-surface);
+    border-bottom-color: var(--tw-gold) !important;
+}
+
+.tw-brand {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--tw-gold);
+    letter-spacing: .5px;
+}
+
+.tw-accent { color: var(--tw-accent); }
+
+.navbar-brand, .nav-link { color: var(--tw-text) !important; }
+.nav-link:hover { color: var(--tw-gold) !important; }
+
+.btn-tw {
+    background-color: var(--tw-gold);
+    border: none;
+    color: #0F0F1A;
+    font-weight: 600;
+}
+.btn-tw:hover { background-color: var(--tw-accent); color: #0F0F1A; }
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+    background-color: var(--tw-surface);
+    border-top-color: var(--tw-gold) !important;
+    color: var(--tw-text);
+}
+
+.tw-hero { text-align: center; padding: 4rem 1rem; }
+.tw-hero h1 { color: var(--tw-gold); font-weight: 800; }
+.tw-hero .lead { color: var(--tw-text); }

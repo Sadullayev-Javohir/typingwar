@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: typingwar-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: typingwar
+      POSTGRES_USER: typingwar
+      POSTGRES_PASSWORD: typingwar_dev
+    ports:
+      # CLAUDE.md qoida #4 da 5433 ko'rsatilgan, lekin host 5433 boshqa loyiha (meningvaqtim)
+      # tomonidan band — konflikt oldini olish maqsadida 5434 ishlatilmoqda.
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U typingwar -d typingwar"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    container_name: typingwar-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"   # local konflikt oldini olish (CLAUDE.md qoida #4)
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+  redisdata:
