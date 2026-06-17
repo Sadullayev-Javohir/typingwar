@@ -149,6 +149,7 @@ app.MapHub<TypingWar.Web.Hubs.LobbyHub>("/hubs/lobby");
 app.MapHub<TypingWar.Web.Hubs.RaceHub>("/hubs/race");
 app.MapHub<TypingWar.Web.Hubs.TeamRaceHub>("/hubs/teamrace");
 app.MapHub<TypingWar.Web.Hubs.TournamentHub>("/hubs/tournament");
+app.MapHub<TypingWar.Web.Hubs.UzMapHub>("/hubs/uzmap");
 
 // ── Hangfire dashboard (faqat development) + RecurringJob lar ──
 if (app.Environment.IsDevelopment())

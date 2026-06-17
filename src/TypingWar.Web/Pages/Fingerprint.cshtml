@@ -1,0 +1,46 @@
+@page
+@model FingerprintModel
+@{
+    ViewData["Title"] = "Yozish Pasporti";
+}
+
+<div id="tw-fp" class="tw-fp" data-authenticated="@Model.IsAuthenticated.ToString().ToLower()">
+    <h2 class="tw-accent text-center mb-1">Yozish Pasporti</h2>
+    <p class="text-secondary text-center small">Sekin tugmalaringiz qizil bilan belgilanadi — ularni mashq qiling.</p>
+
+    @if (!Model.IsAuthenticated)
+    {
+        <p class="text-center text-secondary">Pasportingiz uchun <a asp-page="/Login" class="tw-accent">tizimga kiring</a>.</p>
+    }
+    else
+    {
+        <div id="tw-fp-err" class="text-danger text-center"></div>
+
+        <div class="tw-room-card mb-3">
+            <h6>Namuna matn — yozing</h6>
+            <p class="text-secondary small mb-2">Yozganingizda tugmalararo vaqt o'lchanadi va pasportingizga qo'shiladi.</p>
+            <div id="tw-fp-sample" class="tw-words tw-words-sm" tabindex="0"></div>
+            <button id="tw-fp-save" class="btn btn-tw mt-2" disabled>Pasportga saqlash</button>
+            <span id="tw-fp-saved" class="text-secondary small ms-2"></span>
+        </div>
+
+        <h6 class="text-secondary">Klaviatura issiqlik xaritasi</h6>
+        <div id="tw-keyboard" class="tw-keyboard"></div>
+
+        <div class="row g-3 mt-1">
+            <div class="col-md-6">
+                <h6 class="text-secondary">Eng sekin tugmalar</h6>
+                <ul id="tw-slow-keys" class="tw-ranks"></ul>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-secondary">Eng sekin bigramlar</h6>
+                <ul id="tw-slow-bigrams" class="tw-ranks"></ul>
+            </div>
+        </div>
+        <p id="tw-fp-meta" class="text-secondary small text-center mt-2"></p>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/fingerprint.js" asp-append-version="true"></script>
+}

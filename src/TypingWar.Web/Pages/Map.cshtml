@@ -1,0 +1,99 @@
+@page
+@model MapModel
+@{
+    ViewData["Title"] = "O'zbekiston xaritasi";
+}
+
+<div id="tw-map" class="tw-map" data-authenticated="@Model.IsAuthenticated.ToString().ToLower()">
+    <h2 class="tw-accent text-center mb-1">O'zbekiston typing xaritasi</h2>
+    <p class="text-secondary text-center small">Hudud ustiga bosing — o'rtacha tezlik. Issiqroq rang = tezroq.</p>
+    <div id="tw-map-err" class="text-danger text-center"></div>
+
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <svg viewBox="0 0 1000 560" class="tw-uzmap" xmlns="http://www.w3.org/2000/svg">
+                <g class="tw-region" data-region="KARAKALPAKSTAN">
+                    <polygon points="40,40 360,40 360,250 220,300 40,260" />
+                    <text x="190" y="150">Qoraqalpog'iston</text>
+                </g>
+                <g class="tw-region" data-region="KHOREZM">
+                    <polygon points="150,300 270,300 270,372 150,372" />
+                    <text x="210" y="340">Xorazm</text>
+                </g>
+                <g class="tw-region" data-region="NAVOI">
+                    <polygon points="360,110 590,110 575,300 380,300 360,250" />
+                    <text x="470" y="210">Navoiy</text>
+                </g>
+                <g class="tw-region" data-region="BUKHARA">
+                    <polygon points="270,360 420,330 480,440 300,485 235,405" />
+                    <text x="350" y="410">Buxoro</text>
+                </g>
+                <g class="tw-region" data-region="JIZZAKH">
+                    <polygon points="590,180 690,190 680,300 590,300" />
+                    <text x="630" y="250">Jizzax</text>
+                </g>
+                <g class="tw-region" data-region="SAMARKAND">
+                    <polygon points="490,300 590,300 615,395 505,415 470,355" />
+                    <text x="535" y="360">Samarqand</text>
+                </g>
+                <g class="tw-region" data-region="SYRDARYA">
+                    <polygon points="695,200 755,205 748,278 690,272" />
+                    <text x="720" y="245">Sirdaryo</text>
+                </g>
+                <g class="tw-region" data-region="TASHKENT_REGION">
+                    <polygon points="700,110 850,110 875,225 745,240 700,195" />
+                    <text x="775" y="170">Toshkent vil.</text>
+                </g>
+                <g class="tw-region" data-region="TASHKENT_CITY">
+                    <circle cx="800" cy="200" r="16" />
+                    <text x="800" y="240">Toshkent sh.</text>
+                </g>
+                <g class="tw-region" data-region="NAMANGAN">
+                    <polygon points="855,165 955,158 965,222 865,232" />
+                    <text x="905" y="198">Namangan</text>
+                </g>
+                <g class="tw-region" data-region="ANDIJAN">
+                    <polygon points="905,235 970,240 965,298 895,292" />
+                    <text x="930" y="270">Andijon</text>
+                </g>
+                <g class="tw-region" data-region="FERGANA">
+                    <polygon points="810,255 900,250 905,320 812,330" />
+                    <text x="855" y="295">Farg'ona</text>
+                </g>
+                <g class="tw-region" data-region="KASHKADARYA">
+                    <polygon points="480,440 615,405 660,500 525,535 455,480" />
+                    <text x="555" y="475">Qashqadaryo</text>
+                </g>
+                <g class="tw-region" data-region="SURKHANDARYA">
+                    <polygon points="615,470 690,458 715,545 630,548" />
+                    <text x="660" y="510">Surxondaryo</text>
+                </g>
+            </svg>
+        </div>
+
+        <div class="col-lg-4">
+            <div id="tw-region-detail" class="tw-region-detail">
+                <p class="text-secondary">Hududni tanlang…</p>
+            </div>
+
+            @if (Model.IsAuthenticated)
+            {
+                <div class="tw-room-card mt-3">
+                    <h6>Hududingizga hissa</h6>
+                    <p class="text-secondary small mb-2">Quyidagi matnni yozing — natijangiz hududingiz o'rtachasiga qo'shiladi.</p>
+                    <div id="tw-map-words" class="tw-words tw-words-sm" tabindex="0"></div>
+                    <div class="small text-secondary mt-1"><span id="tw-map-live">0</span> wpm</div>
+                </div>
+            }
+            else
+            {
+                <p class="text-secondary small mt-3">Hissa qo'shish uchun <a asp-page="/Login" class="tw-accent">tizimga kiring</a>.</p>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+    <script src="~/js/map.js" asp-append-version="true"></script>
+}

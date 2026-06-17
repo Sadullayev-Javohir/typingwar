@@ -1,0 +1,81 @@
+═══════════════════════════════════════════════════════════════
+  TypingWar.uz — BOSQICH 9 (O'ZBEKISTON XARITASI + FINGERPRINT) HISOBOTI
+  Sana: 2026-06-16
+═══════════════════════════════════════════════════════════════
+
+MAQSAD
+------
+1) O'zbekiston typing xaritasi: 14 hudud SVG, har biri data-region bilan,
+   o'rtacha WPM bo'yicha rang intensivligi (issiq=tez), bosilganda hudud
+   statistikasi, real-time yangilanish (UzMapHub).
+2) Yozish Pasporti (Fingerprint): keystroke timing, sekin tugmalar/bigramlar,
+   klaviatura issiqlik xaritasi.
+
+BAJARILGAN ISHLAR
+-----------------
+1. Domain
+   - FingerprintAnalyzer (sof): Merge (eksponensial o'rtacha bilan timing
+     xaritalarini birlashtirish), Slowest (eng sekin N tugma/bigram).
+   - UzbekistanRegions konstantasi allaqachon mavjud edi (14 hudud).
+
+2. Application (CQRS)
+   - IUserProfileReader interfeysi (Identity ApplicationUser dan hudud
+     kodini o'qish — cross-layer abstraktsiya).
+   - Map: GetRegionStatsQuery (14 hudud, ma'lumotsizlar 0 bilan + max WPM
+     rang shkalasi uchun), SubmitRegionResultCommand (joriy user hududiga
+     natija qo'shish, bugungi RegionStats upsert, WPM validatsiya).
+   - Fingerprint: GetFingerprintQuery (JSON parse + eng sekinlar),
+     UpdateFingerprintCommand (yangi timinglarni mavjud pasportga merge,
+     sanitatsiya 0<ms<=2000, JSON saqlash).
+   - IApplicationDbContext ga RegionStats + TypingFingerprints DbSet.
+
+3. Infrastructure
+   - UserProfileReader : IUserProfileReader (Users.RegionCode). DI da ro'yxat.
+   - Jadvallar InitialCreate da mavjud — yangi migration kerak emas.
+
+4. Web — SignalR + API
+   - UzMapHub (/hubs/uzmap): JoinMap (guruh), ReportResult(wpm) → hudud
+     yangilanadi + RegionUpdated guruhga uzatiladi (anonim saqlanmaydi).
+   - RegionsController (GET /api/regions).
+   - FingerprintController [Authorize] (GET + POST /api/fingerprint).
+   - Program.cs: MapHub<UzMapHub>("/hubs/uzmap").
+
+5. Frontend
+   - /Map + map.js: stilize SVG O'zbekiston xaritasi (14 hudud polygon/
+     circle, data-region), heat map ranglash (sovuq kulrang → issiq oltin/
+     qizil), hudud detali, mini typing test (kirgan user hissasi → live
+     RegionUpdated). _Layout: "Xarita" havola.
+   - /Fingerprint + fingerprint.js: namuna matn yozish → tugmalararo vaqt
+     o'lchash (key + bigram), QWERTY klaviatura issiqlik xaritasi (sekin=
+     qizil), eng sekin tugmalar/bigramlar ro'yxati, pasportga saqlash.
+     _Layout: "Pasport" havola.
+   - site.css: xarita (region/detail/wpm) + klaviatura heat map stillari.
+
+6. Testlar
+   - FingerprintAnalyzerTests (5). Jami unit test: 70 — barchasi o'tdi.
+
+ARXITEKTURA IZOHLARI
+--------------------
+- SVG xarita stilize (aniq geografik path emas) — har hudud alohida
+  polygon/circle, data-region, klikланadigan va WPM bo'yicha bo'yaladi.
+- Hudud kodi Application qatlamiga IUserProfileReader orqali keladi
+  (ApplicationUser Identity da — to'g'ridan-to'g'ri bog'lanish yo'q).
+- Fingerprint timing: tugmalararo (flight) vaqt, faqat to'g'ri ketma-ket
+  harflar; profil eksponensial o'rtacha bilan sekin yangilanadi.
+
+BUILD / TEST / SMOKE
+--------------------
+dotnet build → Build succeeded. 0 Warning, 0 Error.
+dotnet test  → Passed! 70/70.
+Smoke: GET /api/regions → 14 hudud (200), GET /api/fingerprint (auth yo'q)
+→ 401, /Map → 200, /Fingerprint → 200. Log toza.
+
+YECHILMAGAN / KEYINGI
+---------------------
+- Xarita SVG stilize — keyin aniq geo path bilan almashtirish mumkin.
+- RegionStats poyga oqimlariga avtomatik ulanmagan (hozircha /Map mini
+  test va UzMapHub.ReportResult orqali). RaceHub/contest finish ga ulash
+  mumkin.
+- Keyingi vazifa: Bosqich 10 — Qo'shimcha (ovozli typing, kod rejimi,
+  takroriy xotira, PWA, admin, profil).
+═══════════════════════════════════════════════════════════════

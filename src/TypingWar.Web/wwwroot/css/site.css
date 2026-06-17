@@ -278,3 +278,27 @@ body[data-tw-theme="Sepia"] .tw-words { color: #b9a888; }
 .tw-slot.tw-lost { color: #6a6a80; text-decoration: line-through; }
 .tw-slot.tw-pick { cursor: pointer; }
 .tw-slot.tw-pick:hover { background: rgba(232, 160, 32, .15); color: var(--tw-gold); }
+
+/* ───── O'zbekiston xaritasi ───── */
+.tw-map { max-width: 1100px; margin: 1.5rem auto; }
+.tw-uzmap { width: 100%; height: auto; background: var(--tw-surface); border-radius: 12px; }
+.tw-region polygon, .tw-region circle, .tw-region path {
+    fill: #23233a; stroke: #0f0f1a; stroke-width: 2; cursor: pointer; transition: fill .25s, filter .15s; }
+.tw-region:hover polygon, .tw-region:hover circle, .tw-region:hover path {
+    filter: brightness(1.25); stroke: var(--tw-gold); }
+.tw-region text { fill: #e8e8f0; font-size: 13px; font-weight: 600; text-anchor: middle;
+    pointer-events: none; paint-order: stroke; stroke: #0f0f1a; stroke-width: 3px; }
+
+.tw-region-detail { background: var(--tw-surface); border-radius: 12px; padding: 1.25rem;
+    border-top: 3px solid var(--tw-gold); min-height: 120px; }
+.tw-region-wpm { font-size: 2.6rem; font-weight: 800; color: var(--tw-gold); font-family: var(--tw-font); }
+.tw-region-wpm small { font-size: 1rem; color: #8a8aa0; }
+.tw-words-sm { font-size: 1rem; min-height: auto; padding: .6rem; }
+
+/* ───── Yozish Pasporti (klaviatura heat map) ───── */
+.tw-fp { max-width: 900px; margin: 1.5rem auto; }
+.tw-keyboard { display: flex; flex-direction: column; gap: .4rem; align-items: center; margin: .5rem 0 1rem; }
+.tw-kb-row { display: flex; gap: .4rem; }
+.tw-key { width: 46px; height: 46px; border-radius: 8px; display: flex; align-items: center;
+    justify-content: center; font-weight: 700; text-transform: uppercase; color: #fff;
+    border: 1px solid #0f0f1a; transition: background .3s; }

@@ -54,6 +54,9 @@ public static class DependencyInjection
         // Adaptiv AI raqib
         services.AddScoped<IAiOpponentService, Ai.AiOpponentService>();
 
+        // Hudud profili (xarita statistikasi uchun)
+        services.AddScoped<IUserProfileReader, Identity.UserProfileReader>();
+
         // Redis
         var redisConn = configuration.GetConnectionString("Redis") ?? "localhost:6380";
         services.AddSingleton<IConnectionMultiplexer>(

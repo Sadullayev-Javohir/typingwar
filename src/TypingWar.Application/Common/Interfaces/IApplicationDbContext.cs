@@ -19,6 +19,8 @@ public interface IApplicationDbContext
     DbSet<Tournament> Tournaments { get; }
     DbSet<TournamentMatch> TournamentMatches { get; }
     DbSet<TournamentPlayer> TournamentPlayers { get; }
+    DbSet<RegionStats> RegionStats { get; }
+    DbSet<TypingFingerprint> TypingFingerprints { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

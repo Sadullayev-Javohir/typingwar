@@ -297,8 +297,8 @@ dotnet test
 ## 15. JORIY HOLAT
 
 ```
-Bosqich: 8 (Daily Contest + Turnir) — TUGALLANDI ✅
-Keyingi vazifa: Bosqich 9 — O'zbekiston xaritasi + Fingerprint (RegionStats, UzMapHub, SVG, heat map)
+Bosqich: 9 (O'zbekiston xaritasi + Fingerprint) — TUGALLANDI ✅
+Keyingi vazifa: Bosqich 10 — Qo'shimcha (ovozli typing, kod rejimi, takroriy xotira, PWA, admin, profil)
 Tugallangan:
   - Bosqich 1 (Foundation): solution, 6 loyiha, Docker, 14 entity, EF Core,
     Identity, JWT cookie, Google OAuth (backend), Redis, migration
@@ -327,6 +327,11 @@ Tugallangan:
     Register/Start[bracket+bye]/ReportMatch/Get/List), TournamentHub
     (/hubs/tournament, live+tomoshabin), /Contest+/Tournaments+/Tournament,
     migration AddContestsAndTournaments, 24 yangi test (jami 65)
+  - Bosqich 9 (Xarita + Fingerprint): FingerprintAnalyzer (sof Merge/
+    Slowest), IUserProfileReader, Map CQRS (GetRegionStats/SubmitRegion),
+    Fingerprint CQRS (Get/Update, JSON), UzMapHub (/hubs/uzmap live),
+    Regions+Fingerprint controller, /Map (stilize SVG 14 hudud heat map +
+    mini test) + /Fingerprint (QWERTY heat map), 5 yangi test (jami 70)
 Hal qilinmagan muammolar:
   - PostgreSQL porti 5434:5432 (5433 ni meningvaqtim loyihasi band qilgan)
   - Redis DI ulanishi eager (Connect) — keyin lazy qilish
@@ -335,7 +340,7 @@ Hal qilinmagan muammolar:
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
   - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
-Oxirgi git commit: Bosqich 8 — Daily Contest + Turnir
+Oxirgi git commit: Bosqich 9 — O'zbekiston xaritasi + Fingerprint
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.
