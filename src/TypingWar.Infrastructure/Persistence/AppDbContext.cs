@@ -26,6 +26,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<TeamMember> TeamMembers => Set<TeamMember>();
     public DbSet<TypingFingerprint> TypingFingerprints => Set<TypingFingerprint>();
     public DbSet<DailyContest> DailyContests => Set<DailyContest>();
+    public DbSet<DailyContestEntry> DailyContestEntries => Set<DailyContestEntry>();
+    public DbSet<TournamentPlayer> TournamentPlayers => Set<TournamentPlayer>();
     public DbSet<RegionStats> RegionStats => Set<RegionStats>();
     public DbSet<Friendship> Friendships => Set<Friendship>();
     public DbSet<UserSettings> UserSettings => Set<UserSettings>();

@@ -7,6 +7,8 @@ public class TournamentMatch
     public Guid TournamentId { get; set; }
     public Tournament? Tournament { get; set; }
     public int Round { get; set; }
+    /// <summary>Round ichidagi pozitsiya (0-based) — bracket daraxtida ota-bola bog'lanishi uchun.</summary>
+    public int Slot { get; set; }
     public Guid? Player1Id { get; set; }
     public Guid? Player2Id { get; set; }
     public Guid? WinnerId { get; set; }

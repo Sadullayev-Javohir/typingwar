@@ -1,4 +1,5 @@
 using System.Text;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -8,6 +9,7 @@ using TypingWar.Application;
 using TypingWar.Application.Common.Interfaces;
 using TypingWar.Infrastructure;
 using TypingWar.Infrastructure.Persistence;
+using TypingWar.Web.Jobs;
 using TypingWar.Web.Middleware;
 using TypingWar.Web.Services;
 
@@ -85,6 +87,15 @@ builder.Services.AddControllers().AddJsonOptions(o =>
 builder.Services.AddSignalR();
 builder.Services.AddAntiforgery(o => o.HeaderName = "X-CSRF-TOKEN");
 
+// ── Hangfire (fon vazifalari) — in-memory storage (DB ga bog'liq emas) ──
+builder.Services.AddHangfire(cfg => cfg
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseInMemoryStorage());
+builder.Services.AddHangfireServer();
+builder.Services.AddScoped<ScheduledJobs>();
+
 // Nginx orqasidagi haqiqiy IP uchun (rate limiting)
 builder.Services.Configure<ForwardedHeadersOptions>(o =>
 {
@@ -137,6 +148,17 @@ app.MapControllers();
 app.MapHub<TypingWar.Web.Hubs.LobbyHub>("/hubs/lobby");
 app.MapHub<TypingWar.Web.Hubs.RaceHub>("/hubs/race");
 app.MapHub<TypingWar.Web.Hubs.TeamRaceHub>("/hubs/teamrace");
+app.MapHub<TypingWar.Web.Hubs.TournamentHub>("/hubs/tournament");
+
+// ── Hangfire dashboard (faqat development) + RecurringJob lar ──
+if (app.Environment.IsDevelopment())
+    app.UseHangfireDashboard("/jobs");
+
+RecurringJob.AddOrUpdate<ScheduledJobs>("daily-contest",
+    x => x.EnsureDailyContestAsync(), "0 20 * * *");          // har kuni 20:00
+RecurringJob.AddOrUpdate<ScheduledJobs>("tournament-starter",
+    x => x.StartDueTournamentsAsync(), "* * * * *");          // har daqiqa
+BackgroundJob.Enqueue<ScheduledJobs>(x => x.EnsureDailyContestAsync()); // bugungisi darhol
 
 app.Run();
 

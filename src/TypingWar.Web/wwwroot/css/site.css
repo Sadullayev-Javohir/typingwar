@@ -249,3 +249,32 @@ body[data-tw-theme="Sepia"] .tw-words { color: #b9a888; }
     50% { transform: translate(3px, 2px) rotate(6deg); }
     75% { transform: translate(-2px, 3px) rotate(-4deg); }
 }
+
+/* ───── Kunlik musobaqa ───── */
+.tw-contest { max-width: 1000px; margin: 1.5rem auto; }
+.tw-streak { text-align: center; background: var(--tw-surface); border-radius: 10px;
+    padding: .6rem 1rem; margin-bottom: 1rem; border-top: 3px solid var(--tw-gold); }
+.tw-badge { display: inline-block; margin-left: .4rem; padding: .1rem .55rem; border-radius: 999px;
+    background: rgba(232, 160, 32, .18); color: var(--tw-gold); font-weight: 700; font-size: .85rem; }
+
+/* ───── Turnirlar ───── */
+.tw-tournament { max-width: 1100px; margin: 1.5rem auto; }
+.tw-champion { text-align: center; font-size: 1.2rem; color: var(--tw-gold);
+    background: var(--tw-surface); border-radius: 10px; padding: .6rem; margin-bottom: .8rem; }
+.tw-tourn-players { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; }
+.tw-tourn-chip { background: var(--tw-surface); border-radius: 999px; padding: .25rem .7rem;
+    font-size: .82rem; }
+
+.tw-bracket { display: flex; gap: 1.5rem; overflow-x: auto; padding: 1rem 0; }
+.tw-round { display: flex; flex-direction: column; justify-content: space-around; gap: 1rem; min-width: 150px; }
+.tw-round-name { text-align: center; color: var(--tw-gold); font-size: .8rem; text-transform: uppercase;
+    margin-bottom: .3rem; }
+.tw-match { background: var(--tw-surface); border-radius: 8px; overflow: hidden;
+    border: 1px solid #2a2a3a; }
+.tw-slot { padding: .4rem .7rem; font-size: .88rem; border-bottom: 1px solid #2a2a3a; }
+.tw-slot:last-child { border-bottom: none; }
+.tw-slot.tw-empty { color: #555; }
+.tw-slot.tw-won { color: var(--tw-gold); font-weight: 700; background: rgba(232, 160, 32, .1); }
+.tw-slot.tw-lost { color: #6a6a80; text-decoration: line-through; }
+.tw-slot.tw-pick { cursor: pointer; }
+.tw-slot.tw-pick:hover { background: rgba(232, 160, 32, .15); color: var(--tw-gold); }

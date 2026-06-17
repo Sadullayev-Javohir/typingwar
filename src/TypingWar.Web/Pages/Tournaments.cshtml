@@ -1,0 +1,45 @@
+@page
+@model TournamentsModel
+@{
+    ViewData["Title"] = "Turnirlar";
+}
+
+<div class="tw-rooms" data-authenticated="@Model.IsAuthenticated.ToString().ToLower()" id="tw-tournaments">
+    <h2 class="tw-accent text-center mb-4">Turnirlar</h2>
+
+    @if (Model.IsAuthenticated)
+    {
+        <div class="tw-room-card mb-4">
+            <h5>Yangi turnir</h5>
+            <form id="tw-tourn-create" class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label small">Nomi</label>
+                    <input class="form-control" name="name" maxlength="80" placeholder="Hafta turniri" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small">Sig'im</label>
+                    <select class="form-select" name="capacity">
+                        <option value="4">4</option>
+                        <option value="8">8</option>
+                        <option value="16" selected>16</option>
+                        <option value="32">32</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small">Boshlanish</label>
+                    <input class="form-control" type="datetime-local" name="startAt" required>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-tw mt-2" type="submit">Yaratish</button>
+                    <span id="tw-tourn-createerr" class="text-danger ms-2"></span>
+                </div>
+            </form>
+        </div>
+    }
+
+    <ul id="tw-tourn-list" class="tw-ranks"></ul>
+</div>
+
+@section Scripts {
+    <script src="~/js/tournaments.js" asp-append-version="true"></script>
+}

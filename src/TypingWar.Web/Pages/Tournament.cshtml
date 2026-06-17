@@ -1,0 +1,32 @@
+@page
+@model TournamentModel
+@{
+    ViewData["Title"] = "Turnir";
+}
+
+<div id="tw-tournament" class="tw-tournament" data-authenticated="@Model.IsAuthenticated.ToString().ToLower()">
+    <div class="text-center mb-2">
+        <h2 id="tw-tourn-name" class="tw-accent mb-0">…</h2>
+        <span id="tw-tourn-meta" class="text-secondary"></span>
+    </div>
+    <div id="tw-tourn-champion" class="tw-champion d-none"></div>
+    <div id="tw-tourn-err" class="text-danger text-center"></div>
+
+    <div class="text-center my-3">
+        <button id="tw-tourn-register" class="btn btn-tw d-none">Ro'yxatdan o'tish</button>
+        <button id="tw-tourn-start" class="btn btn-outline-warning d-none">Boshlash</button>
+    </div>
+
+    <div id="tw-tourn-players" class="tw-tourn-players"></div>
+
+    <h6 id="tw-bracket-title" class="text-secondary mt-3 d-none">Bracket</h6>
+    <div id="tw-bracket" class="tw-bracket"></div>
+    <p id="tw-tourn-hint" class="text-secondary small text-center d-none">
+        O'yin g'olibini belgilash uchun ism ustiga bosing.
+    </p>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+    <script src="~/js/tournament.js" asp-append-version="true"></script>
+}

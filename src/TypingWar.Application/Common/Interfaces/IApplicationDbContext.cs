@@ -14,6 +14,11 @@ public interface IApplicationDbContext
     DbSet<RoomPlayer> RoomPlayers { get; }
     DbSet<TeamRace> TeamRaces { get; }
     DbSet<TeamMember> TeamMembers { get; }
+    DbSet<DailyContest> DailyContests { get; }
+    DbSet<DailyContestEntry> DailyContestEntries { get; }
+    DbSet<Tournament> Tournaments { get; }
+    DbSet<TournamentMatch> TournamentMatches { get; }
+    DbSet<TournamentPlayer> TournamentPlayers { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
