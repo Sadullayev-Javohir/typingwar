@@ -1,0 +1,35 @@
+@page
+@model AdminModel
+@{
+    ViewData["Title"] = "Admin";
+}
+
+<div id="tw-admin" class="tw-rooms">
+    <h2 class="tw-accent text-center mb-4">Admin paneli</h2>
+    <div id="tw-admin-err" class="text-danger text-center"></div>
+
+    <div id="tw-admin-stats" class="row g-3 text-center"></div>
+
+    <div class="tw-room-card mt-4">
+        <h6>Yangi jumla matni qo'shish</h6>
+        <p class="text-secondary small mb-2">Musobaqa va practice (Sentences) uchun.</p>
+        <form id="tw-admin-addtext" class="d-flex flex-column gap-2">
+            <textarea class="form-control" name="content" rows="2" maxlength="2000"
+                      placeholder="O'zbek tilidagi jumla…" required></textarea>
+            <div class="d-flex gap-2 align-items-center">
+                <select class="form-select" name="difficulty" style="max-width:160px">
+                    <option value="Easy">Oson</option>
+                    <option value="Normal" selected>O'rta</option>
+                    <option value="Hard">Qiyin</option>
+                    <option value="Expert">Ekspert</option>
+                </select>
+                <button class="btn btn-tw" type="submit">Qo'shish</button>
+                <span id="tw-admin-msg" class="text-secondary small"></span>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/admin.js" asp-append-version="true"></script>
+}

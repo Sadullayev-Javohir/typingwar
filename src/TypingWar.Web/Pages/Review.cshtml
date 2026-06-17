@@ -1,0 +1,29 @@
+@page
+@model ReviewModel
+@{
+    ViewData["Title"] = "Takroriy mashq";
+}
+
+<div id="tw-review" class="tw-contest" data-authenticated="@Model.IsAuthenticated.ToString().ToLower()">
+    <h2 class="tw-accent text-center mb-1">Takroriy mashq</h2>
+    <p class="text-secondary text-center small">Sekin tugmalaringizga fokuslangan mashq — Yozish Pasportingizdan.</p>
+
+    @if (!Model.IsAuthenticated)
+    {
+        <p class="text-center text-secondary">Mashq uchun <a asp-page="/Login" class="tw-accent">tizimga kiring</a>.</p>
+    }
+    else
+    {
+        <div id="tw-rv-focus" class="text-center mb-2"></div>
+        <div id="tw-rv-err" class="text-danger text-center"></div>
+        <div id="tw-rv-words" class="tw-words" tabindex="0"></div>
+        <div class="d-flex justify-content-between mt-2">
+            <span id="tw-rv-live" class="text-secondary small">0 wpm</span>
+            <button id="tw-rv-new" class="btn btn-sm btn-outline-warning">Yangi mashq</button>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/review.js" asp-append-version="true"></script>
+}

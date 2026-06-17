@@ -302,3 +302,9 @@ body[data-tw-theme="Sepia"] .tw-words { color: #b9a888; }
 .tw-key { width: 46px; height: 46px; border-radius: 8px; display: flex; align-items: center;
     justify-content: center; font-weight: 700; text-transform: uppercase; color: #fff;
     border: 1px solid #0f0f1a; transition: background .3s; }
+
+/* ───── Profil / Admin ───── */
+.tw-profile { max-width: 800px; margin: 1.5rem auto; }
+.tw-profile-head { background: var(--tw-surface); border-radius: 12px; padding: 1.25rem;
+    border-top: 3px solid var(--tw-gold); }
+.tw-admin-num { font-size: 2rem; font-weight: 800; color: var(--tw-gold); font-family: var(--tw-font); }

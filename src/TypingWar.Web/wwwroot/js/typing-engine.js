@@ -173,6 +173,9 @@
         pos++;
         moveCaret();
 
+        // Ovozli typing (sozlama: Off/Soft/Mechanical/Typewriter)
+        if (window.TWSound) window.TWSound.play(S.get("soundOnClick"), correct);
+
         if (pos >= chars.length && !S.get("timedMode")) finish();
     }
 
@@ -223,7 +226,10 @@
                 msgEl.textContent = err.error || "Saqlashda xatolik.";
             }
         } catch (e) {
-            msgEl.textContent = "Natija saqlanmadi (oflayn).";
+            // Oflayn — natijani navbatga qo'yamiz, internet kelganda sinxron bo'ladi
+            if (window.TWOffline)
+                window.TWOffline.enqueue({ timeMode, correctChars, incorrectChars, elapsedSeconds, textId });
+            msgEl.textContent = "Natija oflayn saqlandi — internet kelganda yuboriladi.";
         }
     }
 

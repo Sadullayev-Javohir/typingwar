@@ -1,0 +1,19 @@
+{
+  "name": "TypingWar.uz",
+  "short_name": "TypingWar",
+  "description": "O'zbek tilidagi typing musobaqa platformasi",
+  "lang": "uz",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0F0F1A",
+  "theme_color": "#0F0F1A",
+  "icons": [
+    {
+      "src": "/img/typingwar-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

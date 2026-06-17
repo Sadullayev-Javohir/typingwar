@@ -57,6 +57,9 @@ public static class DependencyInjection
         // Hudud profili (xarita statistikasi uchun)
         services.AddScoped<IUserProfileReader, Identity.UserProfileReader>();
 
+        // Admin statistika
+        services.AddScoped<IAdminStatsReader, Identity.AdminStatsReader>();
+
         // Redis
         var redisConn = configuration.GetConnectionString("Redis") ?? "localhost:6380";
         services.AddSingleton<IConnectionMultiplexer>(

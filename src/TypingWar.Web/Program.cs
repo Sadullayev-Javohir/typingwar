@@ -112,6 +112,22 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
     await DataSeeder.SeedAsync(db);
+
+    // Admin roli + (sozlangan email bo'yicha) tayinlash
+    var roleManager = scope.ServiceProvider
+        .GetRequiredService<Microsoft.AspNetCore.Identity.RoleManager<Microsoft.AspNetCore.Identity.IdentityRole<Guid>>>();
+    if (!await roleManager.RoleExistsAsync("Admin"))
+        await roleManager.CreateAsync(new Microsoft.AspNetCore.Identity.IdentityRole<Guid>("Admin"));
+
+    var adminEmail = builder.Configuration["Admin:Email"];
+    if (!string.IsNullOrWhiteSpace(adminEmail))
+    {
+        var userManager = scope.ServiceProvider
+            .GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<TypingWar.Infrastructure.Identity.ApplicationUser>>();
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+        if (adminUser is not null && !await userManager.IsInRoleAsync(adminUser, "Admin"))
+            await userManager.AddToRoleAsync(adminUser, "Admin");
+    }
 }
 
 // ── Middleware pipeline ───────────────────────────────────────
@@ -128,7 +144,11 @@ if (!app.Environment.IsDevelopment())
 app.UseMiddleware<ApiExceptionMiddleware>();
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+
+// PWA manifest MIME (.webmanifest static files default da noma'lum)
+var contentTypes = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+contentTypes.Mappings[".webmanifest"] = "application/manifest+json";
+app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = contentTypes });
 
 // Xavfsizlik headerlari (XSS / clickjacking himoya)
 app.Use(async (ctx, next) =>

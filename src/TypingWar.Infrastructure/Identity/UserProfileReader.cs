@@ -16,4 +16,11 @@ public class UserProfileReader : IUserProfileReader
             .Where(u => u.Id == userId)
             .Select(u => u.RegionCode)
             .FirstOrDefaultAsync(ct);
+
+    public async Task<UserProfileInfo?> GetProfileAsync(Guid userId, CancellationToken ct = default)
+        => await _db.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new UserProfileInfo(
+                u.UserName!, u.EloRating, u.RegionCode, u.AvatarUrl, u.CreatedAt))
+            .FirstOrDefaultAsync(ct);
 }

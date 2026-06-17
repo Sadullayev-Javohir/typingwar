@@ -297,8 +297,8 @@ dotnet test
 ## 15. JORIY HOLAT
 
 ```
-Bosqich: 9 (O'zbekiston xaritasi + Fingerprint) — TUGALLANDI ✅
-Keyingi vazifa: Bosqich 10 — Qo'shimcha (ovozli typing, kod rejimi, takroriy xotira, PWA, admin, profil)
+Bosqich: 10 (Qo'shimcha) — TUGALLANDI ✅  >>> LOYIHA YAKUNLANDI (10/10) <<<
+Keyingi vazifa: yo'q — barcha 10 bosqich tugallandi. Ixtiyoriy yaxshilanishlar pastda.
 Tugallangan:
   - Bosqich 1 (Foundation): solution, 6 loyiha, Docker, 14 entity, EF Core,
     Identity, JWT cookie, Google OAuth (backend), Redis, migration
@@ -332,6 +332,11 @@ Tugallangan:
     Fingerprint CQRS (Get/Update, JSON), UzMapHub (/hubs/uzmap live),
     Regions+Fingerprint controller, /Map (stilize SVG 14 hudud heat map +
     mini test) + /Fingerprint (QWERTY heat map), 5 yangi test (jami 70)
+  - Bosqich 10 (Qo'shimcha): ovozli typing (tw-sound.js WebAudio sintez),
+    kod rejimi (mavjud), Review (GetReviewText fingerprint drill, /Review),
+    PWA (manifest+sw.js app shell+tw-offline.js IndexedDB navbat), Admin
+    (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
+    (GetProfile, /Profile). 70 test o'tadi.
 Hal qilinmagan muammolar:
   - PostgreSQL porti 5434:5432 (5433 ni meningvaqtim loyihasi band qilgan)
   - Redis DI ulanishi eager (Connect) — keyin lazy qilish
@@ -340,7 +345,7 @@ Hal qilinmagan muammolar:
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
   - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
-Oxirgi git commit: Bosqich 9 — O'zbekiston xaritasi + Fingerprint
+Oxirgi git commit: Bosqich 10 — Qo'shimcha (LOYIHA YAKUNLANDI)
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.
