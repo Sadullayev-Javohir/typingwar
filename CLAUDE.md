@@ -297,8 +297,8 @@ dotnet test
 ## 15. JORIY HOLAT
 
 ```
-Bosqich: 6 (5x5 Jamoaviy) — TUGALLANDI ✅
-Keyingi vazifa: Bosqich 7 — Sabotaj (5 tur effekt, RaceHub.SabotageAttack)
+Bosqich: 7 (Sabotaj) — TUGALLANDI ✅
+Keyingi vazifa: Bosqich 8 — Daily Contest + Turnir (Hangfire, streak, bracket, TournamentHub)
 Tugallangan:
   - Bosqich 1 (Foundation): solution, 6 loyiha, Docker, 14 entity, EF Core,
     Identity, JWT cookie, Google OAuth (backend), Redis, migration
@@ -316,6 +316,10 @@ Tugallangan:
     Create/GetTeamRace (Redis tr:{code} 30daq TTL), TeamRaceLiveState
     (singleton, jamoa WPM yig'indisi), TeamRaceHub (/hubs/teamrace: Join/
     ChangeSide/Start/ReportProgress/Finish, DB persist), /Teams + /Team
+  - Bosqich 7 (Sabotaj): SabotageRules (5 tur duration+Parse), LobbyHub.
+    SabotageAttack (InProgress, 3+ o'yinchi, Redis guard sab:{room}:{round}:
+    {conn} 1×/poyga, yetakchiga hujum), 5 vizual effekt (Blackout/Shuffle/
+    Shake/Mirror/Slowdown), /Room sabotaj paneli+banner+lenta, 13 test
 Hal qilinmagan muammolar:
   - PostgreSQL porti 5434:5432 (5433 ni meningvaqtim loyihasi band qilgan)
   - Redis DI ulanishi eager (Connect) — keyin lazy qilish
@@ -324,7 +328,7 @@ Hal qilinmagan muammolar:
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
   - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
-Oxirgi git commit: Bosqich 6 — 5x5 Jamoaviy
+Oxirgi git commit: Bosqich 7 — Sabotaj
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.

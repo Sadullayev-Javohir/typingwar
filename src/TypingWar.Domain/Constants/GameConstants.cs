@@ -20,4 +20,7 @@ public static class GameConstants
 
     /// <summary>5x5 jamoaviy musobaqa — har jamoada maksimal a'zo.</summary>
     public const int TeamSize = 5;
+
+    /// <summary>Sabotaj uchun xonada kerakli minimal o'yinchi soni.</summary>
+    public const int MinPlayersForSabotage = 3;
 }

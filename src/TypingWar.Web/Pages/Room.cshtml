@@ -28,7 +28,22 @@
         <div class="col-md-8">
             <div id="tw-countdown" class="tw-countdown d-none"></div>
             <div id="tw-race" class="d-none">
-                <div id="tw-room-words" class="tw-words" tabindex="0"></div>
+                <div id="tw-room-wordswrap" class="tw-wordswrap">
+                    <div id="tw-room-words" class="tw-words" tabindex="0"></div>
+                    <div id="tw-sab-banner" class="tw-sab-banner d-none"></div>
+                </div>
+
+                <div id="tw-sabotage" class="tw-sabotage d-none">
+                    <span class="tw-sab-label">💥 Sabotaj <small>(poygada 1×, kuchli raqibga)</small>:</span>
+                    <div class="tw-sab-btns">
+                        <button class="tw-sab-btn" data-sab="Blackout">🌑 Blackout</button>
+                        <button class="tw-sab-btn" data-sab="Shuffle">🔀 Shuffle</button>
+                        <button class="tw-sab-btn" data-sab="Shake">📳 Shake</button>
+                        <button class="tw-sab-btn" data-sab="Mirror">🪞 Mirror</button>
+                        <button class="tw-sab-btn" data-sab="Slowdown">🐌 Slowdown</button>
+                    </div>
+                </div>
+                <ul id="tw-sab-feed" class="tw-sab-feed"></ul>
             </div>
             <div id="tw-room-result" class="tw-result d-none">
                 <h4 class="tw-accent text-center">Natijalar</h4>

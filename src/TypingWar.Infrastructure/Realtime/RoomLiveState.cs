@@ -27,6 +27,7 @@ public class RoomLive
     public string? TextContent { get; set; }
     public Guid? TextId { get; set; }
     public int FinishOrder; // Interlocked bilan oshiriladi
+    public int Round;        // har StartRace da oshadi — sabotaj guard ni poygaga bog'laydi
     public ConcurrentDictionary<string, RoomPlayerLive> Players { get; } = new();
 }
 

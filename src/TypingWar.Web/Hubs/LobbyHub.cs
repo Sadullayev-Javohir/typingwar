@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using TypingWar.Application.Common.Interfaces;
 using TypingWar.Application.Features.Rooms;
+using TypingWar.Domain.Constants;
 using TypingWar.Domain.Enums;
+using TypingWar.Domain.Services;
 using TypingWar.Infrastructure.Realtime;
 
 namespace TypingWar.Web.Hubs;
@@ -21,13 +23,16 @@ public class LobbyHub : Hub
     private readonly ISender _mediator;
     private readonly ITextProvider _textProvider;
     private readonly IApplicationDbContext _db;
+    private readonly ICacheService _cache;
 
-    public LobbyHub(RoomLiveState state, ISender mediator, ITextProvider textProvider, IApplicationDbContext db)
+    public LobbyHub(RoomLiveState state, ISender mediator, ITextProvider textProvider,
+        IApplicationDbContext db, ICacheService cache)
     {
         _state = state;
         _mediator = mediator;
         _textProvider = textProvider;
         _db = db;
+        _cache = cache;
     }
 
     private Guid? UserId =>
@@ -100,6 +105,7 @@ public class LobbyHub : Hub
         live.TextContent = text.Content;
         live.TextId = text.TextId;
         live.FinishOrder = 0;
+        live.Round++;   // yangi poyga — sabotaj guard yangilanadi
         foreach (var p in live.Players.Values)
         {
             p.Finished = false; p.Progress = 0; p.Wpm = 0; p.Accuracy = 0; p.Place = null;
@@ -121,6 +127,69 @@ public class LobbyHub : Hub
         await Clients.OthersInGroup(code).SendAsync("ProgressUpdate", new
         {
             connId = Context.ConnectionId, name = p.Name, progress, wpm
+        });
+    }
+
+    /// <summary>
+    /// Raqibga sabotaj effekti yuboradi. Faqat poyga davomida, 3+ o'yinchi bo'lsa,
+    /// har o'yinchi poygada faqat 1 marta (Redis guard). Effekt vizual — klient qo'llaydi.
+    /// </summary>
+    public async Task SabotageAttack(string code, string targetConnId, string sabotageType)
+    {
+        code = code.ToUpperInvariant();
+        if (!_state.TryGet(code, out var live)) return;
+
+        if (live.Status != RoomStatus.InProgress)
+        {
+            await Clients.Caller.SendAsync("Error", "Sabotaj faqat poyga davomida ishlaydi.");
+            return;
+        }
+        if (live.Players.Count < GameConstants.MinPlayersForSabotage)
+        {
+            await Clients.Caller.SendAsync("Error",
+                $"Sabotaj uchun kamida {GameConstants.MinPlayersForSabotage} o'yinchi kerak.");
+            return;
+        }
+        if (!live.Players.TryGetValue(Context.ConnectionId, out var attacker) || attacker.Finished)
+            return;
+        if (targetConnId == Context.ConnectionId)
+        {
+            await Clients.Caller.SendAsync("Error", "O'zingizga sabotaj qila olmaysiz.");
+            return;
+        }
+        if (!live.Players.TryGetValue(targetConnId, out var target) || target.Finished)
+        {
+            await Clients.Caller.SendAsync("Error", "Nishon mavjud emas yoki poygani tugatgan.");
+            return;
+        }
+
+        // Redis guard — bitta poyga (round) = bitta sabotaj
+        var guardKey = $"sab:{live.RoomId}:{live.Round}:{Context.ConnectionId}";
+        if (await _cache.KeyExistsAsync(guardKey))
+        {
+            await Clients.Caller.SendAsync("Error", "Bu poygada sabotajni allaqachon ishlatdingiz.");
+            return;
+        }
+        await _cache.SetStringAsync(guardKey, "1", TimeSpan.FromMinutes(GameConstants.RoomCodeTtlMinutes));
+
+        var type = SabotageRules.Parse(sabotageType);
+        var duration = SabotageRules.DurationSeconds(type);
+
+        // Nishonga effekt
+        await Clients.Client(targetConnId).SendAsync("Sabotaged", new
+        {
+            type = type.ToString(),
+            durationSeconds = duration,
+            from = attacker.Name
+        });
+        // Hammaga e'lon (lenta) — yuboruvchining tugmasi bloklanadi
+        await Clients.Group(code).SendAsync("SabotageUsed", new
+        {
+            from = attacker.Name,
+            fromConn = Context.ConnectionId,
+            to = target.Name,
+            toConn = targetConnId,
+            type = type.ToString()
         });
     }
 

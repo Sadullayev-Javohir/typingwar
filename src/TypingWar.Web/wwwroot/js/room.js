@@ -20,13 +20,26 @@
 
     const playersEl = $("tw-players"), startBtn = $("tw-start"), waitEl = $("tw-wait"),
         errEl = $("tw-room-err"), cdEl = $("tw-countdown"), raceEl = $("tw-race"),
-        wordsEl = $("tw-room-words"), resultEl = $("tw-room-result"), ranksEl = $("tw-room-ranks");
+        wordsEl = $("tw-room-words"), resultEl = $("tw-room-result"), ranksEl = $("tw-room-ranks"),
+        sabPanel = $("tw-sabotage"), sabBanner = $("tw-sab-banner"), sabFeed = $("tw-sab-feed");
+
+    const MIN_SABOTAGE_PLAYERS = 3;
+    const SAB_CLASS = {
+        Blackout: "sab-blackout", Shuffle: "sab-shuffle", Shake: "sab-shake",
+        Mirror: "sab-mirror", Slowdown: "sab-slow"
+    };
+    const SAB_LABEL = {
+        Blackout: "🌑 Blackout", Shuffle: "🔀 Shuffle", Shake: "📳 Shake",
+        Mirror: "🪞 Mirror", Slowdown: "🐌 Slowdown"
+    };
 
     let myConnId = null, isHost = false;
     const players = new Map();
 
     // typing holati
     let chars = [], pos = 0, correct = 0, keypresses = 0, startTime = null, finished = false, lastReport = 0;
+    // sabotaj holati
+    let mySabotageUsed = false, raceActive = false, sabBannerTimer = null;
 
     function esc(s) { return String(s || "").replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])); }
 
@@ -63,8 +76,13 @@
         updateHostUi();
         renderPlayers();
     });
-    conn.on("PlayerJoined", p => { players.set(p.connId, p); renderPlayers(); });
-    conn.on("PlayerLeft", p => { players.delete(p.connId); renderPlayers(); });
+    conn.on("PlayerJoined", p => { players.set(p.connId, p); renderPlayers(); updateSabotagePanel(); });
+    conn.on("PlayerLeft", p => { players.delete(p.connId); renderPlayers(); updateSabotagePanel(); });
+    conn.on("Sabotaged", d => applySabotage(d.type, d.durationSeconds, d.from));
+    conn.on("SabotageUsed", d => {
+        addSabFeed(d);
+        if (d.fromConn === myConnId) { mySabotageUsed = true; updateSabotagePanel(); }
+    });
     conn.on("ProgressUpdate", u => {
         const p = players.get(u.connId);
         if (p) { p.progress = u.progress; p.wpm = u.wpm; renderPlayers(); }
@@ -110,6 +128,12 @@
         wordsEl.focus();
         const me = players.get(myConnId);
         if (me) { me.progress = 0; me.wpm = 0; me.finished = false; renderPlayers(); }
+        // sabotaj — yangi poyga
+        mySabotageUsed = false;
+        raceActive = true;
+        clearSabotageEffects();
+        sabFeed.innerHTML = "";
+        updateSabotagePanel();
     }
 
     const letterEls = () => wordsEl.querySelectorAll(".tw-letter");
@@ -155,13 +179,82 @@
     function finish() {
         if (finished) return;
         finished = true;
+        raceActive = false;
+        updateSabotagePanel();
         const e = elapsed();
         const wpm = e > 0 ? Math.round(((correct / 5) / (e / 60)) * 100) / 100 : 0;
         const acc = keypresses > 0 ? Math.round((correct / keypresses) * 10000) / 100 : 0;
         conn.invoke("FinishRace", code, wpm, acc).catch(() => { });
     }
 
+    // ── Sabotaj ──
+    function updateSabotagePanel() {
+        const me = players.get(myConnId);
+        const canShow = raceActive && me && !me.finished &&
+            !mySabotageUsed && players.size >= MIN_SABOTAGE_PLAYERS;
+        sabPanel.classList.toggle("d-none", !canShow);
+    }
+
+    // Nishon = tugatmagan, eng ko'p progressga ega raqib (yetakchiga hujum)
+    function pickTarget() {
+        let best = null;
+        players.forEach((p, id) => {
+            if (id === myConnId || p.finished) return;
+            if (!best || (p.progress || 0) > (best.progress || 0)) best = { id, progress: p.progress || 0 };
+        });
+        return best ? best.id : null;
+    }
+
+    function sendSabotage(type) {
+        if (mySabotageUsed || !raceActive) return;
+        const targetConn = pickTarget();
+        if (!targetConn) { errEl.textContent = "Sabotaj uchun nishon yo'q."; return; }
+        errEl.textContent = "";
+        mySabotageUsed = true;          // optimistik bloklash
+        updateSabotagePanel();
+        conn.invoke("SabotageAttack", code, targetConn, type).catch(() => {
+            mySabotageUsed = false;     // xato bo'lsa qaytarish
+            updateSabotagePanel();
+        });
+    }
+
+    sabPanel.querySelectorAll(".tw-sab-btn").forEach(btn =>
+        btn.addEventListener("click", () => sendSabotage(btn.dataset.sab)));
+
+    function applySabotage(type, durationSeconds, from) {
+        const cls = SAB_CLASS[type];
+        if (!cls) return;
+        clearSabotageEffects();
+        wordsEl.classList.add("sab-active", cls);
+        showSabBanner(`💥 ${from} sizga ${SAB_LABEL[type] || type} yubordi!`, durationSeconds);
+        setTimeout(() => wordsEl.classList.remove("sab-active", cls), durationSeconds * 1000);
+    }
+
+    function clearSabotageEffects() {
+        wordsEl.classList.remove("sab-active");
+        Object.values(SAB_CLASS).forEach(c => wordsEl.classList.remove(c));
+    }
+
+    function showSabBanner(text, seconds) {
+        sabBanner.textContent = text;
+        sabBanner.classList.remove("d-none");
+        if (sabBannerTimer) clearTimeout(sabBannerTimer);
+        sabBannerTimer = setTimeout(() => sabBanner.classList.add("d-none"), seconds * 1000);
+    }
+
+    function addSabFeed(d) {
+        const mine = d.fromConn === myConnId;
+        const li = document.createElement("li");
+        li.innerHTML = `<span>${mine ? "Siz" : esc(d.from)}</span> → <span>${esc(d.to)}</span>
+            <span class="tw-accent">${SAB_LABEL[d.type] || esc(d.type)}</span>`;
+        sabFeed.prepend(li);
+        while (sabFeed.children.length > 5) sabFeed.lastChild.remove();
+    }
+
     function showResults(results) {
+        raceActive = false;
+        sabPanel.classList.add("d-none");
+        clearSabotageEffects();
         raceEl.classList.add("d-none");
         resultEl.classList.remove("d-none");
         ranksEl.innerHTML = results.map(r => {
