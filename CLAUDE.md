@@ -76,6 +76,7 @@
 11. JWT **HttpOnly cookie** da, Authorization header da EMAS
 12. EF Core **parametrli query** — xom SQL ishlatma (SQL injection himoya)
 13. Har bosqich tugagach **git commit** qil
+14. **TO'LIQ AVTONOM ishla:** har qadamda tasdiq so'rama ("commit qilaymi?", "davom etaymi?", "Yes/No?"). So'rovni oxirigacha o'zing bajar — tahlil, kod, build/test, **`git add` + `git commit`** (o'zbekcha xabar) — hammasi savolsiz. Faqat OXIRIDA qisqa xulosa yoz. Savolni faqat haqiqatan bloklovchi, foydalanuvchigagina tegishli holatda ber.
 
 ---
 
