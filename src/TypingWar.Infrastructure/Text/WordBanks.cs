@@ -33,17 +33,6 @@ public static class WordBanks
         "good", "give", "our", "under", "name", "very", "through", "just", "form", "much"
     };
 
-    public static readonly string[] Russian =
-    {
-        "и", "в", "не", "на", "я", "быть", "он", "с", "что", "это",
-        "как", "она", "по", "но", "они", "мы", "этот", "к", "из", "у",
-        "который", "то", "за", "свой", "весь", "год", "от", "так", "о", "для",
-        "вот", "когда", "уже", "если", "дело", "жизнь", "день", "рука", "раз", "там",
-        "себя", "сказать", "знать", "стать", "только", "другой", "время", "слово", "место", "дом",
-        "вода", "город", "люди", "работа", "мир", "друг", "школа", "книга", "стол", "окно",
-        "хороший", "большой", "новый", "первый", "русский", "сейчас", "очень", "можно", "нужно", "теперь"
-    };
-
     public static readonly string[] CodeSnippets =
     {
         "public void Main() { return; }",
@@ -61,7 +50,6 @@ public static class WordBanks
     public static string[] ForLanguage(Language language) => language switch
     {
         Language.English => English,
-        Language.Russian => Russian,
         _ => Uzbek
     };
 

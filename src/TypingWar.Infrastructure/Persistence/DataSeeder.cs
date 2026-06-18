@@ -35,10 +35,6 @@ public static class DataSeeder
         Add("Practice every day and your typing speed will steadily improve over time.", Language.English, Difficulty.Normal);
         Add("Consistency combined with deliberate practice transforms an average typist into a remarkably fast and accurate one.", Language.English, Difficulty.Hard);
 
-        // Russian
-        Add("Быстрые пальцы выигрывают гонку, и каждая секунда имеет значение.", Language.Russian, Difficulty.Easy);
-        Add("Регулярная практика помогает увеличить скорость печати и снизить количество ошибок.", Language.Russian, Difficulty.Normal);
-
         db.RaceTexts.AddRange(texts);
         await db.SaveChangesAsync(ct);
     }

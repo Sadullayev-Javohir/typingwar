@@ -22,6 +22,7 @@
 
     let chars = [], pos = 0, correct = 0, keypresses = 0, startTime = null, finished = false;
     let schedule = [], aiFinishMs = 0, textId = null, targetWpm = 0, blind = false, rafId = null;
+    let lastKeyTime = 0;
 
     startBtn.addEventListener("click", begin);
     $("tw-race-again").addEventListener("click", begin);
@@ -75,13 +76,16 @@
         }
     }
 
+    const cheetahLeft = pct => (2 + Math.min(100, pct) * 0.82) + '%';
+
     function prepare(text) {
         chars = Array.from(text);
-        pos = 0; correct = 0; keypresses = 0; startTime = null; finished = false;
+        pos = 0; correct = 0; keypresses = 0; startTime = null; finished = false; lastKeyTime = 0;
         wordsEl.innerHTML = chars.map(c => `<span class="tw-letter">${esc(c)}</span>`).join("");
         wordsEl.classList.toggle("tw-blind", blind);
-        youBar.style.width = "0%"; oppBar.style.width = "0%";
+        youBar.style.left = "2%"; oppBar.style.left = "2%";
         youWpm.textContent = "0"; oppWpm.textContent = "0";
+        if (window.TwCheetah) { window.TwCheetah.setRunning(youBar, false); window.TwCheetah.setRunning(oppBar, false); }
         vsEl.classList.remove("d-none");
     }
 
@@ -124,6 +128,8 @@
         if (ok) { correct++; if (!blind) el.classList.add("tw-correct"); }
         else if (!blind) el.classList.add("tw-incorrect");
         pos++;
+        lastKeyTime = performance.now();
+        if (window.TWSound && window.TWSettings) window.TWSound.play(window.TWSettings.get("soundOnClick"), ok);
         if (pos >= chars.length) finish();
     }
 
@@ -134,12 +140,22 @@
         const e = elapsedMs();
         const youProg = (pos / chars.length) * 100;
         const youW = e > 0 ? (correct / 5) / (e / 60000) : 0;
-        youBar.style.width = youProg + "%";
+        youBar.style.left = cheetahLeft(youProg);
         youWpm.textContent = Math.round(youW);
 
         let oi = 0; while (oi < schedule.length && schedule[oi] <= e) oi++;
-        oppBar.style.width = ((oi / chars.length) * 100) + "%";
+        oppBar.style.left = cheetahLeft((oi / chars.length) * 100);
         oppWpm.textContent = Math.round(targetWpm);
+
+        // Mushuklarni yurg'izish — siz yozayotganda, raqib hali tugatmaganda
+        if (window.TwCheetah) {
+            const youRun = (performance.now() - lastKeyTime) < 500;
+            window.TwCheetah.setRunning(youBar, youRun);
+            if (youRun) window.TwCheetah.setSpeed(youBar, youW);
+            const oppRun = e < aiFinishMs;
+            window.TwCheetah.setRunning(oppBar, oppRun);
+            if (oppRun) window.TwCheetah.setSpeed(oppBar, targetWpm);
+        }
 
         rafId = requestAnimationFrame(tick);
     }
@@ -148,8 +164,9 @@
         if (finished) return;
         finished = true;
         if (rafId) cancelAnimationFrame(rafId);
+        if (window.TwCheetah) { window.TwCheetah.setRunning(youBar, false); window.TwCheetah.setRunning(oppBar, false); }
         const e = elapsedMs();
-        youBar.style.width = "100%";
+        youBar.style.left = cheetahLeft(100);
         const wpm = e > 0 ? Math.round(((correct / 5) / (e / 60000)) * 100) / 100 : 0;
         const acc = keypresses > 0 ? Math.round((correct / keypresses) * 10000) / 100 : 0;
         const won = e <= aiFinishMs;

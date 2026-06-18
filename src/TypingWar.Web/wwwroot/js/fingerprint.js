@@ -35,7 +35,7 @@
         kbEl.innerHTML = ROWS.map(row =>
             `<div class="tw-kb-row">` + row.map(k => {
                 const ms = keyTimings[k] || 0;
-                return `<span class="tw-key" style="background:${colorForMs(ms)}" title="${ms ? Math.round(ms) + ' ms' : 'ma\\'lumot yo\\'q'}">${k}</span>`;
+                return `<span class="tw-key" style="background:${colorForMs(ms)}" title="${ms ? Math.round(ms) + ' ms' : "ma'lumot yo'q"}">${k}</span>`;
             }).join("") + `</div>`
         ).join("");
     }
@@ -77,6 +77,7 @@
 
     sampleEl.addEventListener("click", () => sampleEl.focus());
     sampleEl.addEventListener("keydown", ev => {
+        if (window.TWCaps) window.TWCaps.check(ev);
         if (chars.length === 0) return;
         if (ev.key === "Backspace") {
             ev.preventDefault();

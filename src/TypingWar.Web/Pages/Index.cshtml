@@ -4,10 +4,136 @@
     ViewData["Title"] = "Bosh sahifa";
 }
 
-<div class="tw-hero">
-    <img src="~/img/typingwar-logo.png" alt="TypingWar gepard" height="120" class="mb-3" />
-    <h1 class="display-4">TypingWar<span class="tw-accent">.uz</span></h1>
-    <p class="lead">Eng tez barmoqlar g'alaba qozonadi 🐆</p>
-    <p class="text-secondary">O'zbek tilidagi typing musobaqa platformasi</p>
-    <a class="btn btn-tw btn-lg mt-3" asp-page="/Practice">Boshlash 🚀</a>
-</div>
+<section class="tw-home-hero">
+    <div class="tw-home-glow"></div>
+
+    <div class="tw-home-grid">
+        <div class="tw-home-copy">
+            <span class="tw-home-badge">
+                <i class="bi bi-lightning-charge-fill"></i> O'zbekistondagi #1 typing platforma
+            </span>
+            <h1 class="tw-home-title">TypingWar<span class="tw-accent">.uz</span></h1>
+            <p class="tw-home-tagline">Eng tez barmoqlar g'alaba qozonadi 🐆</p>
+            <p class="tw-home-lead">
+                O'zbek, ingliz va rus tilida tezlik va aniqlikni o'lchang. AI raqib, real-time
+                poygalar, jamoaviy musobaqalar va O'zbekiston bo'ylab reyting — barchasi bir joyda.
+            </p>
+
+            <div class="tw-home-cta">
+                <a class="btn btn-tw btn-lg" asp-page="/Practice">
+                    <i class="bi bi-keyboard-fill"></i> Mashqni boshlash
+                </a>
+                <a class="btn tw-btn-ghost btn-lg" asp-page="/Race">
+                    <i class="bi bi-flag-fill"></i> Poygaga kirish
+                </a>
+            </div>
+
+            <div class="tw-home-metrics">
+                <div class="tw-metric">
+                    <span class="tw-metric-num">5</span>
+                    <span class="tw-metric-lbl">Vaqt rejimi</span>
+                </div>
+                <div class="tw-metric">
+                    <span class="tw-metric-num">14</span>
+                    <span class="tw-metric-lbl">Hudud reytingi</span>
+                </div>
+                <div class="tw-metric">
+                    <span class="tw-metric-num">3</span>
+                    <span class="tw-metric-lbl">Til</span>
+                </div>
+                <div class="tw-metric">
+                    <span class="tw-metric-num">∞</span>
+                    <span class="tw-metric-lbl">Poyga</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tw-cheetah-stage">
+            <div id="tw-cheetah-3d" class="tw-cheetah-3d" aria-label="3D yuguruvchi gepard">
+                <img src="~/img/typingwar-logo.png" alt="TypingWar gepard" class="tw-cheetah-fallback" />
+            </div>
+            <div class="tw-cheetah-caption">
+                <i class="bi bi-keyboard-fill"></i> 3D — klaviaturada tez yozayotgan gepard
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="tw-home-section">
+    <h2 class="tw-home-h2"><i class="bi bi-stars"></i> Imkoniyatlar</h2>
+    <div class="tw-feature-grid">
+        <a class="tw-feature" asp-page="/Race">
+            <span class="tw-feature-ic"><i class="bi bi-robot"></i></span>
+            <h3>AI Raqib</h3>
+            <p>Sizning darajangizga moslashadigan aqlli raqibga qarshi yuguring.</p>
+        </a>
+        <a class="tw-feature" asp-page="/Rooms">
+            <span class="tw-feature-ic"><i class="bi bi-people-fill"></i></span>
+            <h3>Do'stlar xonasi</h3>
+            <p>8 xonali kod bilan do'stlaringizni chaqiring va real-time poyga qiling.</p>
+        </a>
+        <a class="tw-feature" asp-page="/Teams">
+            <span class="tw-feature-ic"><i class="bi bi-shield-fill-check"></i></span>
+            <h3>5x5 Jamoaviy</h3>
+            <p>Jamoa bo'lib WPM yig'ing — eng kuchli besh barmoq g'olib.</p>
+        </a>
+        <a class="tw-feature" asp-page="/Room">
+            <span class="tw-feature-ic"><i class="bi bi-fire"></i></span>
+            <h3>Sabotaj</h3>
+            <p>Blackout, Shuffle, Mirror — yetakchini chalg'iting va oldinga o'ting.</p>
+        </a>
+        <a class="tw-feature" asp-page="/Tournaments">
+            <span class="tw-feature-ic"><i class="bi bi-trophy-fill"></i></span>
+            <h3>Turnir</h3>
+            <p>16/32 kishilik bracket, live natijalar va tomoshabin rejimi.</p>
+        </a>
+        <a class="tw-feature" asp-page="/Contest">
+            <span class="tw-feature-ic"><i class="bi bi-calendar-check-fill"></i></span>
+            <h3>Kunlik musobaqa</h3>
+            <p>Har kuni 20:00 da yangi matn, streak tizimi va badge'lar.</p>
+        </a>
+        <a class="tw-feature" asp-page="/Map">
+            <span class="tw-feature-ic"><i class="bi bi-map-fill"></i></span>
+            <h3>O'zbekiston xaritasi</h3>
+            <p>14 hudud bo'yicha jonli WPM heat map — qaysi viloyat tezroq?</p>
+        </a>
+        <a class="tw-feature" asp-page="/Fingerprint">
+            <span class="tw-feature-ic"><i class="bi bi-fingerprint"></i></span>
+            <h3>Yozish pasporti</h3>
+            <p>Keystroke tahlili va sekin tugmalar uchun klaviatura heat map.</p>
+        </a>
+    </div>
+</section>
+
+<section class="tw-home-section">
+    <div class="tw-author">
+        <div class="tw-author-avatar">
+            <i class="bi bi-person-fill"></i>
+        </div>
+        <div class="tw-author-body">
+            <span class="tw-author-tag"><i class="bi bi-code-slash"></i> Muallif</span>
+            <h3 class="tw-author-name">Javohir Sadullayev</h3>
+            <p class="tw-author-role">Full-stack dasturchi · TypingWar.uz asoschisi</p>
+            <p class="tw-author-bio">
+                TypingWar.uz — O'zbekistonlik typing ishqibozlari uchun noldan yozilgan,
+                ASP.NET Core, SignalR va real-time texnologiyalarga qurilgan ochiq platforma.
+                Maqsad — O'zbek tilida tez va aniq yozishni qiziqarli musobaqaga aylantirish.
+            </p>
+            <div class="tw-author-links">
+                <a class="tw-author-link" href="mailto:javohirsadullayev836@gmail.com">
+                    <i class="bi bi-envelope-fill"></i> Email
+                </a>
+                <span class="tw-author-link">
+                    <i class="bi bi-geo-alt-fill"></i> O'zbekiston
+                </span>
+                <span class="tw-author-link">
+                    <i class="bi bi-stack"></i> ASP.NET Core 8 · SignalR · Three.js
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script type="module" src="~/js/home-cheetah.js" asp-append-version="true"></script>
+}

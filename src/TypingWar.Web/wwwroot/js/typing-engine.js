@@ -15,6 +15,7 @@
     const timerEl = document.getElementById("tw-timer");
     const resultEl = document.getElementById("tw-result");
     const hintEl = root.querySelector(".tw-hint");
+    const cheetahEl = document.getElementById("tw-cheetah-pos");
 
     // Holat
     let chars = [];          // matnning belgilari (probel ham)
@@ -27,19 +28,45 @@
     let textId = null;
     let liveTimer = null;
     let caretEl = null;
+    let wordsInner = null;   // harflar va karet shu ichki blokda — qatorlarni surish uchun
+    let lastKeyTime = 0;     // oxirgi bosish vaqti (mushuk to'xtashi uchun)
+    const RUN_IDLE_MS = 500; // bundan ko'p yozilmasa — mushuk to'xtaydi
+    let keyEvents = [];      // grafik uchun: har bosishning {t: soniya, correct} tarixi
+    let appending = false;   // vaqt rejimida so'z qo'shish jarayoni davom etyaptimi
+    let lastGraphData = null;// natija grafigini qayta chizish uchun
+    let chartGeom = null;    // grafik geometriyasi (hover hisoblovi uchun)
 
     function num(v, d) { const n = parseInt(v, 10); return isNaN(n) ? d : n; }
+
+    // Tepa ko'rsatkichlar (WPM / Aniqlik / Soniya) — sozlamaga qarab ko'rsatish/yashirish
+    function applyStatVisibility() {
+        // Butun statistika paneli (katta div) va mushuk+yo'lakcha — sozlamada yoqilsa ko'rinadi
+        const statsPanel = root.querySelector(".tw-stats");
+        const track = root.querySelector(".tw-practice-track");
+        if (statsPanel) statsPanel.style.display = S.get("showStatsPanel") === false ? "none" : "";
+        if (track) track.style.display = S.get("showCheetah") === false ? "none" : "";
+
+        const map = {
+            "tw-stat-wpm": S.get("showLiveWpm"),
+            "tw-stat-acc": S.get("showLiveAcc"),
+            "tw-stat-timer": S.get("showLiveTimer")
+        };
+        for (const id in map) {
+            const el = document.getElementById(id);
+            if (el) el.style.display = map[id] === false ? "none" : "";
+        }
+    }
 
     function nearestTimeMode(elapsed) {
         return TIME_BUCKETS.reduce((a, b) => Math.abs(b - elapsed) < Math.abs(a - elapsed) ? b : a);
     }
 
-    async function loadText() {
+    async function loadText(count) {
         const mode = S.get("textMode");
         const lang = S.get("language");
         const diff = S.get("difficulty");
-        const count = S.get("wordCount");
-        const url = `/api/practice/text?mode=${mode}&language=${lang}&difficulty=${diff}&wordCount=${count}`;
+        const wc = count || S.get("wordCount");
+        const url = `/api/practice/text?mode=${mode}&language=${lang}&difficulty=${diff}&wordCount=${wc}`;
         try {
             const r = await fetch(url, { credentials: "same-origin" });
             const dto = await r.json();
@@ -49,11 +76,42 @@
         }
     }
 
+    // Vaqt rejimida matn tugamasin — oxiriga yetganda yana so'z qo'shamiz (monkeytype kabi)
+    async function appendMoreWords() {
+        if (appending || finished) return;
+        appending = true;
+        const dto = await loadText(50);
+        if (!finished && dto && dto.content) appendChars(" " + dto.content);
+        appending = false;
+    }
+
+    // Mavjud matn oxiriga yangi belgilarni (span bilan) qo'shadi
+    function appendChars(text) {
+        const newChars = Array.from(text);
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < newChars.length; i++) {
+            const span = document.createElement("span");
+            span.className = "tw-letter";
+            span.textContent = newChars[i];
+            frag.appendChild(span);
+            letterEls.push(span);
+            chars.push(newChars[i]);
+            status.push(undefined);
+        }
+        const container = wordsInner || wordsEl;
+        if (caretEl) container.insertBefore(frag, caretEl);
+        else container.appendChild(frag);
+    }
+
     function render(text) {
         chars = Array.from(text);
         letterEls = [];
         status = new Array(chars.length);
+        keyEvents = [];
         wordsEl.textContent = "";
+
+        wordsInner = document.createElement("div");
+        wordsInner.className = "tw-words-inner";
 
         const frag = document.createDocumentFragment();
         for (let i = 0; i < chars.length; i++) {
@@ -63,26 +121,95 @@
             frag.appendChild(span);
             letterEls.push(span);
         }
-        wordsEl.appendChild(frag);
+        wordsInner.appendChild(frag);
 
         caretEl = document.createElement("span");
         caretEl.className = "tw-caret";
-        wordsEl.appendChild(caretEl);
+        wordsInner.appendChild(caretEl);
+
+        wordsEl.appendChild(wordsInner);
         moveCaret();
     }
 
     function moveCaret() {
         if (!caretEl) return;
-        let left, top, h;
+        let left, top, w, h;
         if (pos < letterEls.length) {
             const el = letterEls[pos];
-            left = el.offsetLeft; top = el.offsetTop; h = el.offsetHeight;
+            left = el.offsetLeft; top = el.offsetTop; w = el.offsetWidth; h = el.offsetHeight;
         } else if (letterEls.length) {
             const el = letterEls[letterEls.length - 1];
-            left = el.offsetLeft + el.offsetWidth; top = el.offsetTop; h = el.offsetHeight;
+            left = el.offsetLeft + el.offsetWidth; top = el.offsetTop; w = el.offsetWidth; h = el.offsetHeight;
         } else { return; }
-        caretEl.style.transform = `translate(${left}px, ${top}px)`;
-        caretEl.style.height = h + "px";
+
+        // Karet uslubiga qarab o'lcham va joylashuv (Underline — joriy harf ostida)
+        const style = S.get("caretStyle") || "Line";
+        const cw = Math.max(w, 6);
+        let y = top;
+        if (style === "Underline") {
+            caretEl.style.width = cw + "px";
+            caretEl.style.height = "2px";
+            y = top + h - 2;
+        } else if (style === "Block") {
+            caretEl.style.width = cw + "px";
+            caretEl.style.height = h + "px";
+        } else {
+            caretEl.style.width = "2px";
+            caretEl.style.height = h + "px";
+        }
+        caretEl.style.transform = `translate(${left}px, ${y}px)`;
+        updateCurrentWord();
+        updateScroll();
+    }
+
+    // Tugagan qatorlarni yuqoriga suradi — joriy qator doim eng tepada ko'rinadi
+    // (foydalanuvchi bitta qatorda turib yozadi, yozib bo'lingan qator yo'qoladi)
+    function updateScroll() {
+        if (!wordsInner || !letterEls.length) return;
+        const el = (pos < letterEls.length) ? letterEls[pos] : letterEls[letterEls.length - 1];
+        if (!el) return;
+        const offset = el.offsetTop - letterEls[0].offsetTop;
+        wordsInner.style.transform = `translateY(${-offset}px)`;
+    }
+
+    // Joriy so'zni belgilaydi (ko'rsatkich qaysi so'zga kelganini bildiradi)
+    function updateCurrentWord() {
+        if (!chars.length) return;
+        for (let i = 0; i < letterEls.length; i++)
+            if (letterEls[i]) letterEls[i].classList.remove("tw-cur-word");
+        const p = Math.min(pos, chars.length - 1);
+        if (chars[p] === " ") return; // probelda — so'z belgilanmaydi
+        let s = p; while (s > 0 && chars[s - 1] !== " ") s--;
+        let e = p; while (e < chars.length - 1 && chars[e + 1] !== " ") e++;
+        for (let i = s; i <= e; i++)
+            if (letterEls[i]) letterEls[i].classList.add("tw-cur-word");
+    }
+
+    const CHEETAH_REF_WPM = 80; // vaqt rejimida finishga yetish uchun talab etiladigan sur'at
+    function updateCheetah() {
+        if (!cheetahEl) return;
+        let pct;
+        if (S.get("timedMode")) {
+            // Mushuk YOZILGAN belgilarga qarab yuradi (vaqtga emas) — yozmasa joyida turadi
+            const limit = S.get("timeLimitSeconds");
+            const target = Math.max(1, (limit / 60) * CHEETAH_REF_WPM * 5);
+            pct = (pos / target) * 100;
+        } else {
+            if (chars.length === 0) return;
+            pct = (pos / chars.length) * 100;
+        }
+        cheetahEl.style.left = (2 + Math.min(100, pct) * 0.82) + '%';
+    }
+
+    // Mushukni yurg'izish/to'xtatish va tezligini WPM ga moslash
+    function setCheetahRun(on, wpm) {
+        if (!cheetahEl) return;
+        if (window.TwCheetah) {
+            window.TwCheetah.setRunning(cheetahEl, on);
+            if (on) window.TwCheetah.setSpeed(cheetahEl, wpm || 0);
+        } else {
+            cheetahEl.classList.toggle("tw-running", on);
+        }
     }
 
     function correctCount() {
@@ -121,17 +248,24 @@
         if (S.get("showLiveWpm")) wpmEl.textContent = Math.round(wpm);
         accEl.textContent = Math.round(acc);
 
+        // Mushuk: yozayotgan bo'lsa WPM tezligida yuradi, bo'sh tursa to'xtaydi
+        const idle = performance.now() - lastKeyTime > RUN_IDLE_MS;
+        if (idle) setCheetahRun(false);
+        else setCheetahRun(true, wpm);
+
         if (S.get("timedMode")) {
             const limit = S.get("timeLimitSeconds");
             const remaining = Math.max(0, limit - e);
             timerEl.textContent = Math.ceil(remaining);
-            if (e >= limit) finish();
+            if (e >= limit) finish();        // mushuk pozitsiyasi yozish paytida (handleKey) yangilanadi
         } else {
             timerEl.textContent = Math.floor(e);
         }
     }
 
     function handleKey(ev) {
+        if (window.TWCaps) window.TWCaps.check(ev);   // Caps Lock ogohlantirishi
+
         if (finished) {
             if (ev.key === "Tab") { ev.preventDefault(); restart(); }
             return;
@@ -160,21 +294,28 @@
         const expected = chars[pos];
         const correct = ev.key === expected;
 
+        // Har bosish (to'g'ri/xato) hisoblanadi — aniqlik va grafik to'g'ri bo'lsin
+        keypresses++;
+        keyEvents.push({ t: elapsedSec(), correct });   // grafik tarixi
+        if (window.TWSound) window.TWSound.play(S.get("soundOnClick"), correct);
+        lastKeyTime = performance.now();
+        setCheetahRun(true);
+
         if (!correct && S.get("stopOnError")) {
-            // xato bo'lsa oldinga o'tkazmaydi
+            // Xato — oldinga o'tkazmaydi, lekin xato sifatida belgilanadi (aniqlikka ta'sir qiladi)
             status[pos] = "incorrect";
             updateLetterView(pos);
             return;
         }
 
-        keypresses++;
         status[pos] = correct ? "correct" : "incorrect";
         updateLetterView(pos);
         pos++;
         moveCaret();
+        updateCheetah();
 
-        // Ovozli typing (sozlama: Off/Soft/Mechanical/Typewriter)
-        if (window.TWSound) window.TWSound.play(S.get("soundOnClick"), correct);
+        // Vaqt rejimida matn tugashiga oz qolsa — yana so'z qo'shamiz
+        if (S.get("timedMode") && pos > chars.length - 40) appendMoreWords();
 
         if (pos >= chars.length && !S.get("timedMode")) finish();
     }
@@ -183,6 +324,8 @@
         if (finished) return;
         finished = true;
         if (liveTimer) clearInterval(liveTimer);
+        setCheetahRun(false);   // poyga tugadi — mushuk to'xtaydi
+        if (window.TWCaps) window.TWCaps.hide();
 
         const e = elapsedSec();
         const cc = correctCount();
@@ -193,18 +336,211 @@
         const rawWpm = Math.round(((raw / 5) / minutes) * 100) / 100;
         const acc = raw > 0 ? Math.round((cc / raw) * 10000) / 100 : 0;
 
-        showResult(wpm, rawWpm, acc, e);
+        showResult(wpm, rawWpm, acc, e, cc, raw);
 
         const timeMode = S.get("timedMode") ? S.get("timeLimitSeconds") : nearestTimeMode(e);
         await submit(timeMode, cc, incorrect, e);
     }
 
-    function showResult(wpm, rawWpm, acc, e) {
-        document.getElementById("tw-r-wpm").textContent = wpm;
-        document.getElementById("tw-r-raw").textContent = rawWpm;
-        document.getElementById("tw-r-acc").textContent = acc;
-        document.getElementById("tw-r-time").textContent = Math.round(e * 10) / 10;
+    function showResult(wpm, rawWpm, acc, e, cc, raw) {
+        const incorrect = Math.max(0, raw - cc);
+        document.getElementById("tw-r-wpm").textContent = Math.round(wpm);
+        document.getElementById("tw-r-acc").innerHTML = Math.round(acc) + "<small>%</small>";
+        document.getElementById("tw-r-raw").textContent = Math.round(rawWpm);
+        document.getElementById("tw-r-chars").textContent = cc + "/" + incorrect;
+        document.getElementById("tw-r-time").innerHTML = (Math.round(e * 10) / 10) + "<small>s</small>";
+
+        const data = buildGraphData(e);
+        lastGraphData = data;
+        document.getElementById("tw-r-cons").innerHTML = consistency(data.rawWpm) + "<small>%</small>";
+        document.getElementById("tw-r-mode").textContent = S.get("timedMode")
+            ? ("vaqt · " + S.get("timeLimitSeconds") + "s")
+            : ("so'z · " + S.get("wordCount"));
+
+        // Yangi rekord — avvalgi eng yaxshi WPM dan oshsa toj va fon rangi o'zgaradi
+        const isRecord = checkRecord(wpm);
+        const crownEl = document.getElementById("tw-r-crown");
+        if (crownEl) crownEl.classList.toggle("d-none", !isRecord);
+        document.body.classList.toggle("tw-record", isRecord);
+
+        root.classList.add("tw-show-result");       // typing UI yashirinadi
         resultEl.classList.remove("d-none");
+        requestAnimationFrame(() => drawChart(data)); // layoutdan keyin (clientWidth to'g'ri bo'lsin)
+    }
+
+    // Avvalgi eng yaxshi WPM bilan solishtiradi (brauzerda saqlanadi); rekord bo'lsa true
+    function checkRecord(wpm) {
+        let prev = 0;
+        try { prev = parseFloat(localStorage.getItem("tw_best_wpm") || "0") || 0; } catch (e) { }
+        const isRecord = prev > 0 && wpm > prev;
+        if (wpm > prev) { try { localStorage.setItem("tw_best_wpm", String(wpm)); } catch (e) { } }
+        return isRecord;
+    }
+
+    // Har soniya uchun WPM/raw/xato ma'lumotini tayyorlaydi (qayerda tez/sekin/xato)
+    function buildGraphData(duration) {
+        const secs = Math.max(1, Math.ceil(duration));
+        const rawN = new Array(secs).fill(0);
+        const corN = new Array(secs).fill(0);
+        const errN = new Array(secs).fill(0);
+        for (const ev of keyEvents) {
+            let i = Math.floor(ev.t);
+            if (i < 0) i = 0; if (i >= secs) i = secs - 1;
+            rawN[i]++;
+            if (ev.correct) corN[i]++; else errN[i]++;
+        }
+        const rawWpm = [], netWpm = [], errAt = [], accAt = [];
+        for (let i = 0; i < secs; i++) {
+            let win = 1;
+            if (i === secs - 1) win = Math.max(0.5, duration - (secs - 1)); // oxirgi to'liqsiz soniya
+            rawWpm.push((rawN[i] / 5) / (win / 60));
+            netWpm.push((corN[i] / 5) / (win / 60));
+            errAt.push(errN[i]);
+            accAt.push(rawN[i] > 0 ? Math.round((corN[i] / rawN[i]) * 100) : 100);
+        }
+        return { rawWpm, netWpm, errAt, accAt, secs };
+    }
+
+    // Barqarorlik (consistency) — soniyalik raw WPM ning o'zgaruvchanligi
+    function consistency(arr) {
+        const v = arr.filter(x => x > 0);
+        if (v.length < 2) return 100;
+        const mean = v.reduce((a, b) => a + b, 0) / v.length;
+        if (mean <= 0) return 0;
+        const variance = v.reduce((a, b) => a + (b - mean) * (b - mean), 0) / v.length;
+        const cv = Math.sqrt(variance) / mean;
+        return Math.max(0, Math.min(100, Math.round((1 - cv) * 100)));
+    }
+
+    function drawLine(ctx, arr, xAt, yAt, color, w) {
+        ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineJoin = "round"; ctx.beginPath();
+        let started = false;
+        for (let i = 0; i < arr.length; i++) {
+            const x = xAt(i), y = yAt(arr[i]);
+            if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+    }
+
+    // Natija grafigini canvas ga chizadi (WPM oltin, raw kulrang, xato qizil nuqta)
+    // hoverIdx — sichqoncha ko'rsatgan soniya (ko'rsatkich chizig'i va nuqtalar uchun)
+    function drawChart(data, hoverIdx) {
+        const canvas = document.getElementById("tw-r-chart");
+        if (!canvas) return;
+        const dpr = window.devicePixelRatio || 1;
+        const cssW = canvas.clientWidth || 600;
+        const cssH = 200;
+        canvas.width = Math.round(cssW * dpr);
+        canvas.height = Math.round(cssH * dpr);
+        const ctx = canvas.getContext("2d");
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, cssW, cssH);
+
+        const cs = getComputedStyle(document.documentElement);
+        const gold = (cs.getPropertyValue("--tw-gold") || "").trim() || "#E8A020";
+        const sub = "#8a8aa0";
+        const rawCol = "rgba(138,138,160,.55)";
+        const errCol = "#ff5555";
+
+        const padL = 38, padR = 12, padT = 14, padB = 22;
+        const plotW = Math.max(10, cssW - padL - padR);
+        const plotH = cssH - padT - padB;
+        const n = data.secs;
+
+        const maxWpm = Math.max(10, ...data.rawWpm, ...data.netWpm);
+        const maxY = Math.max(20, Math.ceil(maxWpm / 20) * 20);
+        const xAt = i => n <= 1 ? padL + plotW / 2 : padL + (i / (n - 1)) * plotW;
+        const yAt = v => padT + plotH - (Math.max(0, v) / maxY) * plotH;
+
+        // Grafik geometriyasi — hover hisoblovi uchun saqlanadi
+        chartGeom = { padL, padT, plotW, plotH, n, xAt, maxY, cssW, cssH };
+
+        // To'r va Y belgilar
+        ctx.font = "10px " + ((cs.getPropertyValue("--tw-ui-font") || "").trim() || "sans-serif");
+        const steps = 4;
+        for (let s = 0; s <= steps; s++) {
+            const val = maxY * s / steps;
+            const y = yAt(val);
+            ctx.strokeStyle = "rgba(138,138,160,.14)"; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(cssW - padR, y); ctx.stroke();
+            ctx.fillStyle = sub; ctx.fillText(String(Math.round(val)), 6, y + 3);
+        }
+        // X belgilar (soniya)
+        ctx.fillStyle = sub; ctx.textAlign = "center";
+        const xStep = Math.max(1, Math.round(n / 8));
+        for (let i = 0; i < n; i += xStep) ctx.fillText(String(i + 1), xAt(i), cssH - 6);
+        ctx.textAlign = "start";
+
+        // Hover ko'rsatkich chizig'i
+        if (hoverIdx != null && hoverIdx >= 0 && hoverIdx < n) {
+            const hx = xAt(hoverIdx);
+            ctx.strokeStyle = "rgba(232,160,32,.5)"; ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.moveTo(hx, padT); ctx.lineTo(hx, padT + plotH); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        drawLine(ctx, data.rawWpm, xAt, yAt, rawCol, 1.5);
+        drawLine(ctx, data.netWpm, xAt, yAt, gold, 2.5);
+
+        // Xato nuqtalari (o'sha soniyada xato bo'lsa) — qizil halqa bilan ajralib turadi
+        for (let i = 0; i < n; i++) {
+            if (data.errAt[i] > 0) {
+                const x = xAt(i), y = yAt(data.netWpm[i] || 0);
+                ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+                ctx.fillStyle = errCol; ctx.fill();
+                ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(0,0,0,.35)"; ctx.stroke();
+            }
+        }
+
+        // Hover dagi nuqtalarni yoritamiz
+        if (hoverIdx != null && hoverIdx >= 0 && hoverIdx < n) {
+            const hx = xAt(hoverIdx);
+            [[data.rawWpm[hoverIdx], rawCol], [data.netWpm[hoverIdx], gold]].forEach(([v, c]) => {
+                ctx.beginPath(); ctx.arc(hx, yAt(v), 4, 0, Math.PI * 2);
+                ctx.fillStyle = c; ctx.fill();
+                ctx.lineWidth = 2; ctx.strokeStyle = (cs.getPropertyValue("--tw-bg") || "#0F0F1A").trim();
+                ctx.stroke();
+            });
+        }
+    }
+
+    // Sichqoncha grafik ustida — eng yaqin soniyani topib, tooltip ko'rsatadi
+    function onChartHover(ev) {
+        if (!lastGraphData || !chartGeom) return;
+        const canvas = document.getElementById("tw-r-chart");
+        const tip = document.getElementById("tw-r-tooltip");
+        if (!canvas || !tip) return;
+        const rect = canvas.getBoundingClientRect();
+        const mx = ev.clientX - rect.left;
+        const g = chartGeom;
+        const n = g.n;
+        let idx = n <= 1 ? 0 : Math.round(((mx - g.padL) / g.plotW) * (n - 1));
+        idx = Math.max(0, Math.min(n - 1, idx));
+
+        drawChart(lastGraphData, idx);
+
+        const d = lastGraphData;
+        tip.innerHTML =
+            "<div class='tw-tip-sec'>" + (idx + 1) + "-soniya</div>" +
+            "<div><i class='tw-lg-dot tw-lg-wpm'></i>wpm: <b>" + Math.round(d.netWpm[idx]) + "</b></div>" +
+            "<div><i class='tw-lg-dot tw-lg-raw'></i>raw: <b>" + Math.round(d.rawWpm[idx]) + "</b></div>" +
+            "<div><i class='tw-lg-dot tw-lg-err'></i>xato: <b>" + d.errAt[idx] + "</b></div>" +
+            "<div>aniqlik: <b>" + d.accAt[idx] + "%</b></div>";
+
+        const hx = g.xAt(idx);
+        tip.style.display = "block";
+        const tipW = tip.offsetWidth;
+        let left = hx - tipW / 2;
+        left = Math.max(0, Math.min(g.cssW - tipW, left));
+        tip.style.left = left + "px";
+        tip.style.top = "0px";
+    }
+
+    function onChartLeave() {
+        const tip = document.getElementById("tw-r-tooltip");
+        if (tip) tip.style.display = "none";
+        if (lastGraphData) drawChart(lastGraphData);
     }
 
     async function submit(timeMode, correctChars, incorrectChars, elapsedSeconds) {
@@ -235,11 +571,17 @@
 
     async function restart() {
         finished = false;
-        pos = 0; keypresses = 0; startTime = null;
+        pos = 0; keypresses = 0; startTime = null; keyEvents = []; appending = false;
         if (liveTimer) clearInterval(liveTimer);
         wpmEl.textContent = "0"; accEl.textContent = "100"; timerEl.textContent = "0";
+        if (cheetahEl) cheetahEl.style.left = "2%";
+        lastKeyTime = 0;
+        setCheetahRun(false);   // yangi matn — mushuk turadi (yozilguncha)
+        root.classList.remove("tw-show-result");   // typing UI qaytadi
+        document.body.classList.remove("tw-record");
         resultEl.classList.add("d-none");
-        const dto = await loadText();
+        // Vaqt rejimida matn yetarli bo'lsin (oxirida yana qo'shiladi)
+        const dto = await loadText(S.get("timedMode") ? 60 : S.get("wordCount"));
         textId = dto.textId;
         render(dto.content);
         root.focus();
@@ -247,24 +589,24 @@
 
     // Config tugmalari
     function refreshConfigButtons() {
+        const timed = !!S.get("timedMode");
+
         root.querySelectorAll(".tw-opt").forEach(btn => {
             const key = btn.dataset.key;
             let val = btn.dataset.value;
             const cur = S.get(key);
             let active;
-            if (key === "timedMode") active = (val === "false" && cur === false);
+            if (key === "timedMode") active = ((val === "true") === timed);
             else if (typeof cur === "number") active = (num(val, NaN) === cur);
             else active = (String(cur) === val);
             btn.classList.toggle("tw-active", !!active);
         });
-        // "Vaqt" guruhida yoqilgan rejim belgisi
-        if (S.get("timedMode")) {
-            root.querySelectorAll('.tw-opt[data-key="timeLimitSeconds"]').forEach(b => {
-                b.classList.toggle("tw-active", num(b.dataset.value, -1) === S.get("timeLimitSeconds"));
-            });
-            const off = root.querySelector('.tw-opt[data-value="false"][data-key="timedMode"]');
-            if (off) off.classList.remove("tw-active");
-        }
+
+        // Monkeytype kabi: vaqt rejimida "So'z" guruhi yashirinadi, aksincha
+        const countGroup = root.querySelector('.tw-config-group[data-group="count"]');
+        const timedGroup = root.querySelector('.tw-config-group[data-group="timed"]');
+        if (countGroup) countGroup.style.display = timed ? "none" : "";
+        if (timedGroup) timedGroup.style.display = timed ? "" : "none";
     }
 
     root.querySelectorAll(".tw-opt").forEach(btn => {
@@ -273,7 +615,7 @@
             const key = btn.dataset.key;
             let val = btn.dataset.value;
             if (key === "timedMode") {
-                S.setAll({ timedMode: false });
+                S.setAll({ timedMode: val === "true" });
             } else if (key === "timeLimitSeconds") {
                 S.setAll({ timedMode: true, timeLimitSeconds: num(val, 30) });
             } else if (key === "wordCount") {
@@ -295,10 +637,21 @@
     document.getElementById("tw-restart").addEventListener("click", restart);
     document.getElementById("tw-again").addEventListener("click", restart);
 
-    S.onChange(refreshConfigButtons);
-    window.addEventListener("resize", moveCaret);
+    // Grafik hover — tooltip va ko'rsatkich chizig'i
+    const chartCanvas = document.getElementById("tw-r-chart");
+    if (chartCanvas) {
+        chartCanvas.addEventListener("mousemove", onChartHover);
+        chartCanvas.addEventListener("mouseleave", onChartLeave);
+    }
+
+    S.onChange(() => { refreshConfigButtons(); applyStatVisibility(); moveCaret(); });
+    window.addEventListener("resize", () => {
+        moveCaret();
+        if (lastGraphData && !resultEl.classList.contains("d-none")) drawChart(lastGraphData);
+    });
 
     // Init
     refreshConfigButtons();
+    applyStatVisibility();
     restart();
 })();

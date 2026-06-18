@@ -23,6 +23,7 @@
 
     wordsEl.addEventListener("click", () => wordsEl.focus());
     wordsEl.addEventListener("keydown", ev => {
+        if (window.TWCaps) window.TWCaps.check(ev);
         if (finished || chars.length === 0) return;
         if (ev.key === "Backspace") {
             ev.preventDefault();

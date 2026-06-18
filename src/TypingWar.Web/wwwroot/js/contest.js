@@ -75,6 +75,7 @@
     $("tw-contest-reset").addEventListener("click", () => beginRace(chars.join("")));
 
     function onKey(ev) {
+        if (window.TWCaps) window.TWCaps.check(ev);
         if (finished || chars.length === 0) return;
         if (ev.key === "Backspace") {
             ev.preventDefault();
@@ -92,6 +93,7 @@
         if (ok) { el.classList.add("tw-correct"); el.classList.remove("tw-incorrect"); correct++; }
         else { el.classList.add("tw-incorrect"); el.classList.remove("tw-correct"); }
         pos++;
+        if (window.TWSound && window.TWSettings) window.TWSound.play(window.TWSettings.get("soundOnClick"), ok);
         liveEl.textContent = Math.round(wpmNow()) + " wpm";
         if (pos >= chars.length) finish();
     }

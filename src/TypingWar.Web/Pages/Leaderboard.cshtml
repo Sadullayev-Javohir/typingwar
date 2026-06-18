@@ -5,30 +5,35 @@
 }
 
 <div class="tw-lb">
-    <h2 class="tw-accent text-center mb-3">🏆 Reyting</h2>
+    <header class="tw-lb-head">
+        <div class="tw-lb-title">
+            <i class="bi bi-trophy-fill"></i>
+            <h2>Reyting</h2>
+        </div>
+        <p class="tw-lb-sub">Eng tez barmoqlar — top 50 o'yinchi</p>
+    </header>
 
-    <div class="tw-lb-tabs text-center mb-3">
-        <button class="tw-tab" data-mode="Ten">10s</button>
-        <button class="tw-tab" data-mode="Fifteen">15s</button>
-        <button class="tw-tab tw-active" data-mode="Thirty">30s</button>
-        <button class="tw-tab" data-mode="Sixty">60s</button>
-        <button class="tw-tab" data-mode="OneTwenty">120s</button>
+    <div class="tw-lb-tabs" role="tablist">
+        <button class="tw-tab" data-mode="Ten"><i class="bi bi-lightning-charge-fill"></i>10s</button>
+        <button class="tw-tab" data-mode="Fifteen"><i class="bi bi-stopwatch"></i>15s</button>
+        <button class="tw-tab tw-active" data-mode="Thirty"><i class="bi bi-stopwatch-fill"></i>30s</button>
+        <button class="tw-tab" data-mode="Sixty"><i class="bi bi-clock"></i>60s</button>
+        <button class="tw-tab" data-mode="OneTwenty"><i class="bi bi-clock-fill"></i>120s</button>
     </div>
 
-    <table class="table tw-lb-table">
-        <thead>
-            <tr>
-                <th style="width:60px">#</th>
-                <th>Foydalanuvchi</th>
-                <th>Hudud</th>
-                <th class="text-end">WPM</th>
-                <th class="text-end">Aniqlik</th>
-            </tr>
-        </thead>
-        <tbody id="tw-lb-body">
-            <tr><td colspan="5" class="text-center text-secondary">Yuklanmoqda…</td></tr>
-        </tbody>
-    </table>
+    <div id="tw-lb-podium" class="tw-lb-podium"></div>
+
+    <div class="tw-lb-list-head">
+        <span class="c-rank">#</span>
+        <span class="c-user"><i class="bi bi-person-fill"></i> Foydalanuvchi</span>
+        <span class="c-region"><i class="bi bi-geo-alt-fill"></i> Hudud</span>
+        <span class="c-acc"><i class="bi bi-bullseye"></i> Aniqlik</span>
+        <span class="c-wpm"><i class="bi bi-speedometer2"></i> WPM</span>
+    </div>
+
+    <div id="tw-lb-list" class="tw-lb-list">
+        <div class="tw-lb-loading"><i class="bi bi-arrow-repeat tw-spin"></i> Yuklanmoqda…</div>
+    </div>
 </div>
 
 @section Scripts {

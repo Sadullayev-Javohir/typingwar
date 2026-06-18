@@ -21,7 +21,7 @@ public class SaveUserSettingsCommandValidator : AbstractValidator<SaveUserSettin
             .WithMessage("WordCount 10/25/50/100 bo'lishi kerak.");
         RuleFor(x => x.Settings.TimeLimitSeconds).Must(AllowedTimeLimits.Contains)
             .WithMessage("TimeLimitSeconds 10/15/30/60/120 bo'lishi kerak.");
-        RuleFor(x => x.Settings.FontSize).InclusiveBetween(14, 24);
+        RuleFor(x => x.Settings.FontSize).InclusiveBetween(14, 28);
         RuleFor(x => x.Settings.FontFamily).NotEmpty().MaximumLength(64);
         RuleFor(x => x.Settings.TextMode).IsInEnum();
         RuleFor(x => x.Settings.Difficulty).IsInEnum();

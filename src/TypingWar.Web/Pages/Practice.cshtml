@@ -8,28 +8,31 @@
 
     <div class="tw-config">
         <div class="tw-config-group" data-group="language">
-            <span class="tw-config-label">Til:</span>
+            <span class="tw-config-label"><i class="bi bi-translate"></i>Til:</span>
             <button class="tw-opt" data-key="language" data-value="Uzbek">uz</button>
             <button class="tw-opt" data-key="language" data-value="English">en</button>
-            <button class="tw-opt" data-key="language" data-value="Russian">ru</button>
         </div>
         <div class="tw-config-group" data-group="mode">
-            <span class="tw-config-label">Rejim:</span>
+            <span class="tw-config-label"><i class="bi bi-type"></i>Rejim:</span>
             <button class="tw-opt" data-key="textMode" data-value="Words">so'z</button>
             <button class="tw-opt" data-key="textMode" data-value="Sentences">jumla</button>
             <button class="tw-opt" data-key="textMode" data-value="Numbers">raqam</button>
             <button class="tw-opt" data-key="textMode" data-value="Code">kod</button>
         </div>
+        <div class="tw-config-group" data-group="testmode">
+            <span class="tw-config-label"><i class="bi bi-sliders"></i>Tur:</span>
+            <button class="tw-opt" data-key="timedMode" data-value="false">so'z soni</button>
+            <button class="tw-opt" data-key="timedMode" data-value="true">vaqt</button>
+        </div>
         <div class="tw-config-group" data-group="count">
-            <span class="tw-config-label">So'z:</span>
+            <span class="tw-config-label"><i class="bi bi-hash"></i>So'z:</span>
             <button class="tw-opt" data-key="wordCount" data-value="10">10</button>
             <button class="tw-opt" data-key="wordCount" data-value="25">25</button>
             <button class="tw-opt" data-key="wordCount" data-value="50">50</button>
             <button class="tw-opt" data-key="wordCount" data-value="100">100</button>
         </div>
         <div class="tw-config-group" data-group="timed">
-            <span class="tw-config-label">Vaqt:</span>
-            <button class="tw-opt" data-key="timedMode" data-value="false">o'chiq</button>
+            <span class="tw-config-label"><i class="bi bi-stopwatch"></i>Vaqt:</span>
             <button class="tw-opt" data-key="timeLimitSeconds" data-value="15">15s</button>
             <button class="tw-opt" data-key="timeLimitSeconds" data-value="30">30s</button>
             <button class="tw-opt" data-key="timeLimitSeconds" data-value="60">60s</button>
@@ -37,28 +40,109 @@
     </div>
 
     <div class="tw-stats">
-        <div class="tw-stat"><span id="tw-wpm">0</span><label>WPM</label></div>
-        <div class="tw-stat"><span id="tw-acc">100</span><label>aniqlik %</label></div>
-        <div class="tw-stat"><span id="tw-timer">0</span><label>soniya</label></div>
+        <div class="tw-stat" id="tw-stat-wpm">
+            <span id="tw-wpm">0</span>
+            <label><i class="bi bi-speedometer2"></i>WPM</label>
+        </div>
+        <div class="tw-stat" id="tw-stat-acc">
+            <span id="tw-acc">100</span>
+            <label><i class="bi bi-bullseye"></i>Aniqlik %</label>
+        </div>
+        <div class="tw-stat" id="tw-stat-timer">
+            <span id="tw-timer">0</span>
+            <label><i class="bi bi-clock"></i>Soniya</label>
+        </div>
+    </div>
+
+    <div class="tw-practice-track">
+        <div class="tw-track">
+            <div class="tw-cheetah-run tw-cheetah-gold" id="tw-cheetah-pos">
+                <svg class="tw-cheetah-svg" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 28 C6 22 3 15 5 8" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/>
+                    <circle cx="5" cy="8" r="4" fill="currentColor"/>
+                    <ellipse cx="35" cy="28" rx="22" ry="11" fill="currentColor"/>
+                    <ellipse cx="54" cy="22" rx="9" ry="8" fill="currentColor"/>
+                    <circle cx="64" cy="16" r="11" fill="currentColor"/>
+                    <polygon points="57,8 55,1 61,7" fill="currentColor"/>
+                    <polygon points="68,7 71,1 73,8" fill="currentColor"/>
+                    <polygon points="58,8 56.5,3 61,8" fill="rgba(0,0,0,.28)"/>
+                    <polygon points="69,7 71.5,2 73,8" fill="rgba(0,0,0,.28)"/>
+                    <g class="tw-eye">
+                        <circle cx="68" cy="13" r="3.5" fill="#08081a"/>
+                        <circle cx="69" cy="12" r="1.2" fill="rgba(255,255,255,.9)"/>
+                    </g>
+                    <path d="M66,20 Q67,23 65,26" stroke="rgba(0,0,0,.3)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+                    <path d="M62,20 Q61,23 63,26" stroke="rgba(0,0,0,.3)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+                    <ellipse cx="74" cy="20" rx="3" ry="2.5" fill="currentColor"/>
+                    <ellipse cx="74" cy="21" rx="1.5" ry="1.1" fill="rgba(0,0,0,.35)"/>
+                    <circle cx="25" cy="23" r="2.8" fill="rgba(0,0,0,.2)"/>
+                    <circle cx="35" cy="18" r="2.4" fill="rgba(0,0,0,.2)"/>
+                    <circle cx="44" cy="25" r="2.6" fill="rgba(0,0,0,.2)"/>
+                    <circle cx="28" cy="33" r="2.2" fill="rgba(0,0,0,.2)"/>
+                    <circle cx="40" cy="33" r="2.4" fill="rgba(0,0,0,.2)"/>
+                    <circle cx="18" cy="29" r="1.8" fill="rgba(0,0,0,.2)"/>
+                    <g class="tw-leg-bl"><line x1="21" y1="37" x2="17" y2="48" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></g>
+                    <g class="tw-leg-br"><line x1="30" y1="38" x2="32" y2="48" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></g>
+                    <g class="tw-leg-fl"><line x1="47" y1="37" x2="43" y2="48" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></g>
+                    <g class="tw-leg-fr"><line x1="55" y1="36" x2="59" y2="48" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></g>
+                </svg>
+            </div>
+            <span class="tw-track-finish">🏁</span>
+        </div>
     </div>
 
     <div id="tw-words" class="tw-words" aria-label="typing matni"></div>
 
     <div class="tw-actions">
-        <button id="tw-restart" class="btn btn-tw">↻ Qaytadan (Tab)</button>
-        <span class="tw-hint">Yozishni boshlash uchun shu yerga bosing va yozing</span>
+        <button id="tw-restart" class="btn btn-tw">
+            <i class="bi bi-arrow-repeat me-1"></i>Qaytadan <small class="opacity-75">(Tab)</small>
+        </button>
+        <span class="tw-hint"><i class="bi bi-mouse2 me-1"></i>Yozishni boshlash uchun shu yerga bosing va yozing</span>
     </div>
 
-    <div id="tw-result" class="tw-result d-none">
-        <h3 class="tw-accent">Natija</h3>
-        <div class="tw-result-grid">
-            <div><span id="tw-r-wpm">0</span><label>WPM</label></div>
-            <div><span id="tw-r-raw">0</span><label>Raw WPM</label></div>
-            <div><span id="tw-r-acc">0</span><label>aniqlik %</label></div>
-            <div><span id="tw-r-time">0</span><label>soniya</label></div>
+    <div id="tw-result" class="tw-result-screen d-none">
+        <div class="tw-result-top">
+            <div class="tw-result-hero">
+                <div class="tw-hero-stat">
+                    <span id="tw-r-crown" class="tw-crown d-none" title="Yangi rekord!">
+                        <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true">
+                            <path d="M3 17h18l1.2-9.2-5.2 3.4L12 4 6.9 11.2 1.8 7.8 3 17Zm0 2.2h18V21H3v-1.8Z"/>
+                        </svg>
+                    </span>
+                    <label>wpm</label>
+                    <span id="tw-r-wpm" class="tw-hero-val">0</span>
+                </div>
+                <div class="tw-hero-stat">
+                    <label>aniqlik</label>
+                    <span id="tw-r-acc" class="tw-hero-val">0<small>%</small></span>
+                </div>
+            </div>
+            <div class="tw-result-chart">
+                <canvas id="tw-r-chart" height="200"></canvas>
+                <div id="tw-r-tooltip" class="tw-chart-tip" style="display:none"></div>
+                <div class="tw-chart-legend">
+                    <span><i class="tw-lg-dot tw-lg-wpm"></i>wpm</span>
+                    <span><i class="tw-lg-dot tw-lg-raw"></i>raw</span>
+                    <span><i class="tw-lg-dot tw-lg-err"></i>xato</span>
+                </div>
+            </div>
         </div>
+
+        <div class="tw-result-meta">
+            <div><label>raw</label><span id="tw-r-raw">0</span></div>
+            <div><label>belgilar</label><span id="tw-r-chars">0/0</span><small>to'g'ri/xato</small></div>
+            <div><label>barqarorlik</label><span id="tw-r-cons">0<small>%</small></span></div>
+            <div><label>vaqt</label><span id="tw-r-time">0<small>s</small></span></div>
+            <div><label>rejim</label><span id="tw-r-mode">—</span></div>
+        </div>
+
         <p id="tw-r-msg" class="tw-r-msg"></p>
-        <button id="tw-again" class="btn btn-tw mt-2">Yana bir bor</button>
+
+        <div class="tw-result-actions">
+            <button id="tw-again" class="btn btn-tw">
+                <i class="bi bi-arrow-repeat me-1"></i>Yana bir bor <small class="opacity-75">(Tab)</small>
+            </button>
+        </div>
     </div>
 </div>
 

@@ -7,10 +7,13 @@ namespace TypingWar.Web.Controllers;
 /// <summary>Foydalanuvchi sozlamalari (DB ⇄ LocalStorage sinxronlash).</summary>
 public class SettingsController : ApiControllerBase
 {
-    /// <summary>Joriy sozlamalar (anonim — default qaytadi).</summary>
+    /// <summary>Joriy saqlangan sozlamalar (yo'q bo'lsa — 204, LocalStorage saqlanib qoladi).</summary>
     [HttpGet]
     public async Task<ActionResult<UserSettingsDto>> Get()
-        => Ok(await Mediator.Send(new GetUserSettingsQuery()));
+    {
+        var dto = await Mediator.Send(new GetUserSettingsQuery());
+        return dto is null ? NoContent() : Ok(dto);
+    }
 
     /// <summary>Sozlamalarni saqlash (faqat tizimga kirgan foydalanuvchi).</summary>
     [Authorize]

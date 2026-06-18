@@ -5,10 +5,10 @@ using TypingWar.Application.Common.Interfaces;
 
 namespace TypingWar.Application.Features.Settings;
 
-/// <summary>Joriy foydalanuvchining sozlamalarini qaytaradi (yo'q bo'lsa — default).</summary>
-public record GetUserSettingsQuery : IRequest<UserSettingsDto>;
+/// <summary>Joriy foydalanuvchining saqlangan sozlamalarini qaytaradi (yo'q bo'lsa — null).</summary>
+public record GetUserSettingsQuery : IRequest<UserSettingsDto?>;
 
-public class GetUserSettingsQueryHandler : IRequestHandler<GetUserSettingsQuery, UserSettingsDto>
+public class GetUserSettingsQueryHandler : IRequestHandler<GetUserSettingsQuery, UserSettingsDto?>
 {
     private readonly IApplicationDbContext _db;
     private readonly ICurrentUserService _currentUser;
@@ -19,15 +19,15 @@ public class GetUserSettingsQueryHandler : IRequestHandler<GetUserSettingsQuery,
         _currentUser = currentUser;
     }
 
-    public async Task<UserSettingsDto> Handle(GetUserSettingsQuery request, CancellationToken cancellationToken)
+    public async Task<UserSettingsDto?> Handle(GetUserSettingsQuery request, CancellationToken cancellationToken)
     {
         if (_currentUser.UserId is not Guid userId)
-            return new UserSettingsDto();
+            return null;
 
         var entity = await _db.UserSettings
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.UserId == userId, cancellationToken);
 
-        return entity is null ? new UserSettingsDto() : entity.Adapt<UserSettingsDto>();
+        return entity is null ? null : entity.Adapt<UserSettingsDto>();
     }
 }

@@ -45,17 +45,59 @@
 
     function renderPlayers() {
         playersEl.innerHTML = "";
+        let idx = 0;
         players.forEach((p, id) => {
-            const me = id === myConnId ? " (siz)" : "";
-            const crown = p.isHost ? "👑 " : "";
+            const isMe = id === myConnId;
+            const colorIdx = isMe ? 0 : idx + 1;
+            const crown = p.isHost
+                ? '<i class="bi bi-crown-fill me-1" style="color:var(--tw-gold)"></i>'
+                : '';
+            const me = isMe ? ' <small style="color:#8a8aa0">(siz)</small>' : '';
             const li = document.createElement("li");
             li.className = "tw-player" + (p.finished ? " tw-done" : "");
-            li.innerHTML = `<div class="tw-player-top"><span>${crown}${esc(p.name)}${me}</span>
-                <span class="tw-player-wpm">${Math.round(p.wpm || 0)} wpm</span></div>
-                <div class="tw-bar"><div class="tw-bar-fill" style="width:${p.progress || 0}%"></div></div>`;
+            const track = window.TwCheetah
+                ? window.TwCheetah.makeHtml(colorIdx, p.progress || 0)
+                : `<div class="tw-bar"><div class="tw-bar-fill" style="width:${p.progress || 0}%"></div></div>`;
+            li.innerHTML = `<div class="tw-player-top">
+                <span>${crown}${esc(p.name)}${me}</span>
+                <span class="tw-player-wpm">${Math.round(p.wpm || 0)} <small>wpm</small></span>
+            </div>${track}`;
             playersEl.appendChild(li);
+            li.dataset.conn = id;
+            applyCheetahState(li, p);
+            idx++;
         });
     }
+
+    // ── Mushuk yurishi (yozayotganda yuradi, WPM tezligida) ──
+    const RUN_IDLE_MS = 700; // remote yangilanish ~400ms — biroz zaxira
+
+    function applyCheetahState(li, p) {
+        const ch = li.querySelector(".tw-cheetah-run");
+        if (!ch || !window.TwCheetah) return;
+        const running = !p.finished && p.lastType && (performance.now() - p.lastType < RUN_IDLE_MS);
+        window.TwCheetah.setRunning(ch, running);
+        if (running) window.TwCheetah.setSpeed(ch, p.wpm || 0);
+    }
+
+    // DOM ni qayta qurmasdan bitta o'yinchi qatorini yangilaydi (animatsiya uzilmaydi)
+    function updateRow(id) {
+        const p = players.get(id);
+        const li = playersEl.querySelector('[data-conn="' + id + '"]');
+        if (!p || !li) { renderPlayers(); return; }
+        const wpmEl = li.querySelector(".tw-player-wpm");
+        if (wpmEl) wpmEl.innerHTML = Math.round(p.wpm || 0) + " <small>wpm</small>";
+        const ch = li.querySelector(".tw-cheetah-run");
+        if (ch && window.TwCheetah) { window.TwCheetah.setPos(ch, p.progress || 0); applyCheetahState(li, p); }
+        else { const f = li.querySelector(".tw-bar-fill"); if (f) f.style.width = (p.progress || 0) + "%"; }
+        li.classList.toggle("tw-done", !!p.finished);
+    }
+
+    // Bo'sh turgan mushuklarni to'xtatish uchun davriy tekshiruv
+    setInterval(() => players.forEach((p, id) => {
+        const li = playersEl.querySelector('[data-conn="' + id + '"]');
+        if (li) applyCheetahState(li, p);
+    }), 250);
 
     function updateHostUi() {
         startBtn.classList.toggle("d-none", !isHost);
@@ -85,7 +127,7 @@
     });
     conn.on("ProgressUpdate", u => {
         const p = players.get(u.connId);
-        if (p) { p.progress = u.progress; p.wpm = u.wpm; renderPlayers(); }
+        if (p) { p.progress = u.progress; p.wpm = u.wpm; p.lastType = performance.now(); updateRow(u.connId); }
     });
     conn.on("PlayerFinished", p => {
         players.set(p.connId, Object.assign(players.get(p.connId) || {}, p));
@@ -126,8 +168,9 @@
         wordsEl.innerHTML = chars.map(c => `<span class="tw-letter">${esc(c)}</span>`).join("");
         raceEl.classList.remove("d-none");
         wordsEl.focus();
-        const me = players.get(myConnId);
-        if (me) { me.progress = 0; me.wpm = 0; me.finished = false; renderPlayers(); }
+        // barcha o'yinchilar holatini yangi poygaga tiklash
+        players.forEach(p => { p.progress = 0; p.wpm = 0; p.finished = false; p.lastType = 0; });
+        renderPlayers();
         // sabotaj — yangi poyga
         mySabotageUsed = false;
         raceActive = true;
@@ -141,6 +184,7 @@
     wordsEl.addEventListener("keydown", onKey);
 
     function onKey(ev) {
+        if (window.TWCaps) window.TWCaps.check(ev);   // Caps Lock ogohlantirishi
         if (finished || chars.length === 0) return;
         if (ev.key === "Backspace") {
             ev.preventDefault();
@@ -158,6 +202,7 @@
         if (ok) { el.classList.add("tw-correct"); el.classList.remove("tw-incorrect"); correct++; }
         else { el.classList.add("tw-incorrect"); el.classList.remove("tw-correct"); }
         pos++;
+        if (window.TWSound && window.TWSettings) window.TWSound.play(window.TWSettings.get("soundOnClick"), ok);
         report();
         if (pos >= chars.length) finish();
     }
@@ -168,7 +213,7 @@
     function report() {
         const progress = (pos / chars.length) * 100;
         const me = players.get(myConnId);
-        if (me) { me.progress = progress; me.wpm = wpmNow(); renderPlayers(); }
+        if (me) { me.progress = progress; me.wpm = wpmNow(); me.lastType = performance.now(); updateRow(myConnId); }
         const now = performance.now();
         if (now - lastReport > 400) {
             lastReport = now;
@@ -180,6 +225,7 @@
         if (finished) return;
         finished = true;
         raceActive = false;
+        if (window.TWCaps) window.TWCaps.hide();
         updateSabotagePanel();
         const e = elapsed();
         const wpm = e > 0 ? Math.round(((correct / 5) / (e / 60)) * 100) / 100 : 0;

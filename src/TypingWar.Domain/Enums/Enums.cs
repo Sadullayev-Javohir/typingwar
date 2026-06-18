@@ -33,8 +33,7 @@ public enum TimeMode
 public enum Language
 {
     Uzbek = 0,
-    English = 1,
-    Russian = 2
+    English = 1
 }
 
 /// <summary>Matn qiyinligi.</summary>
@@ -110,7 +109,14 @@ public enum Theme
     Dark = 0,
     Light = 1,
     Sepia = 2,
-    Custom = 3
+    Custom = 3,
+    Nord = 4,
+    Monokai = 5,
+    Solarized = 6,
+    Ocean = 7,
+    Forest = 8,
+    Rose = 9,
+    Terminal = 10
 }
 
 /// <summary>Karet (kursor) ko'rinishi.</summary>
