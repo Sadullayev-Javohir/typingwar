@@ -41,9 +41,9 @@
             </label>
             <div class="tw-range-wrap">
                 <span class="tw-range-hint">14</span>
-                <input class="tw-range" type="range" min="14" max="28" step="1"
+                <input class="tw-range" type="range" min="14" max="60" step="1"
                        data-tw="fontSize" data-type="int" id="fontSize">
-                <span class="tw-range-hint">28</span>
+                <span class="tw-range-hint">60</span>
             </div>
         </div>
     </div>
@@ -61,20 +61,7 @@
 
         <div class="tw-settings-group" style="margin-top:1.1rem">
             <label class="tw-settings-label">Karet uslubi</label>
-            <div class="tw-caret-grid">
-                <button class="tw-caret-opt" data-caret="Line">
-                    <span class="tw-caret-preview">|</span>Chiziq
-                </button>
-                <button class="tw-caret-opt" data-caret="Block">
-                    <span class="tw-caret-preview">█</span>Blok
-                </button>
-                <button class="tw-caret-opt" data-caret="Underline">
-                    <span class="tw-caret-preview" style="border-bottom:2px solid var(--tw-gold);padding-bottom:2px">&#95;</span>Tagchiziq
-                </button>
-                <button class="tw-caret-opt" data-caret="Off">
-                    <span class="tw-caret-preview" style="opacity:.3">|</span>O'chiq
-                </button>
-            </div>
+            <div class="tw-caret-grid" id="tw-caret-grid"></div>
         </div>
 
         <div class="tw-settings-divider" style="margin-top:1.1rem"></div>
@@ -189,24 +176,8 @@
     <!-- Tugma ovozi -->
     <div class="tw-settings-card">
         <h4><i class="bi bi-volume-up"></i>Tugma ovozi</h4>
-        <div class="tw-sound-grid">
-            <button class="tw-sound-opt" data-sound="Off">
-                <i class="bi bi-volume-mute-fill"></i>
-                <span>O'chiq</span>
-            </button>
-            <button class="tw-sound-opt" data-sound="Soft">
-                <i class="bi bi-music-note-beamed"></i>
-                <span>Yumshoq</span>
-            </button>
-            <button class="tw-sound-opt" data-sound="Mechanical">
-                <i class="bi bi-cpu-fill"></i>
-                <span>Mexanik</span>
-            </button>
-            <button class="tw-sound-opt" data-sound="Typewriter">
-                <i class="bi bi-file-earmark-text-fill"></i>
-                <span>Mashinka</span>
-            </button>
-        </div>
+        <p class="tw-sound-hint"><i class="bi bi-info-circle me-1"></i>Har bir ovozni bosib tinglab ko'ring — qimmat mexanik switch'lar WebAudio orqali sintez qilinadi</p>
+        <div class="tw-sound-grid" id="tw-sound-grid"></div>
     </div>
 
     <!-- Tiklash -->

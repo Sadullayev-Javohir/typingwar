@@ -116,7 +116,18 @@ public enum Theme
     Ocean = 7,
     Forest = 8,
     Rose = 9,
-    Terminal = 10
+    Terminal = 10,
+    // Qo'shimcha Vercel uslubidagi mavzular
+    Indigo = 11,
+    Sky = 12,
+    Lime = 13,
+    Tangerine = 14,
+    Ruby = 15,
+    Fuchsia = 16,
+    Mint = 17,
+    Gold = 18,
+    Slate = 19,
+    Magenta = 20
 }
 
 /// <summary>Karet (kursor) ko'rinishi.</summary>
@@ -125,7 +136,18 @@ public enum CaretStyle
     Line = 0,
     Block = 1,
     Underline = 2,
-    Off = 3
+    Off = 3,
+    // Qo'shimcha 10 ta karet uslubi
+    Thick = 4,
+    Bottom = 5,
+    Box = 6,
+    Laser = 7,
+    Neon = 8,
+    Pulse = 9,
+    Double = 10,
+    Dot = 11,
+    Wedge = 12,
+    Rainbow = 13
 }
 
 /// <summary>Tugma bosilganda ovoz.</summary>
@@ -134,5 +156,16 @@ public enum SoundOnClick
     Off = 0,
     Soft = 1,
     Mechanical = 2,
-    Typewriter = 3
+    Typewriter = 3,
+    // Qo'shimcha 10 ta klaviatura ovozi (qimmat mexanik switch'lar)
+    CherryBlue = 4,
+    CherryBrown = 5,
+    CherryRed = 6,
+    HolyPanda = 7,
+    GateronInk = 8,
+    BoxJade = 9,
+    Topre = 10,
+    ModelM = 11,
+    Creamy = 12,
+    Alps = 13
 }

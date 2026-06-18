@@ -142,19 +142,30 @@
             left = el.offsetLeft + el.offsetWidth; top = el.offsetTop; w = el.offsetWidth; h = el.offsetHeight;
         } else { return; }
 
-        // Karet uslubiga qarab o'lcham va joylashuv (Underline — joriy harf ostida)
+        // Karet uslubiga qarab o'lcham va joylashuv
         const style = S.get("caretStyle") || "Line";
         const cw = Math.max(w, 6);
         let y = top;
-        if (style === "Underline") {
+        const BLOCK = ["Block", "Box", "Laser", "Wedge"];
+        if (style === "Underline" || style === "Bottom") {
+            const uh = style === "Bottom" ? 4 : 2;
             caretEl.style.width = cw + "px";
-            caretEl.style.height = "2px";
-            y = top + h - 2;
-        } else if (style === "Block") {
+            caretEl.style.height = uh + "px";
+            y = top + h - uh;
+        } else if (BLOCK.indexOf(style) !== -1) {
             caretEl.style.width = cw + "px";
             caretEl.style.height = h + "px";
+        } else if (style === "Dot") {
+            const d = Math.max(6, Math.round(h * 0.28));
+            caretEl.style.width = d + "px";
+            caretEl.style.height = d + "px";
+            y = top + h - d - 1;            // tagiga yaqin
         } else {
-            caretEl.style.width = "2px";
+            // chiziqsimon: Line, Thick, Neon, Pulse, Double, Rainbow, Off
+            const lw = style === "Thick" ? 4
+                     : style === "Double" ? 7
+                     : (style === "Pulse" || style === "Rainbow") ? 3 : 2;
+            caretEl.style.width = lw + "px";
             caretEl.style.height = h + "px";
         }
         caretEl.style.transform = `translate(${left}px, ${y}px)`;

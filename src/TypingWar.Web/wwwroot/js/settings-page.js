@@ -17,6 +17,17 @@
         { id: 'Forest',    name: 'Green',  bg: '#000d06', surface: '#0a1a10', text: '#ededed', gold: '#00c853' },
         { id: 'Rose',      name: 'Pink',   bg: '#0d0008', surface: '#1a0a14', text: '#ededed', gold: '#ff2d92' },
         { id: 'Terminal',  name: 'Violet', bg: '#07030f', surface: '#130a1f', text: '#ededed', gold: '#8b5cf6' },
+        // Qo'shimcha Vercel uslubidagi mavzular
+        { id: 'Indigo',    name: 'Indigo',   bg: '#04030d', surface: '#0d0b20', text: '#ededed', gold: '#6366f1' },
+        { id: 'Sky',       name: 'Sky',      bg: '#00060d', surface: '#081320', text: '#ededed', gold: '#38bdf8' },
+        { id: 'Lime',      name: 'Lime',     bg: '#060d00', surface: '#111a06', text: '#ededed', gold: '#84cc16' },
+        { id: 'Tangerine', name: 'Orange',   bg: '#0d0600', surface: '#1a0e04', text: '#ededed', gold: '#f97316' },
+        { id: 'Ruby',      name: 'Red',      bg: '#0d0305', surface: '#1a080c', text: '#ededed', gold: '#ff3b3b' },
+        { id: 'Fuchsia',   name: 'Fuchsia',  bg: '#0b000d', surface: '#160a1a', text: '#ededed', gold: '#d946ef' },
+        { id: 'Mint',      name: 'Mint',     bg: '#000d0a', surface: '#061a16', text: '#ededed', gold: '#2dd4bf' },
+        { id: 'Gold',      name: 'Gold',     bg: '#0d0b00', surface: '#1a1604', text: '#ededed', gold: '#facc15' },
+        { id: 'Slate',     name: 'Slate',    bg: '#05070a', surface: '#0d1117', text: '#ededed', gold: '#94a3b8' },
+        { id: 'Magenta',   name: 'Magenta',  bg: '#0d0207', surface: '#1a060e', text: '#ededed', gold: '#e60a64' },
     ];
 
     /* Fon variantlari — `prev` = swatch ko'rinishi (mini). Birinchisi (nextjs) standart. */
@@ -52,6 +63,60 @@
         { id: 'Space Mono',      name: 'Space Mono'       },
         { id: 'Roboto Mono',     name: 'Roboto Mono'      },
         { id: 'Ubuntu Mono',     name: 'Ubuntu Mono'      },
+        { id: 'Geist Mono',      name: 'Geist Mono'       },
+        { id: 'DM Mono',         name: 'DM Mono'          },
+        { id: 'Inconsolata',     name: 'Inconsolata'      },
+        { id: 'Overpass Mono',   name: 'Overpass Mono'    },
+        { id: 'Cousine',         name: 'Cousine'          },
+        { id: 'PT Mono',         name: 'PT Mono'          },
+        { id: 'Anonymous Pro',   name: 'Anonymous Pro'    },
+        { id: 'Red Hat Mono',    name: 'Red Hat Mono'     },
+        { id: 'Spline Sans Mono',name: 'Spline Sans Mono' },
+        { id: 'B612 Mono',       name: 'B612 Mono'        },
+        { id: 'Azeret Mono',     name: 'Azeret Mono'      },
+        { id: 'Fragment Mono',   name: 'Fragment Mono'    },
+        { id: 'Noto Sans Mono',  name: 'Noto Sans Mono'   },
+        { id: 'Sometype Mono',   name: 'Sometype Mono'    },
+        { id: 'Share Tech Mono', name: 'Share Tech Mono'  },
+        { id: 'VT323',           name: 'VT323'            },
+        { id: 'Major Mono Display', name: 'Major Mono'    },
+        { id: 'Nova Mono',       name: 'Nova Mono'        },
+    ];
+
+    /* Karet uslublari — `prev` = mini ko'rinish uchun inline CSS (gold shakl). */
+    const CARETS = [
+        { id: 'Line',      name: 'Chiziq',    prev: 'width:2px;height:20px;background:var(--tw-gold)' },
+        { id: 'Thick',     name: 'Qalin',     prev: 'width:4px;height:20px;background:var(--tw-gold)' },
+        { id: 'Block',     name: 'Blok',      prev: 'width:13px;height:20px;background:var(--tw-gold);opacity:.4' },
+        { id: 'Box',       name: 'Ramka',     prev: 'width:13px;height:20px;background:transparent;border:2px solid var(--tw-gold);border-radius:2px' },
+        { id: 'Underline', name: 'Tagchiziq', prev: 'width:14px;height:2px;background:var(--tw-gold)' },
+        { id: 'Bottom',    name: 'Qalin tag', prev: 'width:14px;height:4px;background:var(--tw-gold)' },
+        { id: 'Double',    name: 'Ikki',      prev: 'width:8px;height:20px;background:transparent;border-left:2px solid var(--tw-gold);border-right:2px solid var(--tw-gold)' },
+        { id: 'Dot',       name: 'Nuqta',     prev: 'width:8px;height:8px;background:var(--tw-gold);border-radius:50%' },
+        { id: 'Wedge',     name: 'Uchburchak',prev: 'width:13px;height:20px;background:var(--tw-gold);clip-path:polygon(0 0,100% 50%,0 100%)' },
+        { id: 'Neon',      name: 'Neon',      prev: 'width:3px;height:20px;background:var(--tw-gold);box-shadow:0 0 4px var(--tw-gold),0 0 9px var(--tw-gold)' },
+        { id: 'Laser',     name: 'Lazer',     prev: 'width:13px;height:20px;background:linear-gradient(var(--tw-gold),var(--tw-accent));box-shadow:0 0 8px var(--tw-gold)' },
+        { id: 'Pulse',     name: 'Puls',      prev: 'width:3px;height:20px;background:var(--tw-gold);animation:tw-caret-pulse .8s ease-in-out infinite' },
+        { id: 'Rainbow',   name: 'Kamalak',   prev: 'width:4px;height:20px;background:linear-gradient(#ff2d92,#facc15,#2dd4bf,#6366f1);background-size:100% 300%;animation:tw-caret-rainbow 2s linear infinite' },
+        { id: 'Off',       name: 'O\'chiq',   prev: 'width:2px;height:20px;background:var(--tw-gold);opacity:.25' },
+    ];
+
+    /* Tugma ovozlari — `icon` = Bootstrap ikona klassi. */
+    const SOUNDS = [
+        { id: 'Off',         name: 'O\'chiq',       icon: 'bi-volume-mute-fill' },
+        { id: 'Soft',        name: 'Yumshoq',       icon: 'bi-music-note-beamed' },
+        { id: 'Mechanical',  name: 'Mexanik',       icon: 'bi-cpu-fill' },
+        { id: 'Typewriter',  name: 'Mashinka',      icon: 'bi-file-earmark-text-fill' },
+        { id: 'CherryBlue',  name: 'Cherry Blue',   icon: 'bi-keyboard-fill' },
+        { id: 'CherryBrown', name: 'Cherry Brown',  icon: 'bi-keyboard-fill' },
+        { id: 'CherryRed',   name: 'Cherry Red',    icon: 'bi-keyboard-fill' },
+        { id: 'HolyPanda',   name: 'Holy Panda',    icon: 'bi-stars' },
+        { id: 'GateronInk',  name: 'Gateron Ink',   icon: 'bi-droplet-fill' },
+        { id: 'BoxJade',     name: 'Box Jade',      icon: 'bi-gem' },
+        { id: 'Topre',       name: 'Topre (HHKB)',  icon: 'bi-soundwave' },
+        { id: 'ModelM',      name: 'IBM Model M',   icon: 'bi-pc-display' },
+        { id: 'Creamy',      name: 'Creamy',        icon: 'bi-cup-hot-fill' },
+        { id: 'Alps',        name: 'Alps (Vintage)',icon: 'bi-clock-history' },
     ];
 
     /* ─── Tema grid yasash ─── */
@@ -109,20 +174,38 @@
         });
     }
 
-    /* ─── Karet tugmalari ─── */
-    document.querySelectorAll('.tw-caret-opt').forEach(btn => {
-        btn.addEventListener('click', () => { S.set('caretStyle', btn.dataset.caret); refresh(); });
-    });
-
-    /* ─── Ovoz tugmalari ─── */
-    document.querySelectorAll('.tw-sound-opt').forEach(btn => {
-        btn.addEventListener('click', () => {
-            S.set('soundOnClick', btn.dataset.sound);
-            refresh();
-            // Tanlangan ovozni darhol eshittirib ko'rsatamiz (Off — jim)
-            if (window.TWSound) window.TWSound.play(btn.dataset.sound, true);
+    /* ─── Karet grid yasash ─── */
+    const caretGrid = document.getElementById('tw-caret-grid');
+    if (caretGrid) {
+        CARETS.forEach(c => {
+            const btn = document.createElement('button');
+            btn.className = 'tw-caret-opt';
+            btn.dataset.caret = c.id;
+            btn.title = c.name;
+            btn.innerHTML = `<span class="tw-caret-holder"><span class="tw-caret-shape" style="${c.prev}"></span></span><span class="tw-caret-name">${c.name}</span>`;
+            btn.addEventListener('click', () => { S.set('caretStyle', c.id); refresh(); });
+            caretGrid.appendChild(btn);
         });
-    });
+    }
+
+    /* ─── Ovoz grid yasash ─── */
+    const soundGrid = document.getElementById('tw-sound-grid');
+    if (soundGrid) {
+        SOUNDS.forEach(s => {
+            const btn = document.createElement('button');
+            btn.className = 'tw-sound-opt';
+            btn.dataset.sound = s.id;
+            btn.title = s.name;
+            btn.innerHTML = `<i class="bi ${s.icon}"></i><span>${s.name}</span>`;
+            btn.addEventListener('click', () => {
+                S.set('soundOnClick', s.id);
+                refresh();
+                // Tanlangan ovozni darhol eshittirib ko'rsatamiz (Off — jim)
+                if (window.TWSound) window.TWSound.play(s.id, true);
+            });
+            soundGrid.appendChild(btn);
+        });
+    }
 
     /* ─── Tugma guruhlari (til, rejim, so'z soni, qiyinlik, vaqt) ─── */
     document.querySelectorAll('.tw-sg-btn').forEach(btn => {

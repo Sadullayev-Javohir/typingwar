@@ -28,6 +28,17 @@
         Forest:    { bg: '#000d06', surface: '#0a1a10', text: '#ededed', sub: '#5a7a60', gold: '#00c853', accent: '#50e3c2' }, // Green
         Rose:      { bg: '#0d0008', surface: '#1a0a14', text: '#ededed', sub: '#7a5070', gold: '#ff2d92', accent: '#ff7eb6' }, // Pink
         Terminal:  { bg: '#07030f', surface: '#130a1f', text: '#ededed', sub: '#6a5a85', gold: '#8b5cf6', accent: '#c084fc' }, // Violet
+        // Qo'shimcha Vercel uslubidagi mavzular
+        Indigo:    { bg: '#04030d', surface: '#0d0b20', text: '#ededed', sub: '#5d5a85', gold: '#6366f1', accent: '#818cf8' }, // Indigo
+        Sky:       { bg: '#00060d', surface: '#081320', text: '#ededed', sub: '#4f6480', gold: '#38bdf8', accent: '#7dd3fc' }, // Sky
+        Lime:      { bg: '#060d00', surface: '#111a06', text: '#ededed', sub: '#5f7a4a', gold: '#84cc16', accent: '#bef264' }, // Lime
+        Tangerine: { bg: '#0d0600', surface: '#1a0e04', text: '#ededed', sub: '#806045', gold: '#f97316', accent: '#fdba74' }, // Orange
+        Ruby:      { bg: '#0d0305', surface: '#1a080c', text: '#ededed', sub: '#805058', gold: '#ff3b3b', accent: '#ff8a8a' }, // Red
+        Fuchsia:   { bg: '#0b000d', surface: '#160a1a', text: '#ededed', sub: '#785080', gold: '#d946ef', accent: '#f0abfc' }, // Fuchsia
+        Mint:      { bg: '#000d0a', surface: '#061a16', text: '#ededed', sub: '#4a7a70', gold: '#2dd4bf', accent: '#5eead4' }, // Mint
+        Gold:      { bg: '#0d0b00', surface: '#1a1604', text: '#ededed', sub: '#807545', gold: '#facc15', accent: '#fde047' }, // Gold
+        Slate:     { bg: '#05070a', surface: '#0d1117', text: '#ededed', sub: '#5b6473', gold: '#94a3b8', accent: '#cbd5e1' }, // Slate
+        Magenta:   { bg: '#0d0207', surface: '#1a060e', text: '#ededed', sub: '#805065', gold: '#e60a64', accent: '#ff6ba6' }, // Magenta
     };
 
     function load() {

@@ -18,7 +18,7 @@ public class UserSettings
     // Ko'rinish
     public Theme Theme { get; set; } = Theme.Dark;
     public string FontFamily { get; set; } = "JetBrains Mono";
-    public int FontSize { get; set; } = 18;             // 14–28 px
+    public int FontSize { get; set; } = 18;             // 14–60 px
     public CaretStyle CaretStyle { get; set; } = CaretStyle.Line;
     public bool SmoothCaret { get; set; } = true;
 
