@@ -337,6 +337,12 @@ Tugallangan:
     PWA (manifest+sw.js app shell+tw-offline.js IndexedDB navbat), Admin
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
+Tuzatilgan xatolar:
+  - [2026-06-16] Sozlamalar: background, showLiveAcc, showLiveTimer,
+    showStatsPanel, showCheetah UI'da bor edi-yu, UserSettings entity/DTO'da
+    yo'q edi — kirgan foydalanuvchida serverga saqlanmasdi. 5 maydon entity +
+    DTO + validatsiyaga qo'shildi, migration AddBackgroundAndPanelSettings
+    (standartlar: nextjs/true), DB yangilandi. PUT→GET round-trip tasdiqlandi.
 Hal qilinmagan muammolar:
   - PostgreSQL porti 5434:5432 (5433 ni meningvaqtim loyihasi band qilgan)
   - Redis DI ulanishi eager (Connect) — keyin lazy qilish

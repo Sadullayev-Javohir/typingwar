@@ -2,7 +2,7 @@ using TypingWar.Domain.Enums;
 
 namespace TypingWar.Domain.Entities;
 
-/// <summary>Foydalanuvchi typing sozlamalari (15 ta). PK: UserId.</summary>
+/// <summary>Foydalanuvchi typing sozlamalari (20 ta). PK: UserId.</summary>
 public class UserSettings
 {
     public Guid UserId { get; set; }
@@ -21,9 +21,14 @@ public class UserSettings
     public int FontSize { get; set; } = 18;             // 14–60 px
     public CaretStyle CaretStyle { get; set; } = CaretStyle.Line;
     public bool SmoothCaret { get; set; } = true;
+    public string Background { get; set; } = "nextjs";  // sahifa foni varianti
 
     // Xulq-atvor
     public bool ShowLiveWpm { get; set; } = true;
+    public bool ShowLiveAcc { get; set; } = true;
+    public bool ShowLiveTimer { get; set; } = true;
+    public bool ShowStatsPanel { get; set; } = true;
+    public bool ShowCheetah { get; set; } = true;
     public bool BlindMode { get; set; } = false;
     public bool StopOnError { get; set; } = false;
     public SoundOnClick SoundOnClick { get; set; } = SoundOnClick.Off;

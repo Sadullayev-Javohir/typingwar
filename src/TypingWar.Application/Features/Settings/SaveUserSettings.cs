@@ -23,6 +23,7 @@ public class SaveUserSettingsCommandValidator : AbstractValidator<SaveUserSettin
             .WithMessage("TimeLimitSeconds 10/15/30/60/120 bo'lishi kerak.");
         RuleFor(x => x.Settings.FontSize).InclusiveBetween(14, 60);
         RuleFor(x => x.Settings.FontFamily).NotEmpty().MaximumLength(64);
+        RuleFor(x => x.Settings.Background).NotEmpty().MaximumLength(32);
         RuleFor(x => x.Settings.TextMode).IsInEnum();
         RuleFor(x => x.Settings.Difficulty).IsInEnum();
         RuleFor(x => x.Settings.Language).IsInEnum();
