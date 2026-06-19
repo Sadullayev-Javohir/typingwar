@@ -338,6 +338,14 @@ Tugallangan:
     PWA (manifest+sw.js app shell+tw-offline.js IndexedDB navbat), Admin
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
+Yaxshilanishlar:
+  - [2026-06-16] Iqtibos rejimi: Practice'dagi "jumla" → "Iqtiboslar".
+    RaceText'ga Source maydoni (migration AddRaceTextSource). QuoteBank.cs —
+    ~60 manbali iqtibos (o'zbek klassiklari/maqollar + ingliz kitob/film/
+    mashhurlar), bir marta DB'ga seed (resurs tejamkor, runtime API yo'q).
+    DataSeeder additive/idempotent + eski manbasiz "gap"larni deaktivatsiya.
+    PracticeTextDto'ga Source qo'shildi, natija ekranida "Manba: ..." ko'rsatiladi
+    (typing-engine.js + .tw-r-source CSS). Build OK, 70 test, endpoint sinaldi.
 Tuzatilgan xatolar:
   - [2026-06-16] Sozlamalar: background, showLiveAcc, showLiveTimer,
     showStatsPanel, showCheetah UI'da bor edi-yu, UserSettings entity/DTO'da

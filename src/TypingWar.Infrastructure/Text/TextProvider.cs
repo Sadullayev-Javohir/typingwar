@@ -84,6 +84,6 @@ public class TextProvider : ITextProvider
             return Generate(GenerateWords(request.Language, request.Difficulty, request.WordCount), request.WordCount);
 
         var chosen = matches[Rng.Next(matches.Count)];
-        return new PracticeText(chosen.Id, chosen.Content, chosen.WordCount);
+        return new PracticeText(chosen.Id, chosen.Content, chosen.WordCount, chosen.Source);
     }
 }

@@ -25,6 +25,6 @@ public class GetPracticeTextQueryHandler : IRequestHandler<GetPracticeTextQuery,
 
         return new PracticeTextDto(
             text.TextId, text.Content, text.WordCount,
-            request.Language, request.Mode, request.Difficulty);
+            request.Language, request.Mode, request.Difficulty, text.Source);
     }
 }

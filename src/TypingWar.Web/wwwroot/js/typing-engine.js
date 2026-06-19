@@ -26,6 +26,7 @@
     let startTime = null;
     let finished = false;
     let textId = null;
+    let currentSource = null; // iqtibos manbasi (natijada ko'rsatiladi)
     let liveTimer = null;
     let caretEl = null;
     let wordsInner = null;   // harflar va karet shu ichki blokda — qatorlarni surish uchun
@@ -368,6 +369,18 @@
             ? ("vaqt · " + S.get("timeLimitSeconds") + "s")
             : ("so'z · " + S.get("wordCount"));
 
+        // Iqtibos manbasi — faqat iqtibos rejimida (manba bo'lsa) ko'rsatiladi
+        const sourceEl = document.getElementById("tw-r-source");
+        const sourceTextEl = document.getElementById("tw-r-source-text");
+        if (sourceEl && sourceTextEl) {
+            if (currentSource) {
+                sourceTextEl.textContent = currentSource;
+                sourceEl.classList.remove("d-none");
+            } else {
+                sourceEl.classList.add("d-none");
+            }
+        }
+
         // Yangi rekord — avvalgi eng yaxshi WPM dan oshsa toj va fon rangi o'zgaradi
         const isRecord = checkRecord(wpm);
         const crownEl = document.getElementById("tw-r-crown");
@@ -594,6 +607,7 @@
         // Vaqt rejimida matn yetarli bo'lsin (oxirida yana qo'shiladi)
         const dto = await loadText(S.get("timedMode") ? 60 : S.get("wordCount"));
         textId = dto.textId;
+        currentSource = dto.source || null;
         render(dto.content);
         root.focus();
     }

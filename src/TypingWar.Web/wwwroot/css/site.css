@@ -399,6 +399,9 @@ body[data-tw-caret="Bottom"] .tw-caret { border-radius: 1px; }
 .tw-result-grid span { font-size: 1.9rem; font-weight: 700; color: var(--tw-gold); display: block; font-family: var(--tw-code-font); }
 .tw-result-grid label { font-size: .68rem; color: #888888; text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
 .tw-r-msg { color: var(--tw-accent); font-weight: 600; min-height: 1.2em; font-size: 1.05rem; }
+.tw-r-source { display: flex; align-items: center; justify-content: center; gap: .5rem; color: #b9b9c8; font-style: italic; font-size: .98rem; text-align: center; }
+.tw-r-source .bi { color: var(--tw-gold); font-style: normal; opacity: .85; }
+.tw-r-source span { color: #d6d6e0; font-weight: 600; }
 
 /* ───── Natija ekrani (monkeytype uslubida — grafik + statistika) ───── */
 #tw-practice.tw-show-result .tw-config,
