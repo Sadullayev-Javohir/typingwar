@@ -641,6 +641,14 @@
 
     // Config tugmalari
     function refreshConfigButtons() {
+        // O'zbek tilida "kod" rejimi yo'q — tugmani yashirish va kerak bo'lsa "so'z"ga qaytish
+        const codeBtn = root.querySelector('.tw-opt[data-key="textMode"][data-value="Code"]');
+        const uzbek = S.get("language") === "Uzbek";
+        if (codeBtn) codeBtn.style.display = uzbek ? "none" : "";
+        if (uzbek && S.get("textMode") === "Code") {
+            S.set("textMode", "Words");
+        }
+
         const timed = !!S.get("timedMode");
 
         root.querySelectorAll(".tw-opt").forEach(btn => {
