@@ -30,7 +30,12 @@
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
         msgEl.textContent = "";
-        const body = { content: form.content.value.trim(), difficulty: form.difficulty.value };
+        const body = {
+            content: form.content.value.trim(),
+            source: form.source.value.trim(),
+            language: form.language.value,
+            difficulty: form.difficulty.value
+        };
         try {
             const r = await fetch("/api/admin/texts", {
                 method: "POST",

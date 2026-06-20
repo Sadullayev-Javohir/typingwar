@@ -5,8 +5,8 @@ using TypingWar.Domain.Enums;
 
 namespace TypingWar.Application.Features.Admin;
 
-/// <summary>Admin yangi jumla matni qo'shadi (musobaqa/practice uchun).</summary>
-public record AddRaceTextCommand(string Content, Difficulty Difficulty) : IRequest<Guid>;
+/// <summary>Admin yangi iqtibos matni qo'shadi (musobaqa/practice uchun). Source — iqtibos manbasi.</summary>
+public record AddRaceTextCommand(string Content, Difficulty Difficulty, string? Source = null, Language Language = Language.Uzbek) : IRequest<Guid>;
 
 public class AddRaceTextCommandHandler : IRequestHandler<AddRaceTextCommand, Guid>
 {
@@ -22,11 +22,16 @@ public class AddRaceTextCommandHandler : IRequestHandler<AddRaceTextCommand, Gui
         if (content.Length > 2000)
             content = content[..2000];
 
+        var source = request.Source?.Trim();
+        if (string.IsNullOrEmpty(source)) source = null;
+        else if (source.Length > 256) source = source[..256];
+
         var words = content.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
         var text = new RaceText
         {
             Content = content,
-            Language = Language.Uzbek,
+            Source = source,
+            Language = request.Language,
             Difficulty = request.Difficulty,
             Category = TextMode.Sentences,
             WordCount = words,

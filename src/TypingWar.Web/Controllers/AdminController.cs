@@ -13,12 +13,12 @@ public class AdminController : ApiControllerBase
     public async Task<ActionResult<AdminStatsDto>> Stats()
         => Ok(await Mediator.Send(new GetAdminStatsQuery()));
 
-    public record AddTextRequest(string Content, Difficulty Difficulty);
+    public record AddTextRequest(string Content, Difficulty Difficulty, string? Source, Language Language = Language.Uzbek);
 
     [HttpPost("texts")]
     public async Task<ActionResult<object>> AddText([FromBody] AddTextRequest req)
     {
-        var id = await Mediator.Send(new AddRaceTextCommand(req.Content, req.Difficulty));
+        var id = await Mediator.Send(new AddRaceTextCommand(req.Content, req.Difficulty, req.Source, req.Language));
         return Ok(new { id });
     }
 }
