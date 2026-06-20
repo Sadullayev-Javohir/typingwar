@@ -15,6 +15,13 @@ public static class GameConstants
     /// <summary>Aldash himoyasi — bundan yuqori WPM rad etiladi.</summary>
     public const double MaxValidWpm = 250;
 
+    /// <summary>
+    /// Aldash himoyasi — bundan past aniqlikdagi natija haqiqiy emas (rad etiladi).
+    /// Bitta tugmani bosib turish yoki tasodifiy belgilarni yozish ~0% aniqlik beradi.
+    /// Haqiqiy foydalanuvchi (boshlovchi ham) odatda bundan ancha yuqori bo'ladi.
+    /// </summary>
+    public const double MinValidAccuracy = 50;
+
     /// <summary>Room kodi Redis TTL (daqiqa).</summary>
     public const int RoomCodeTtlMinutes = 30;
 

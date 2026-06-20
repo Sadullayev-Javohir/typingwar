@@ -38,4 +38,11 @@ public static class TypingCalculator
 
     /// <summary>WPM aldash himoyasi — bundan yuqori natija haqiqiy emas.</summary>
     public static bool IsPlausible(double wpm) => wpm is >= 0 and <= GameConstants.MaxValidWpm;
+
+    /// <summary>
+    /// Aniqlik aldash himoyasi — bundan past natija haqiqiy emas.
+    /// Bitta tugmani bosib turish yoki turli xil tasodifiy belgilarni yozish past aniqlik beradi:
+    /// to'g'ri belgilar soni kam bo'lgani uchun WPM ham past chiqadi va poyga "yutib olinmaydi".
+    /// </summary>
+    public static bool IsPlausibleAccuracy(double accuracy) => accuracy >= GameConstants.MinValidAccuracy;
 }

@@ -52,4 +52,15 @@ public class TypingCalculatorTests
     {
         Assert.Equal(expected, TypingCalculator.IsPlausible(wpm));
     }
+
+    [Theory]
+    [InlineData(100, true)]
+    [InlineData(50, true)]      // chegara — qabul qilinadi
+    [InlineData(49.99, false)]  // chegaradan past — rad etiladi
+    [InlineData(10, false)]     // tasodifiy belgilar / bitta tugma — past aniqlik
+    [InlineData(0, false)]
+    public void IsPlausibleAccuracy_RejectsLowAccuracy(double accuracy, bool expected)
+    {
+        Assert.Equal(expected, TypingCalculator.IsPlausibleAccuracy(accuracy));
+    }
 }

@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using TypingWar.Application.Common.Interfaces;
+using TypingWar.Domain.Constants;
 using TypingWar.Domain.Entities;
 using TypingWar.Domain.Enums;
 using TypingWar.Domain.Services;
@@ -37,6 +38,12 @@ public class RecordResultCommandHandler : IRequestHandler<RecordResultCommand, R
         // Aldash himoyasi (CLAUDE.md §12: >250 WPM rad etiladi)
         if (!TypingCalculator.IsPlausible(metrics.Wpm) || !TypingCalculator.IsPlausible(metrics.RawWpm))
             throw new InvalidOperationException($"Natija haqiqiy emas (WPM={metrics.Wpm}). Maksimal ruxsat etilgan: 250.");
+
+        // Aldash himoyasi: juda past aniqlik (bitta tugmani bosib turish yoki tasodifiy belgilar)
+        // — to'g'ri yozilgan belgi bo'lmasa yoki aniqlik {MinValidAccuracy}% dan past bo'lsa rad etiladi.
+        if (request.CorrectChars <= 0 || !TypingCalculator.IsPlausibleAccuracy(metrics.Accuracy))
+            throw new InvalidOperationException(
+                $"Natija haqiqiy emas (aniqlik={metrics.Accuracy}%). Kamida {GameConstants.MinValidAccuracy}% talab etiladi.");
 
         var result = new RaceResult
         {

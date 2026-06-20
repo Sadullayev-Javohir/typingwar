@@ -7,6 +7,8 @@
 
     const S = window.TWSettings;
     const TIME_BUCKETS = [10, 15, 30, 60, 120];
+    // Aldash himoyasi: bundan past aniqlikdagi natija hisobga olinmaydi (server bilan bir xil).
+    const MIN_ACCURACY = 50;
 
     // DOM
     const wordsEl = document.getElementById("tw-words");
@@ -325,6 +327,10 @@
         if (ev.key.length !== 1 || ev.ctrlKey || ev.metaKey || ev.altKey) return;
         ev.preventDefault();
 
+        // Aldash himoyasi #1: tugmani bosib turish (klaviatura auto-repeat) — bitta bosish = bitta belgi.
+        // Aks holda bitta tugmani bosib turib butun matnni "yozib" poygani yutib ketish mumkin edi.
+        if (ev.repeat) return;
+
         if (pos >= chars.length) return;
         startIfNeeded();
 
@@ -338,12 +344,15 @@
         lastKeyTime = performance.now();
         setCheetahRun(true);
 
-        // Xato — oldinga o'tkazmaymiz: to'g'ri belgi yozilmaguncha karet shu yerda turadi.
-        // Xato bosish hisoblanadi (aniqlik tushadi, grafikga tushadi), vaqt o'tadi — ya'ni
-        // bitta tugmani bosib turib hammasini xato yozgan holda matn oxiriga "yetib" tezlikni
-        // soxta oshirib yutib ketishning oldi olinadi.
-        // Ko'r rejim (blindMode) bundan mustasno: foydalanuvchi xatoni ko'rmaydi, tuzata olmaydi.
-        if (!correct && !S.get("blindMode")) {
+        // "Xatodan to'xtash" yoqilgan bo'lsa: xato belgida karet oldinga o'tmaydi —
+        // to'g'ri belgi yozilmaguncha shu yerda turadi (xato bosish hisoblanadi, vaqt o'tadi).
+        // Ko'r rejim (blindMode) bundan mustasno: foydalanuvchi xatoni ko'rmaydi va tuzata olmaydi,
+        // shuning uchun karet doim oldinga yuradi.
+        // Eslatma: WPM faqat to'g'ri belgilarga qarab hisoblanadi va past aniqlikdagi natija
+        // (auto-repeat allaqachon bloklangan, qolgan tasodifiy belgilar) finish()da rad etiladi —
+        // shuning uchun karetni oldinga o'tkazadigan rejimlar ham xavfsiz.
+        const blind = !!S.get("blindMode");
+        if (!correct && S.get("stopOnError") && !blind) {
             status[pos] = "incorrect";
             updateLetterView(pos);
             return;
@@ -378,6 +387,16 @@
         const acc = raw > 0 ? Math.round((cc / raw) * 10000) / 100 : 0;
 
         showResult(wpm, rawWpm, acc, e, cc, raw);
+
+        // Aldash himoyasi #2: aniqlik juda past bo'lsa (bitta tugmani bosib turish yoki turli xil
+        // tasodifiy belgilarni yozish) natija haqiqiy emas — saqlanmaydi, poyga yutilmaydi.
+        // Natija ekrani baribir ko'rsatiladi (foydalanuvchi statistikasini ko'rsin), lekin yuborilmaydi.
+        if (cc <= 0 || acc < MIN_ACCURACY) {
+            const msgEl = document.getElementById("tw-r-msg");
+            if (msgEl) msgEl.textContent =
+                `Aniqlik juda past (${Math.round(acc)}%) — natija hisobga olinmadi.`;
+            return;
+        }
 
         const timeMode = timedActive() ? S.get("timeLimitSeconds") : nearestTimeMode(e);
         await submit(timeMode, cc, incorrect, e);
