@@ -24,9 +24,28 @@
     let keyEvents = [];          // grafik uchun: har bosish {t: soniya, correct}
     let lastGraphData = null;    // qayta chizish/hover uchun
     let chartGeom = null;
+    // /Practice kabi matn maydoni: harf spanlari, holati, karet va surma ichki blok
+    let letterEls = [], status = [], caretEl = null, wordsInner = null;
 
-    function esc(s) { return String(s || "").replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])); }
     function num(v, d) { const n = parseInt(v, 10); return isNaN(n) ? d : n; }
+
+    // Tipografik belgilarni klaviaturada yoziladigan ekvivalentga keltiradi (/Practice bilan bir xil)
+    function normChar(ch) {
+        switch (ch) {
+            case "‐": case "‑": case "‒": case "–":
+            case "—": case "―": case "−":
+                return "-";
+            case "‘": case "’": case "ʻ": case "ʼ":
+            case "´": case "`":
+                return "'";
+            case "“": case "”": case "«": case "»":
+                return '"';
+            case " ": case " ": case " ":
+                return " ";
+            default:
+                return ch;
+        }
+    }
 
     // ───── Sozlama tugmalari (raqib rejimi + til/rejim/uzunlik) ─────
     function refreshConfigButtons() {
@@ -67,7 +86,7 @@
         refreshConfigButtons();
     }));
 
-    if (S && S.onChange) S.onChange(() => refreshConfigButtons());
+    if (S && S.onChange) S.onChange(() => { refreshConfigButtons(); moveCaret(); });
 
     async function ensureConn() {
         if (conn && conn.state === "Connected") return;
@@ -128,15 +147,113 @@
     const cheetahLeft = pct => (2 + Math.min(100, pct) * 0.82) + '%';
 
     function prepare(text) {
-        chars = Array.from(text);
         pos = 0; correct = 0; keypresses = 0; startTime = null; finished = false; lastKeyTime = 0;
         keyEvents = [];
-        wordsEl.innerHTML = chars.map(c => `<span class="tw-letter">${esc(c)}</span>`).join("");
+        render(text);
         wordsEl.classList.toggle("tw-blind", blind);
         youBar.style.left = "2%"; oppBar.style.left = "2%";
         youWpm.textContent = "0"; oppWpm.textContent = "0";
         if (window.TwCheetah) { window.TwCheetah.setRunning(youBar, false); window.TwCheetah.setRunning(oppBar, false); }
         vsEl.classList.remove("d-none");
+    }
+
+    // /Practice'dagi kabi matnni chizadi: ichki surma blok, harf spanlari va karet
+    function render(text) {
+        chars = Array.from(text);
+        letterEls = [];
+        status = new Array(chars.length);
+        wordsEl.textContent = "";
+
+        wordsInner = document.createElement("div");
+        wordsInner.className = "tw-words-inner";
+
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < chars.length; i++) {
+            const span = document.createElement("span");
+            span.className = "tw-letter";
+            span.textContent = chars[i];
+            frag.appendChild(span);
+            letterEls.push(span);
+        }
+        wordsInner.appendChild(frag);
+
+        caretEl = document.createElement("span");
+        caretEl.className = "tw-caret";
+        wordsInner.appendChild(caretEl);
+
+        wordsEl.appendChild(wordsInner);
+        moveCaret();
+    }
+
+    function moveCaret() {
+        if (!caretEl) return;
+        let left, top, w, h;
+        if (pos < letterEls.length) {
+            const el = letterEls[pos];
+            left = el.offsetLeft; top = el.offsetTop; w = el.offsetWidth; h = el.offsetHeight;
+        } else if (letterEls.length) {
+            const el = letterEls[letterEls.length - 1];
+            left = el.offsetLeft + el.offsetWidth; top = el.offsetTop; w = el.offsetWidth; h = el.offsetHeight;
+        } else { return; }
+
+        const style = S.get("caretStyle") || "Line";
+        const cw = Math.max(w, 6);
+        let y = top;
+        const BLOCK = ["Block", "Box", "Laser", "Wedge"];
+        if (style === "Underline" || style === "Bottom") {
+            const uh = style === "Bottom" ? 4 : 2;
+            caretEl.style.width = cw + "px";
+            caretEl.style.height = uh + "px";
+            y = top + h - uh;
+        } else if (BLOCK.indexOf(style) !== -1) {
+            caretEl.style.width = cw + "px";
+            caretEl.style.height = h + "px";
+        } else if (style === "Dot") {
+            const d = Math.max(6, Math.round(h * 0.28));
+            caretEl.style.width = d + "px";
+            caretEl.style.height = d + "px";
+            y = top + h - d - 1;
+        } else {
+            const lw = style === "Thick" ? 4
+                     : style === "Double" ? 7
+                     : (style === "Pulse" || style === "Rainbow") ? 3 : 2;
+            caretEl.style.width = lw + "px";
+            caretEl.style.height = h + "px";
+        }
+        caretEl.style.transform = `translate(${left}px, ${y}px)`;
+        updateCurrentWord();
+        updateScroll();
+    }
+
+    // Tugagan qatorlarni yuqoriga suradi — joriy qator doim tepada ko'rinadi
+    function updateScroll() {
+        if (!wordsInner || !letterEls.length) return;
+        const el = (pos < letterEls.length) ? letterEls[pos] : letterEls[letterEls.length - 1];
+        if (!el) return;
+        const offset = el.offsetTop - letterEls[0].offsetTop;
+        wordsInner.style.transform = `translateY(${-offset}px)`;
+    }
+
+    // Joriy so'zni belgilaydi
+    function updateCurrentWord() {
+        if (!chars.length) return;
+        for (let i = 0; i < letterEls.length; i++)
+            if (letterEls[i]) letterEls[i].classList.remove("tw-cur-word");
+        const p = Math.min(pos, chars.length - 1);
+        if (chars[p] === " ") return;
+        let s = p; while (s > 0 && chars[s - 1] !== " ") s--;
+        let e = p; while (e < chars.length - 1 && chars[e + 1] !== " ") e++;
+        for (let i = s; i <= e; i++)
+            if (letterEls[i]) letterEls[i].classList.add("tw-cur-word");
+    }
+
+    function updateLetterView(i) {
+        const el = letterEls[i];
+        if (!el) return;
+        el.classList.remove("tw-correct", "tw-incorrect");
+        if (blind) return; // ko'r rejim — xato ko'rsatilmaydi
+        if (status[i] === "correct") el.classList.add("tw-correct");
+        else if (status[i] === "incorrect") el.classList.add("tw-incorrect");
     }
 
     function startCountdown() {
@@ -153,11 +270,11 @@
     function go() {
         areaEl.classList.remove("d-none");
         wordsEl.focus();
+        moveCaret();              // maydon endi ko'rinadi — karet/surma o'lchovlari to'g'ri bo'lsin
         startTime = performance.now();
         rafId = requestAnimationFrame(tick);
     }
 
-    const letterEls = () => wordsEl.querySelectorAll(".tw-letter");
     wordsEl.addEventListener("click", () => wordsEl.focus());
     wordsEl.addEventListener("keydown", onKey);
 
@@ -165,21 +282,28 @@
         if (finished || startTime === null || chars.length === 0) return;
         if (ev.key === "Backspace") {
             ev.preventDefault();
-            if (pos > 0) { pos--; letterEls()[pos].classList.remove("tw-correct", "tw-incorrect"); }
+            if (pos > 0) {
+                pos--;
+                if (status[pos] === "correct") correct--;
+                status[pos] = undefined;
+                updateLetterView(pos);
+                moveCaret();
+            }
             return;
         }
         if (ev.key.length !== 1 || ev.ctrlKey || ev.metaKey || ev.altKey) return;
         ev.preventDefault();
         if (pos >= chars.length) return;
 
-        const ok = ev.key === chars[pos];
-        const el = letterEls()[pos];
+        const ok = normChar(ev.key) === normChar(chars[pos]);
         keypresses++;
         keyEvents.push({ t: elapsedMs() / 1000, correct: ok });
-        if (ok) { correct++; if (!blind) el.classList.add("tw-correct"); }
-        else if (!blind) el.classList.add("tw-incorrect");
+        status[pos] = ok ? "correct" : "incorrect";
+        if (ok) correct++;
+        updateLetterView(pos);
         pos++;
         lastKeyTime = performance.now();
+        moveCaret();
         if (window.TWSound && window.TWSettings) window.TWSound.play(window.TWSettings.get("soundOnClick"), ok);
         if (pos >= chars.length) finish();
     }
@@ -444,6 +568,7 @@
         chartCanvas.addEventListener("mouseleave", onChartLeave);
     }
     window.addEventListener("resize", () => {
+        moveCaret();
         if (lastGraphData && !resultEl.classList.contains("d-none")) drawChart(lastGraphData);
     });
 
