@@ -7,16 +7,42 @@
 <div id="tw-racepage" class="tw-racepage">
     <h2 class="tw-accent text-center mb-3">Poyga</h2>
 
-    <div class="tw-config text-center mb-3">
-        <div class="tw-config-group">
-            <span class="tw-config-label"><i class="bi bi-controller"></i>Rejim:</span>
-            <button class="tw-opt tw-active" data-mode="AI"><i class="bi bi-robot"></i> AI raqib</button>
+    <div class="tw-config">
+        <div class="tw-config-group" data-group="racemode">
+            <span class="tw-config-label"><i class="bi bi-controller"></i>Raqib:</span>
+            <button class="tw-opt tw-active" data-mode="AI"><i class="bi bi-robot"></i> AI</button>
             <button class="tw-opt" data-mode="Ghost"><i class="bi bi-moon-stars"></i> Ghost</button>
             <button class="tw-opt" data-mode="Blind"><i class="bi bi-eye-slash"></i> Blind</button>
         </div>
+        <div class="tw-config-group" data-group="language">
+            <span class="tw-config-label"><i class="bi bi-translate"></i>Til:</span>
+            <button class="tw-opt" data-key="language" data-value="Uzbek">uz</button>
+            <button class="tw-opt" data-key="language" data-value="English">en</button>
+        </div>
+        <div class="tw-config-group" data-group="mode">
+            <span class="tw-config-label"><i class="bi bi-type"></i>Rejim:</span>
+            <button class="tw-opt" data-key="textMode" data-value="Words">so'z</button>
+            <button class="tw-opt" data-key="textMode" data-value="Sentences">Iqtiboslar</button>
+            <button class="tw-opt" data-key="textMode" data-value="Numbers">raqam</button>
+            <button class="tw-opt" data-key="textMode" data-value="Code">kod</button>
+        </div>
+        <div class="tw-config-group" data-group="quote" style="display:none">
+            <span class="tw-config-label"><i class="bi bi-rulers"></i>Uzunlik:</span>
+            <button class="tw-opt" data-key="quoteLength" data-value="all">barchasi</button>
+            <button class="tw-opt" data-key="quoteLength" data-value="short">qisqa</button>
+            <button class="tw-opt" data-key="quoteLength" data-value="medium">o'rta</button>
+            <button class="tw-opt" data-key="quoteLength" data-value="long">uzun</button>
+            <button class="tw-opt" data-key="quoteLength" data-value="thick">juda uzun</button>
+        </div>
+        <div class="tw-config-group" data-group="count">
+            <span class="tw-config-label"><i class="bi bi-hash"></i>So'z:</span>
+            <button class="tw-opt" data-key="wordCount" data-value="10">10</button>
+            <button class="tw-opt" data-key="wordCount" data-value="25">25</button>
+            <button class="tw-opt" data-key="wordCount" data-value="50">50</button>
+        </div>
     </div>
 
-    <div class="text-center mb-3">
+    <div class="text-center mb-3" id="tw-race-startwrap">
         <button id="tw-race-start" class="btn btn-tw">
             <i class="bi bi-play-fill me-1"></i>Boshlash
         </button>
@@ -83,10 +109,68 @@
         <div id="tw-race-words" class="tw-words" tabindex="0"></div>
     </div>
 
-    <div id="tw-race-result" class="tw-result d-none">
-        <h3 id="tw-race-verdict" class="tw-accent text-center"></h3>
-        <p class="text-center" id="tw-race-detail"></p>
-        <div class="text-center"><button id="tw-race-again" class="btn btn-tw">Yana</button></div>
+    <div id="tw-race-result" class="tw-result-screen d-none">
+        <h3 id="tw-race-verdict" class="tw-race-verdict text-center"></h3>
+
+        <div class="tw-result-top">
+            <div class="tw-result-hero">
+                <div class="tw-hero-stat">
+                    <label>wpm</label>
+                    <span id="tw-rr-wpm" class="tw-hero-val">0</span>
+                </div>
+                <div class="tw-hero-stat">
+                    <label>aniqlik</label>
+                    <span id="tw-rr-acc" class="tw-hero-val">0<small>%</small></span>
+                </div>
+            </div>
+            <div class="tw-result-chart">
+                <canvas id="tw-rr-chart" height="200"></canvas>
+                <div id="tw-rr-tooltip" class="tw-chart-tip" style="display:none"></div>
+                <div class="tw-chart-legend">
+                    <span><i class="tw-lg-dot tw-lg-wpm"></i>siz</span>
+                    <span><i class="tw-lg-dot tw-lg-ai"></i><span id="tw-rr-opp-legend">raqib</span></span>
+                    <span><i class="tw-lg-dot tw-lg-err"></i>xato</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tw-versus">
+            <div class="tw-versus-card tw-versus-you">
+                <div class="tw-versus-name"><i class="bi bi-person-fill"></i>Siz</div>
+                <div class="tw-versus-stats">
+                    <div><label>wpm</label><span id="tw-vs-you-wpm">0</span></div>
+                    <div><label>aniqlik</label><span id="tw-vs-you-acc">0<small>%</small></span></div>
+                    <div><label>vaqt</label><span id="tw-vs-you-time">0<small>s</small></span></div>
+                </div>
+            </div>
+            <div class="tw-versus-vs">VS</div>
+            <div class="tw-versus-card tw-versus-opp">
+                <div class="tw-versus-name"><i class="bi bi-robot"></i><span id="tw-versus-opp-name">Raqib</span></div>
+                <div class="tw-versus-stats">
+                    <div><label>wpm</label><span id="tw-vs-opp-wpm">0</span></div>
+                    <div><label>aniqlik</label><span id="tw-vs-opp-acc">100<small>%</small></span></div>
+                    <div><label>vaqt</label><span id="tw-vs-opp-time">0<small>s</small></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tw-result-meta">
+            <div><label>raw</label><span id="tw-rr-raw">0</span></div>
+            <div><label>belgilar</label><span id="tw-rr-chars">0/0</span><small>to'g'ri/xato</small></div>
+            <div><label>barqarorlik</label><span id="tw-rr-cons">0<small>%</small></span></div>
+            <div><label>rejim</label><span id="tw-rr-mode">—</span></div>
+        </div>
+
+        <p id="tw-race-msg" class="tw-r-msg text-center"></p>
+
+        <div class="tw-result-actions">
+            <button id="tw-race-again" class="btn btn-tw">
+                <i class="bi bi-arrow-repeat me-1"></i>Yana bir bor
+            </button>
+            <button id="tw-race-config" class="btn btn-tw-outline">
+                <i class="bi bi-sliders me-1"></i>Sozlamalar
+            </button>
+        </div>
     </div>
 </div>
 

@@ -254,6 +254,19 @@ body[data-tw-bg="mono"]::after { display: none; }
 }
 .btn-tw:active { transform: translateY(0); }
 
+.btn-tw-outline {
+    background: transparent;
+    border: 1px solid rgba(138,138,160,.35);
+    color: var(--tw-text);
+    font-weight: 500;
+    font-family: var(--tw-ui-font);
+    border-radius: var(--tw-radius);
+    padding: .5rem 1.25rem;
+    transition: border-color .15s, background .15s, transform .1s;
+}
+.btn-tw-outline:hover { border-color: var(--tw-gold); color: var(--tw-text); transform: translateY(-1px); }
+.btn-tw-outline:active { transform: translateY(0); }
+
 .footer {
     position: absolute;
     bottom: 0;
@@ -800,6 +813,41 @@ body.tw-record {
 .tw-vs .tw-track { flex: 1; height: 56px; }
 .tw-bar-fill.tw-opp { background: linear-gradient(90deg, #666666, #9a9ab0); }
 .tw-blind .tw-letter { color: #666666 !important; }
+
+/* Poyga boshlanganda sozlamalar va "Boshlash" yashiriladi (/Practice kabi) */
+#tw-racepage.tw-racing .tw-config,
+#tw-racepage.tw-racing #tw-race-startwrap { display: none !important; }
+
+/* Raqib (AI/Ghost) grafik chizig'i — to'q sariq */
+.tw-lg-ai { background: #ff7849; }
+
+/* Poyga natija ekrani — verdikt va VS kartalar */
+.tw-race-verdict { font-size: 2rem; font-weight: 800; margin-bottom: .5rem; }
+.tw-race-verdict.tw-win { color: var(--tw-gold); }
+.tw-race-verdict.tw-lose { color: #ff7849; }
+
+.tw-versus {
+    display: flex; align-items: stretch; justify-content: center; gap: 1rem; flex-wrap: wrap;
+}
+.tw-versus-card {
+    flex: 1; min-width: 220px; max-width: 360px;
+    background: var(--tw-surface); border-radius: 14px; padding: 1rem 1.25rem;
+    border: 1px solid rgba(138,138,160,.14); transition: border-color .2s, box-shadow .2s;
+}
+.tw-versus-card.tw-winner { border-color: var(--tw-gold); box-shadow: 0 0 0 1px var(--tw-gold), 0 8px 24px rgba(0,112,243,.18); }
+.tw-versus-name {
+    display: flex; align-items: center; gap: .5rem; font-weight: 700;
+    font-size: 1.05rem; margin-bottom: .75rem; color: var(--tw-text);
+}
+.tw-versus-name .bi { color: var(--tw-gold); }
+.tw-versus-opp .tw-versus-name .bi { color: #ff7849; }
+.tw-versus-stats { display: flex; justify-content: space-between; gap: .75rem; text-align: center; }
+.tw-versus-stats > div { display: flex; flex-direction: column; flex: 1; }
+.tw-versus-stats label { color: #888888; font-size: .7rem; text-transform: lowercase; letter-spacing: .03em; }
+.tw-versus-stats span { font-size: 1.5rem; font-weight: 700; color: var(--tw-gold); font-family: var(--tw-code-font); line-height: 1.15; }
+.tw-versus-stats span small { font-size: .8rem; }
+.tw-versus-opp .tw-versus-stats span { color: #ff7849; }
+.tw-versus-vs { align-self: center; font-size: 1.3rem; font-weight: 800; color: #888888; }
 
 /* ───── Sabotaj (3+ o'yinchi) ───── */
 .tw-wordswrap { position: relative; }
