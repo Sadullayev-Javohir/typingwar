@@ -338,8 +338,12 @@
         lastKeyTime = performance.now();
         setCheetahRun(true);
 
-        if (!correct && S.get("stopOnError")) {
-            // Xato — oldinga o'tkazmaydi, lekin xato sifatida belgilanadi (aniqlikka ta'sir qiladi)
+        // Xato — oldinga o'tkazmaymiz: to'g'ri belgi yozilmaguncha karet shu yerda turadi.
+        // Xato bosish hisoblanadi (aniqlik tushadi, grafikga tushadi), vaqt o'tadi — ya'ni
+        // bitta tugmani bosib turib hammasini xato yozgan holda matn oxiriga "yetib" tezlikni
+        // soxta oshirib yutib ketishning oldi olinadi.
+        // Ko'r rejim (blindMode) bundan mustasno: foydalanuvchi xatoni ko'rmaydi, tuzata olmaydi.
+        if (!correct && !S.get("blindMode")) {
             status[pos] = "incorrect";
             updateLetterView(pos);
             return;

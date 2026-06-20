@@ -298,13 +298,23 @@
         const ok = normChar(ev.key) === normChar(chars[pos]);
         keypresses++;
         keyEvents.push({ t: elapsedMs() / 1000, correct: ok });
+        lastKeyTime = performance.now();
+        if (window.TWSound && window.TWSettings) window.TWSound.play(window.TWSettings.get("soundOnClick"), ok);
+
+        // Xato — oldinga o'tkazmaymiz: to'g'ri belgini yozmaguncha karet shu yerda turadi.
+        // (aks holda bitta tugmani bosib turib, hammasini xato yozgan holda ham finishga
+        //  "yetib" yutib ketish mumkin edi — vaqt o'tadi-yu, tezlik tushadi, oldinga yurmaydi)
+        // Blind Duel bundan mustasno: ko'rmay yozadi, xatoni tuzata olmaydi — o'tkazib yuboramiz.
+        if (!ok && !blind) {
+            status[pos] = "incorrect";
+            updateLetterView(pos);
+            return;
+        }
         status[pos] = ok ? "correct" : "incorrect";
         if (ok) correct++;
         updateLetterView(pos);
         pos++;
-        lastKeyTime = performance.now();
         moveCaret();
-        if (window.TWSound && window.TWSettings) window.TWSound.play(window.TWSettings.get("soundOnClick"), ok);
         if (pos >= chars.length) finish();
     }
 
