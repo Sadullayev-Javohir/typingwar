@@ -14,9 +14,10 @@ public class PracticeController : ApiControllerBase
         [FromQuery] TextMode mode = TextMode.Words,
         [FromQuery] Language language = Language.Uzbek,
         [FromQuery] Difficulty difficulty = Difficulty.Normal,
-        [FromQuery] int wordCount = 25)
+        [FromQuery] int wordCount = 25,
+        [FromQuery] string? quoteLength = null)
     {
-        var dto = await Mediator.Send(new GetPracticeTextQuery(mode, language, difficulty, wordCount));
+        var dto = await Mediator.Send(new GetPracticeTextQuery(mode, language, difficulty, wordCount, quoteLength));
         return Ok(dto);
     }
 

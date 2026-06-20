@@ -73,12 +73,14 @@ public class TextProvider : ITextProvider
             .AsNoTracking()
             .Where(t => t.IsActive && t.Language == request.Language && t.Category == TextMode.Sentences);
 
-        var matches = await query
-            .Where(t => t.Difficulty == request.Difficulty)
-            .ToListAsync(ct);
+        // Iqtibos rejimida uzunlik filtri (all/short/medium/long/thick) — belgilar soni bo'yicha.
+        var lengthFiltered = ApplyQuoteLengthFilter(query, request.QuoteLength);
 
+        var matches = await lengthFiltered.ToListAsync(ct);
+
+        // Tanlangan uzunlikda iqtibos topilmasa — istalgan (shu tildagi) iqtibosga qaytamiz
         if (matches.Count == 0)
-            matches = await query.ToListAsync(ct);   // qiyinlik mos kelmasa — istalgan sentences
+            matches = await query.ToListAsync(ct);
 
         if (matches.Count == 0)
             return Generate(GenerateWords(request.Language, request.Difficulty, request.WordCount), request.WordCount);
@@ -86,4 +88,16 @@ public class TextProvider : ITextProvider
         var chosen = matches[Rng.Next(matches.Count)];
         return new PracticeText(chosen.Id, chosen.Content, chosen.WordCount, chosen.Source);
     }
+
+    // QuoteBank chegaralari (short <= 130, medium <= 280, long <= 550, undan ortig'i — thick).
+    private static IQueryable<Domain.Entities.RaceText> ApplyQuoteLengthFilter(
+        IQueryable<Domain.Entities.RaceText> query, string? quoteLength) =>
+        (quoteLength?.ToLowerInvariant()) switch
+        {
+            "short" => query.Where(t => t.Content.Length <= QuoteBank.ShortMax),
+            "medium" => query.Where(t => t.Content.Length > QuoteBank.ShortMax && t.Content.Length <= QuoteBank.MediumMax),
+            "long" => query.Where(t => t.Content.Length > QuoteBank.MediumMax && t.Content.Length <= QuoteBank.LongMax),
+            "thick" => query.Where(t => t.Content.Length > QuoteBank.LongMax),
+            _ => query   // "all" yoki null — filtrlanmaydi
+        };
 }

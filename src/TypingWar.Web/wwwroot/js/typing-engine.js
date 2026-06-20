@@ -39,6 +39,11 @@
 
     function num(v, d) { const n = parseInt(v, 10); return isNaN(n) ? d : n; }
 
+    // Iqtibos rejimi — to'liq iqtibos yoziladi (vaqt/so'z soni qo'llanmaydi)
+    function isQuoteMode() { return S.get("textMode") === "Sentences"; }
+    // Effektiv "vaqt rejimi" — iqtibos rejimida hech qachon yoqilmaydi
+    function timedActive() { return !!S.get("timedMode") && !isQuoteMode(); }
+
     // Tepa ko'rsatkichlar (WPM / Aniqlik / Soniya) — sozlamaga qarab ko'rsatish/yashirish
     function applyStatVisibility() {
         // Butun statistika paneli (katta div) va mushuk+yo'lakcha — sozlamada yoqilsa ko'rinadi
@@ -67,7 +72,8 @@
         const lang = S.get("language");
         const diff = S.get("difficulty");
         const wc = count || S.get("wordCount");
-        const url = `/api/practice/text?mode=${mode}&language=${lang}&difficulty=${diff}&wordCount=${wc}`;
+        let url = `/api/practice/text?mode=${mode}&language=${lang}&difficulty=${diff}&wordCount=${wc}`;
+        if (mode === "Sentences") url += `&quoteLength=${encodeURIComponent(S.get("quoteLength") || "all")}`;
         try {
             const r = await fetch(url, { credentials: "same-origin" });
             const dto = await r.json();
@@ -201,7 +207,7 @@
     function updateCheetah() {
         if (!cheetahEl) return;
         let pct;
-        if (S.get("timedMode")) {
+        if (timedActive()) {
             // Mushuk YOZILGAN belgilarga qarab yuradi (vaqtga emas) — yozmasa joyida turadi
             const limit = S.get("timeLimitSeconds");
             const target = Math.max(1, (limit / 60) * CHEETAH_REF_WPM * 5);
@@ -265,7 +271,7 @@
         if (idle) setCheetahRun(false);
         else setCheetahRun(true, wpm);
 
-        if (S.get("timedMode")) {
+        if (timedActive()) {
             const limit = S.get("timeLimitSeconds");
             const remaining = Math.max(0, limit - e);
             timerEl.textContent = Math.ceil(remaining);
@@ -327,9 +333,9 @@
         updateCheetah();
 
         // Vaqt rejimida matn tugashiga oz qolsa — yana so'z qo'shamiz
-        if (S.get("timedMode") && pos > chars.length - 40) appendMoreWords();
+        if (timedActive() && pos > chars.length - 40) appendMoreWords();
 
-        if (pos >= chars.length && !S.get("timedMode")) finish();
+        if (pos >= chars.length && !timedActive()) finish();
     }
 
     async function finish() {
@@ -350,7 +356,7 @@
 
         showResult(wpm, rawWpm, acc, e, cc, raw);
 
-        const timeMode = S.get("timedMode") ? S.get("timeLimitSeconds") : nearestTimeMode(e);
+        const timeMode = timedActive() ? S.get("timeLimitSeconds") : nearestTimeMode(e);
         await submit(timeMode, cc, incorrect, e);
     }
 
@@ -365,9 +371,11 @@
         const data = buildGraphData(e);
         lastGraphData = data;
         document.getElementById("tw-r-cons").innerHTML = consistency(data.rawWpm) + "<small>%</small>";
-        document.getElementById("tw-r-mode").textContent = S.get("timedMode")
-            ? ("vaqt · " + S.get("timeLimitSeconds") + "s")
-            : ("so'z · " + S.get("wordCount"));
+        document.getElementById("tw-r-mode").textContent = isQuoteMode()
+            ? "iqtibos"
+            : timedActive()
+                ? ("vaqt · " + S.get("timeLimitSeconds") + "s")
+                : ("so'z · " + S.get("wordCount"));
 
         // Iqtibos manbasi — faqat iqtibos rejimida (manba bo'lsa) ko'rsatiladi
         const sourceEl = document.getElementById("tw-r-source");
@@ -605,7 +613,7 @@
         document.body.classList.remove("tw-record");
         resultEl.classList.add("d-none");
         // Vaqt rejimida matn yetarli bo'lsin (oxirida yana qo'shiladi)
-        const dto = await loadText(S.get("timedMode") ? 60 : S.get("wordCount"));
+        const dto = await loadText(timedActive() ? 60 : S.get("wordCount"));
         textId = dto.textId;
         currentSource = dto.source || null;
         render(dto.content);
@@ -627,11 +635,17 @@
             btn.classList.toggle("tw-active", !!active);
         });
 
-        // Monkeytype kabi: vaqt rejimida "So'z" guruhi yashirinadi, aksincha
+        const quote = isQuoteMode();
+        const testGroup = root.querySelector('.tw-config-group[data-group="testmode"]');
         const countGroup = root.querySelector('.tw-config-group[data-group="count"]');
         const timedGroup = root.querySelector('.tw-config-group[data-group="timed"]');
-        if (countGroup) countGroup.style.display = timed ? "none" : "";
-        if (timedGroup) timedGroup.style.display = timed ? "" : "none";
+        const quoteGroup = root.querySelector('.tw-config-group[data-group="quote"]');
+
+        // Iqtibos rejimida "Tur/So'z/Vaqt" yashiriladi, o'rniga "Uzunlik" ko'rinadi
+        if (quoteGroup) quoteGroup.style.display = quote ? "" : "none";
+        if (testGroup) testGroup.style.display = quote ? "none" : "";
+        if (countGroup) countGroup.style.display = quote ? "none" : (timed ? "none" : "");
+        if (timedGroup) timedGroup.style.display = quote ? "none" : (timed ? "" : "none");
     }
 
     root.querySelectorAll(".tw-opt").forEach(btn => {

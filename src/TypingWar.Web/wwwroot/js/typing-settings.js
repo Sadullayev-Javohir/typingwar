@@ -5,6 +5,7 @@
     const KEY = "tw_settings";
     const DEFAULTS = {
         textMode: "Words", wordCount: 25, timedMode: false, timeLimitSeconds: 30,
+        quoteLength: "all",
         difficulty: "Normal", language: "Uzbek",
         theme: "Dark", fontFamily: "JetBrains Mono", fontSize: 18,
         caretStyle: "Line", smoothCaret: true,

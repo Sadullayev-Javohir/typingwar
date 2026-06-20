@@ -20,6 +20,22 @@ public static class QuoteBank
         _ => Difficulty.Hard
     };
 
+    /// <summary>Iqtibos uzunlik toifasi (monkeytype uslubi: short/medium/long/thick).</summary>
+    public enum QuoteLength { Short, Medium, Long, Thick }
+
+    // Belgilar soni bo'yicha chegaralar — TextProvider filtri ham shu chegaralardan foydalanadi.
+    public const int ShortMax = 130;   // qisqa: <= 130
+    public const int MediumMax = 280;  // o'rta:  131..280
+    public const int LongMax = 550;    // uzun:   281..550 (undan ortig'i — juda uzun/thick)
+
+    public static QuoteLength LengthFor(string content) => content.Length switch
+    {
+        <= ShortMax => QuoteLength.Short,
+        <= MediumMax => QuoteLength.Medium,
+        <= LongMax => QuoteLength.Long,
+        _ => QuoteLength.Thick
+    };
+
     // ───────────────────────── O'ZBEK ─────────────────────────
     public static readonly QuoteEntry[] Uzbek =
     {
@@ -59,6 +75,27 @@ public static class QuoteBank
         // Sharq donishmandligi
         new("Ilm — yoshlikda toshga o'yilgan naqsh, qarilikda esa suvga chizilgan chiziq.", "Sharq hikmati", Language.Uzbek),
         new("O'tgan kunni qaytarib bo'lmas, kelajak kun esa hali kelmagan — bugunni qadrla.", "Sharq hikmati", Language.Uzbek),
+
+        // Qisqa maqollar (short)
+        new("Mehnat — baxt kaliti.", "O'zbek xalq maqoli", Language.Uzbek),
+        new("Vatan ostonadan boshlanadi.", "O'zbek xalq maqoli", Language.Uzbek),
+        new("Bilimli ming yashar, bilimsiz kun ko'rmas.", "O'zbek xalq maqoli", Language.Uzbek),
+        new("So'zni eshit, ammo o'z aqling bilan ish ko'r.", "O'zbek xalq maqoli", Language.Uzbek),
+        new("Tomchi tama-tama ko'l bo'lar.", "O'zbek xalq maqoli", Language.Uzbek),
+
+        // O'rta uzunlikdagi iqtiboslar (medium)
+        new("Inson o'z umrini shunday o'tkazmog'i kerakki, keksaygan chog'ida o'tgan kunlaridan uyalmasin, balki ularni faxr bilan eslay olsin.", "Sharq hikmati", Language.Uzbek),
+        new("Kitob — eng sodiq do'st, u na maqtaydi, na yuzingga soladi; faqat seni har gal yangi bilim bilan boyitadi va hech qachon tashlab ketmaydi.", "Hikmatli so'z", Language.Uzbek),
+        new("Yaxshilik qilishdan charchama, chunki bugun ekkan urug'ing ertaga unib, sen kutmagan kunda mevasini senga qaytaradi.", "Sharq hikmati", Language.Uzbek),
+        new("Aql bilan boylik — ikkovi birga kelsa, baxt bo'ladi; lekin ikkovidan birini tanlash kerak bo'lsa, donishmand aqlni tanlaydi.", "Hikmatli so'z", Language.Uzbek),
+
+        // Uzun iqtiboslar (long)
+        new("Ona tili — bu shunchaki muloqot vositasi emas, balki bir xalqning butun tarixi, dunyoqarashi, qadriyatlari va ruhi jamlangan xazinadir. Tilini yo'qotgan millat o'zligini, o'tmishini va kelajagini ham yo'qotadi; shuning uchun har bir so'zni asrash — Vatanni asrashdir.", "Adabiy mulohaza", Language.Uzbek),
+        new("Hayotda eng katta g'alaba — bu boshqalarni yengish emas, balki o'z nafsini, qo'rquvini va dangasaligini yenga olishdir. Kim har kuni ertalab o'zini bir qadam oldinga undasa, yillar o'tib o'zi ham bilmagan cho'qqilarga chiqqan bo'ladi.", "Hikmatli so'z", Language.Uzbek),
+
+        // Juda uzun iqtiboslar (thick — paragraf)
+        new("Ilm olish yo'li mashaqqatli, ammo uning mevasi shirin. Bilim insonni nodonlik zulmatidan ma'rifat nuriga olib chiqadi, uning ko'nglini kengaytiradi, dunyoga boshqacha nazar bilan qarashga o'rgatadi. Kim ilmni izlab yo'lga chiqsa, Alloh unga jannat yo'lini osonlashtiradi; chunki olimlarning siyohi shahidlarning qonidan ham qimmatlidir. Shuning uchun beshikdan to qabrgacha ilm izlang — bu izlanish hech qachon to'xtamasligi kerak. Har kuni bir yangi narsa o'rganishga intil, bilmaganingni so'rashdan uyalma, chunki bir lahzalik savol berishning uyati nodon bo'lib qolishning bir umrlik uyatidan ko'ra yengilroqdir.", "Sharq hikmati", Language.Uzbek),
+        new("Insonning qadri uning mol-dunyosi yoki mansabi bilan emas, balki ko'rsatgan yaxshiligi, aytgan rost so'zi va bajargan halol mehnati bilan o'lchanadi. Boylik kelib-ketadi, mansab vaqtinchalik, go'zallik so'libdiyodan ketadi; lekin yaxshi nom va ezgu amal — bular insondan keyin ham asrlar davomida yashaydi. Shuning uchun har bir kuningni shunday o'tkazki, kechqurun yostiqqa bosh qo'yganingda vijdoning tinch bo'lsin, va kimnidir xafa qilgan bo'lsang, ertasiga undan kechirim so'rashga ulgur. Hayot qisqa, ammo unga sig'dirgan ezgu ishlaring son-sanoqsiz bo'lsa, umring uzun yashagan bilan barobardir.", "Hikmatli so'z", Language.Uzbek),
     };
 
     // ───────────────────────── INGLIZ ─────────────────────────
@@ -107,6 +144,25 @@ public static class QuoteBank
         new("That's one small step for man, one giant leap for mankind.", "Neil Armstrong (1969)", Language.English),
         new("Knowledge is power.", "Francis Bacon", Language.English),
         new("Whether you think you can or you think you can't, you're right.", "Henry Ford", Language.English),
+
+        // Qisqa (short)
+        new("Simplicity is the ultimate sophistication.", "Leonardo da Vinci", Language.English),
+        new("Talk is cheap. Show me the code.", "Linus Torvalds", Language.English),
+        new("The best way to predict the future is to invent it.", "Alan Kay", Language.English),
+        new("Time is what we want most, but what we use worst.", "William Penn", Language.English),
+
+        // O'rta (medium)
+        new("Twenty years from now you will be more disappointed by the things that you didn't do than by the ones you did do, so throw off the bowlines and sail away from the safe harbor.", "Mark Twain", Language.English),
+        new("I have not failed. I've just found ten thousand ways that won't work. Many of life's failures are people who did not realize how close they were to success when they gave up.", "Thomas Edison", Language.English),
+        new("Do not go where the path may lead, go instead where there is no path and leave a trail; for the people who are crazy enough to think they can change the world are the ones who do.", "Ralph Waldo Emerson", Language.English),
+
+        // Uzun (long)
+        new("Our greatest glory is not in never falling, but in rising every time we fall. The man who moves a mountain begins by carrying away small stones, and the journey of a thousand miles must begin with a single step taken today rather than postponed to a tomorrow that may never come.", "Confucius, \"The Analects\"", Language.English),
+        new("Two roads diverged in a wood, and I took the one less traveled by, and that has made all the difference. We are all in the gutter, but some of us are looking at the stars, and it is precisely those dreamers, gazing upward in the dark, who light the way for everyone left behind.", "Robert Frost & Oscar Wilde", Language.English),
+
+        // Juda uzun (thick — paragraf)
+        new("We choose to go to the Moon in this decade and do the other things, not because they are easy, but because they are hard; because that goal will serve to organize and measure the best of our energies and skills, because that challenge is one that we are willing to accept, one we are unwilling to postpone, and one we intend to win. For the eyes of the world now look into space, to the Moon and to the planets beyond, and we have vowed that we shall not see it governed by a hostile flag of conquest, but by a banner of freedom and peace. We set sail on this new sea because there is new knowledge to be gained, and new rights to be won, and they must be won and used for the progress of all people.", "John F. Kennedy, Rice University (1962)", Language.English),
+        new("It is not the critic who counts; not the man who points out how the strong man stumbles, or where the doer of deeds could have done them better. The credit belongs to the man who is actually in the arena, whose face is marred by dust and sweat and blood; who strives valiantly; who errs, who comes short again and again, because there is no effort without error and shortcoming; but who does actually strive to do the deeds; who knows great enthusiasms, the great devotions; who spends himself in a worthy cause; who at the best knows in the end the triumph of high achievement, and who at the worst, if he fails, at least fails while daring greatly, so that his place shall never be with those cold and timid souls who neither know victory nor defeat.", "Theodore Roosevelt, \"The Man in the Arena\" (1910)", Language.English),
     };
 
     /// <summary>Barcha iqtiboslar (o'zbek + ingliz).</summary>

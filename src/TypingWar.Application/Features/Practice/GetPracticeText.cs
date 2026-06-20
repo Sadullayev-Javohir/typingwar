@@ -9,7 +9,8 @@ public record GetPracticeTextQuery(
     TextMode Mode = TextMode.Words,
     Language Language = Language.Uzbek,
     Difficulty Difficulty = Difficulty.Normal,
-    int WordCount = 25) : IRequest<PracticeTextDto>;
+    int WordCount = 25,
+    string? QuoteLength = null) : IRequest<PracticeTextDto>;
 
 public class GetPracticeTextQueryHandler : IRequestHandler<GetPracticeTextQuery, PracticeTextDto>
 {
@@ -20,7 +21,7 @@ public class GetPracticeTextQueryHandler : IRequestHandler<GetPracticeTextQuery,
     public async Task<PracticeTextDto> Handle(GetPracticeTextQuery request, CancellationToken cancellationToken)
     {
         var text = await _textProvider.GetAsync(
-            new PracticeTextRequest(request.Mode, request.Language, request.Difficulty, request.WordCount),
+            new PracticeTextRequest(request.Mode, request.Language, request.Difficulty, request.WordCount, request.QuoteLength),
             cancellationToken);
 
         return new PracticeTextDto(

@@ -339,6 +339,17 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-16] Iqtibos uzunlik filtri: Iqtibos rejimida o'ng tomondagi
+    "Tur/So'z/Vaqt" guruhlari yashiriladi, o'rniga "Uzunlik": barchasi/qisqa/
+    o'rta/uzun/juda uzun (all/short/medium/long/thick). Chegaralar belgi soni
+    bo'yicha — QuoteBank.ShortMax=130/MediumMax=280/LongMax=550 (>550=thick).
+    Backend: PracticeTextRequest+GetPracticeTextQuery+Controller'ga quoteLength,
+    TextProvider.ApplyQuoteLengthFilter (EF Content.Length). Frontend: settings
+    DEFAULTS.quoteLength="all", Practice.cshtml quote guruhi, typing-engine.js
+    isQuoteMode()/timedActive() (iqtibosda timed o'chiq, to'liq iqtibos yoziladi).
+    QuoteBank kengaytirildi: qisqa/o'rta/uzun/juda uzun (600+) o'zbek+ingliz
+    paragraflar — har bucket bo'sh qolmasin. DataSeeder additive seed qiladi.
+    Build OK, 70 test, 8 bucket (2 til × 4) endpoint orqali tasdiqlandi.
   - [2026-06-16] Iqtibos rejimi: Practice'dagi "jumla" → "Iqtiboslar".
     RaceText'ga Source maydoni (migration AddRaceTextSource). QuoteBank.cs —
     ~60 manbali iqtibos (o'zbek klassiklari/maqollar + ingliz kitob/film/
