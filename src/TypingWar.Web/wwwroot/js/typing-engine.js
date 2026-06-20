@@ -39,6 +39,25 @@
 
     function num(v, d) { const n = parseInt(v, 10); return isNaN(n) ? d : n; }
 
+    // Tipografik belgilarni klaviaturada yoziladigan ekvivalentga keltiradi.
+    // Masalan matnda uzun tire "—" bo'lsa, foydalanuvchi oddiy "-" bossa ham to'g'ri sanaladi.
+    function normChar(ch) {
+        switch (ch) {
+            case "‐": case "‑": case "‒": case "–":
+            case "—": case "―": case "−":            // turli tire/minus → "-"
+                return "-";
+            case "‘": case "’": case "ʻ": case "ʼ":
+            case "´": case "`":                            // qiyshiq apostrof/urg'u → "'"
+                return "'";
+            case "“": case "”": case "«": case "»":
+                return '"';                                          // qiyshiq qo'shtirnoq → '"'
+            case " ": case " ": case " ":
+                return " ";                                          // uzilmas/ingichka probel → " "
+            default:
+                return ch;
+        }
+    }
+
     // Iqtibos rejimi — to'liq iqtibos yoziladi (vaqt/so'z soni qo'llanmaydi)
     function isQuoteMode() { return S.get("textMode") === "Sentences"; }
     // Effektiv "vaqt rejimi" — iqtibos rejimida hech qachon yoqilmaydi
@@ -310,7 +329,7 @@
         startIfNeeded();
 
         const expected = chars[pos];
-        const correct = ev.key === expected;
+        const correct = normChar(ev.key) === normChar(expected);
 
         // Har bosish (to'g'ri/xato) hisoblanadi — aniqlik va grafik to'g'ri bo'lsin
         keypresses++;
