@@ -358,6 +358,18 @@ Yaxshilanishlar:
     PracticeTextDto'ga Source qo'shildi, natija ekranida "Manba: ..." ko'rsatiladi
     (typing-engine.js + .tw-r-source CSS). Build OK, 70 test, endpoint sinaldi.
 Tuzatilgan xatolar:
+  - [2026-06-17] Aldash himoyasi (ko'r rejim / xatodan-to'xtash-o'chiq):
+    foydalanuvchi xatoni ko'rmay yoki karetni to'xtatmay, (a) bitta tugmani bosib
+    turib yoki (b) turli xil tasodifiy belgilarni tez bosib matn oxiriga "yetib"
+    yutib ketardi. 3 qatlamli himoya: (1) auto-repeat e'tiborsiz — KeyboardEvent.
+    repeat bo'lsa bitta bosish = bitta belgi (typing-engine.js + race.js);
+    (2) stopOnError sozlamasi to'g'ri ulandi — yoqilsa xatoda karet to'xtaydi,
+    ko'r rejimda doim yuradi; (3) aniqlik darvozasi 50%: past aniqlikdagi natija
+    saqlanmaydi/poyga yutilmaydi — frontend (Practice + Race) + server. Server:
+    GameConstants.MinValidAccuracy=50, TypingCalculator.IsPlausibleAccuracy,
+    RecordResult handler rad etadi (RaceHub.FinishAiRace catch qiladi). Poyga
+    g'olibi (race.js won) endi aniqlikka bog'liq — raqibdan tez "tugatgan" bo'lsa
+    ham past aniqlikda g'alaba yo'q. 5 yangi test (jami 75). sw.js cache v15.
   - [2026-06-16] Sozlamalar: background, showLiveAcc, showLiveTimer,
     showStatsPanel, showCheetah UI'da bor edi-yu, UserSettings entity/DTO'da
     yo'q edi — kirgan foydalanuvchida serverga saqlanmasdi. 5 maydon entity +
@@ -371,7 +383,7 @@ Hal qilinmagan muammolar:
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
   - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
-Oxirgi git commit: Bosqich 10 — Qo'shimcha (LOYIHA YAKUNLANDI)
+Oxirgi git commit: Poyga g'olibi to'g'ri belgilarga bog'landi (aldash himoyasi)
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.
