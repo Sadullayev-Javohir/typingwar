@@ -10,6 +10,8 @@
     const S = window.TWSettings;
 
     let mode = "AI", conn = null;
+    // Aldash himoyasi: bundan past aniqlikda g'alaba berilmaydi (server bilan bir xil).
+    const MIN_ACCURACY = 50;
 
     const startBtn = $("tw-race-start"), errEl = $("tw-race-err"), vsEl = $("tw-vs"),
         youBar = $("tw-you-bar"), oppBar = $("tw-opp-bar"), youWpm = $("tw-you-wpm"),
@@ -293,6 +295,8 @@
         }
         if (ev.key.length !== 1 || ev.ctrlKey || ev.metaKey || ev.altKey) return;
         ev.preventDefault();
+        // Tugmani bosib turish (auto-repeat) — bitta bosish = bitta belgi (cheat oldini olish).
+        if (ev.repeat) return;
         if (pos >= chars.length) return;
 
         const ok = normChar(ev.key) === normChar(chars[pos]);
@@ -356,8 +360,12 @@
         const wpm = Math.round(((correct / 5) / minutes) * 100) / 100;
         const rawWpm = Math.round(((keypresses / 5) / minutes) * 100) / 100;
         const acc = keypresses > 0 ? Math.round((correct / keypresses) * 10000) / 100 : 0;
-        const won = e <= aiFinishMs;
-        showResult(won, wpm, rawWpm, acc, e / 1000);
+        // G'olib faqat to'g'ri yozilgan belgilarga bog'liq: aniqlik juda past bo'lsa
+        // (bitta tugmani bosib turish yoki tasodifiy belgilar) — raqibdan tez "tugatgan"
+        // bo'lsa ham g'alaba berilmaydi. WPM ham faqat to'g'ri belgilardan hisoblanadi.
+        const valid = correct > 0 && acc >= MIN_ACCURACY;
+        const won = valid && e <= aiFinishMs;
+        showResult(won, valid, wpm, rawWpm, acc, e / 1000);
         if (mode !== "Ghost" && conn) {
             conn.invoke("FinishAiRace", 30, correct, Math.max(0, keypresses - correct), e / 1000, textId, won).catch(() => { });
         }
@@ -513,14 +521,21 @@
         if (lastGraphData) drawChart(lastGraphData);
     }
 
-    function showResult(won, wpm, rawWpm, acc, durationSec) {
+    function showResult(won, valid, wpm, rawWpm, acc, durationSec) {
         areaEl.classList.add("d-none");
         vsEl.classList.add("d-none");
         resultEl.classList.remove("d-none");
 
-        verdictEl.textContent = won ? "🏆 G'alaba!" : "😅 Mag'lubiyat";
-        verdictEl.classList.toggle("tw-win", won);
-        verdictEl.classList.toggle("tw-lose", !won);
+        // Aniqlik juda past bo'lsa — g'alaba/mag'lubiyat emas, "hisobga olinmadi" deb ko'rsatiladi
+        if (!valid) {
+            verdictEl.textContent = "⚠️ Aniqlik juda past — g'alaba hisobga olinmadi";
+            verdictEl.classList.remove("tw-win");
+            verdictEl.classList.add("tw-lose");
+        } else {
+            verdictEl.textContent = won ? "🏆 G'alaba!" : "😅 Mag'lubiyat";
+            verdictEl.classList.toggle("tw-win", won);
+            verdictEl.classList.toggle("tw-lose", !won);
+        }
 
         const incorrect = Math.max(0, keypresses - correct);
         const oppLabel = mode === "Ghost" ? "Ghost" : (blind ? "Blind" : "AI");
