@@ -36,6 +36,6 @@ public class GetRoomQueryHandler : IRequestHandler<GetRoomQuery, RoomDto?>
             return null;
 
         return new RoomDto(room.Id, room.Code, room.HostId, room.Status,
-            _currentUser.UserId == room.HostId);
+            _currentUser.UserId == room.HostId, room.Settings ?? "{}");
     }
 }

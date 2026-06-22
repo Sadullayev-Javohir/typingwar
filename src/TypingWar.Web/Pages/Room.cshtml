@@ -28,6 +28,20 @@
         <div class="col-md-8">
             <div id="tw-countdown" class="tw-countdown d-none"></div>
             <div id="tw-race" class="d-none">
+                <div class="tw-stats" id="tw-room-stats">
+                    <div class="tw-stat" id="tw-stat-wpm">
+                        <span id="tw-wpm">0</span>
+                        <label><i class="bi bi-speedometer2"></i>WPM</label>
+                    </div>
+                    <div class="tw-stat" id="tw-stat-acc">
+                        <span id="tw-acc">100</span>
+                        <label><i class="bi bi-bullseye"></i>Aniqlik %</label>
+                    </div>
+                    <div class="tw-stat" id="tw-stat-timer">
+                        <span id="tw-timer">0</span>
+                        <label><i class="bi bi-clock"></i>Soniya</label>
+                    </div>
+                </div>
                 <div id="tw-room-wordswrap" class="tw-wordswrap">
                     <div id="tw-room-words" class="tw-words" tabindex="0"></div>
                     <div id="tw-sab-banner" class="tw-sab-banner d-none"></div>
@@ -45,9 +59,13 @@
                 </div>
                 <ul id="tw-sab-feed" class="tw-sab-feed"></ul>
             </div>
-            <div id="tw-room-result" class="tw-result d-none">
-                <h4 class="tw-accent text-center">Natijalar</h4>
-                <ol id="tw-room-ranks" class="tw-ranks"></ol>
+            <div id="tw-room-result" class="tw-room-result d-none">
+                <div class="tw-rr-head">
+                    <i class="bi bi-trophy-fill"></i>
+                    <h4>Poyga natijalari</h4>
+                    <p id="tw-rr-sub">Barcha o'yinchilar statistikasi</p>
+                </div>
+                <div id="tw-room-cards" class="tw-rr-cards"></div>
             </div>
         </div>
     </div>

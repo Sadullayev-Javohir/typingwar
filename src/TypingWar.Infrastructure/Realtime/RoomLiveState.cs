@@ -12,6 +12,7 @@ public class RoomPlayerLive
     public bool IsHost { get; set; }
     public double Progress { get; set; }
     public double Wpm { get; set; }
+    public double RawWpm { get; set; }
     public double Accuracy { get; set; }
     public bool Finished { get; set; }
     public int? Place { get; set; }
@@ -24,10 +25,12 @@ public class RoomLive
     public string Code { get; init; } = string.Empty;
     public Guid HostId { get; init; }
     public RoomStatus Status { get; set; } = RoomStatus.Waiting;
+    public string Settings { get; set; } = "{}"; // host tanlagan poyga sozlamalari (JSON)
     public string? TextContent { get; set; }
     public Guid? TextId { get; set; }
     public int FinishOrder; // Interlocked bilan oshiriladi
     public int Round;        // har StartRace da oshadi — sabotaj guard ni poygaga bog'laydi
+    public CancellationTokenSource? RaceTimeoutCts; // poyga 5 daqiqada tugamasa — xona o'chadi
     public ConcurrentDictionary<string, RoomPlayerLive> Players { get; } = new();
 }
 

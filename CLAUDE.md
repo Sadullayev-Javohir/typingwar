@@ -339,6 +339,27 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-17] Xona poyga sozlamalari + Practice typing + natija oynasi + 5daq taymer:
+    (1) /Rooms "Xona yaratish" kartasiga Practice'dagi katta config div nusxalandi
+    (til/rejim/so'z soni/iqtibos uzunligi — timed yo'q). Host tanlaydi, rooms.js
+    cfg holatini TWSettings'dan boshlaydi va POST /api/rooms body'da yuboradi.
+    RoomRaceSettings (Language/TextMode/WordCount/QuoteLength) DB Room.Settings'ga
+    JSON saqlanadi; RoomDto.Settings; RoomsController.Create([FromBody]) serializatsiya.
+    (2) Boshlangach typing maydoni Practice bilan bir xil: room.js to'liq qayta
+    yozildi — render(wordsInner+caret), moveCaret (karet uslublari), updateScroll
+    (qator surilishi), updateCurrentWord, normChar, blind/stopOnError, auto-repeat
+    guard, TWSound, live WPM/Aniqlik/Soniya stats bar (Room.cshtml + sozlama
+    ko'rinishi). LobbyHub.StartRace endi live.Settings'dan BuildTextRequest qiladi
+    (avval hardcoded Sentences/Uzbek/25 edi). JoinRoom live.Settings=room.Settings.
+    (3) Natija oynasi: barcha o'yinchilar bitta oynada karta ko'rinishida (o'rin
+    medali + ism + WPM/raw/aniqlik). FinishRace(code,wpm,rawWpm,acc) — RawWpm
+    qo'shildi (RoomPlayerLive+View). Room.cshtml #tw-room-cards, .tw-rr-* CSS.
+    (4) 5 daqiqalik taymer: StartRace'da ScheduleRaceTimeout (fire-and-forget
+    Task + CancellationTokenSource live.RaceTimeoutCts). Hamma tugatmasa →
+    yangi DI scope'da Redis kod o'chadi + DB Status=Expired + "RoomClosed"
+    ("Poyga 5 daqiqada tugamadi…") + state.Remove. Hamma tugatsa/host chiqsa
+    taymer Cancel. GameConstants.RoomRaceTimeoutMinutes=5. room.js RoomClosed
+    overlay → 6s'da /Rooms. sw.js cache v17. Build OK, 75 test o'tadi.
   - [2026-06-17] /Rooms qayta dizayn (zamonaviy) + host chiqsa kod o'chadi:
     Rooms.cshtml butunlay yangilandi — hero (badge+sarlavha), 2 ta zamonaviy
     karta (Xona yaratish / Kodga qo'shilish, Bootstrap Icons: plus-circle,
@@ -396,7 +417,7 @@ Hal qilinmagan muammolar:
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
   - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
-Oxirgi git commit: /Rooms zamonaviy dizayn + host chiqsa xona kodi o'chadi
+Oxirgi git commit: Xona poyga sozlamalari + Practice typing + natija oynasi + 5daq taymer
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.

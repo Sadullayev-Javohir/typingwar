@@ -50,7 +50,7 @@ public class CreateRoomCommandHandler : IRequestHandler<CreateRoomCommand, RoomD
         await _cache.SetStringAsync(RoomKey(code), room.Id.ToString(),
             TimeSpan.FromMinutes(GameConstants.RoomCodeTtlMinutes));
 
-        return new RoomDto(room.Id, code, userId, room.Status, true);
+        return new RoomDto(room.Id, code, userId, room.Status, true, room.Settings);
     }
 
     public static string RoomKey(string code) => $"room:{code.ToUpperInvariant()}";

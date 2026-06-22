@@ -1,8 +1,10 @@
 using System.Security.Claims;
+using System.Text.Json;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using TypingWar.Application.Common.Interfaces;
 using TypingWar.Application.Features.Rooms;
 using TypingWar.Domain.Constants;
@@ -24,15 +26,20 @@ public class LobbyHub : Hub
     private readonly ITextProvider _textProvider;
     private readonly IApplicationDbContext _db;
     private readonly ICacheService _cache;
+    private readonly IHubContext<LobbyHub> _hub;
+    private readonly IServiceScopeFactory _scopeFactory;
 
     public LobbyHub(RoomLiveState state, ISender mediator, ITextProvider textProvider,
-        IApplicationDbContext db, ICacheService cache)
+        IApplicationDbContext db, ICacheService cache,
+        IHubContext<LobbyHub> hub, IServiceScopeFactory scopeFactory)
     {
         _state = state;
         _mediator = mediator;
         _textProvider = textProvider;
         _db = db;
         _cache = cache;
+        _hub = hub;
+        _scopeFactory = scopeFactory;
     }
 
     private Guid? UserId =>
@@ -45,6 +52,7 @@ public class LobbyHub : Hub
         isHost = p.IsHost,
         progress = p.Progress,
         wpm = p.Wpm,
+        rawWpm = p.RawWpm,
         accuracy = p.Accuracy,
         finished = p.Finished,
         place = p.Place
@@ -62,6 +70,7 @@ public class LobbyHub : Hub
         }
 
         var live = _state.GetOrCreate(code, room.RoomId, room.HostId);
+        live.Settings = room.Settings; // host tanlagan poyga sozlamalari (matn turi/til/uzunlik)
 
         var uid = UserId;
         bool isHost = uid.HasValue && uid.Value == room.HostId;
@@ -100,20 +109,35 @@ public class LobbyHub : Hub
         }
         if (live.Status is RoomStatus.Countdown or RoomStatus.InProgress) return;
 
-        var text = await _textProvider.GetAsync(
-            new PracticeTextRequest(TextMode.Sentences, Language.Uzbek, Domain.Enums.Difficulty.Normal, 25));
+        var text = await _textProvider.GetAsync(BuildTextRequest(live.Settings));
         live.TextContent = text.Content;
         live.TextId = text.TextId;
         live.FinishOrder = 0;
         live.Round++;   // yangi poyga — sabotaj guard yangilanadi
         foreach (var p in live.Players.Values)
         {
-            p.Finished = false; p.Progress = 0; p.Wpm = 0; p.Accuracy = 0; p.Place = null;
+            p.Finished = false; p.Progress = 0; p.Wpm = 0; p.RawWpm = 0; p.Accuracy = 0; p.Place = null;
         }
 
         live.Status = RoomStatus.Countdown;
         await Clients.Group(code).SendAsync("RaceStarting", new { text = live.TextContent, countdown = 3 });
         live.Status = RoomStatus.InProgress;
+
+        // Poyga 5 daqiqada tugamasa — xona avtomatik o'chadi (taymerni qayta o'rnatamiz)
+        ScheduleRaceTimeout(live, code);
+    }
+
+    /// <summary>Host tanlagan sozlamalardan (JSON) matn so'rovini quradi. Xatolik bo'lsa — standart (o'zbek iqtibos).</summary>
+    private static PracticeTextRequest BuildTextRequest(string settingsJson)
+    {
+        RoomRaceSettings s;
+        try { s = JsonSerializer.Deserialize<RoomRaceSettings>(settingsJson) ?? new RoomRaceSettings(); }
+        catch { s = new RoomRaceSettings(); }
+
+        var mode = Enum.TryParse<TextMode>(s.TextMode, true, out var m) ? m : TextMode.Sentences;
+        var lang = Enum.TryParse<Language>(s.Language, true, out var l) ? l : Language.Uzbek;
+        var count = s.WordCount is >= 5 and <= 200 ? s.WordCount : 25;
+        return new PracticeTextRequest(mode, lang, Difficulty.Normal, count, s.QuoteLength);
     }
 
     public async Task ReportProgress(string code, double progress, double wpm)
@@ -193,7 +217,7 @@ public class LobbyHub : Hub
         });
     }
 
-    public async Task FinishRace(string code, double wpm, double accuracy)
+    public async Task FinishRace(string code, double wpm, double rawWpm, double accuracy)
     {
         code = code.ToUpperInvariant();
         if (!_state.TryGet(code, out var live)) return;
@@ -201,6 +225,7 @@ public class LobbyHub : Hub
 
         p.Finished = true;
         p.Wpm = wpm;
+        p.RawWpm = rawWpm;
         p.Accuracy = accuracy;
         p.Progress = 100;
         p.Place = Interlocked.Increment(ref live.FinishOrder);
@@ -209,6 +234,7 @@ public class LobbyHub : Hub
 
         if (live.Players.Values.All(x => x.Finished))
         {
+            live.RaceTimeoutCts?.Cancel();   // hamma tugatdi — taymer kerak emas
             live.Status = RoomStatus.Finished;
             var results = live.Players.Values.OrderBy(x => x.Place).Select(View).ToList();
             await Clients.Group(code).SendAsync("RaceFinished", results);
@@ -255,6 +281,8 @@ public class LobbyHub : Hub
     /// </summary>
     private async Task CloseRoomAsync(RoomLive live, string hostName)
     {
+        live.RaceTimeoutCts?.Cancel();   // xona yopildi — poyga taymeri kerak emas
+
         // 1) Redis kodini o'chir — bu kod orqali boshqa hech kim qo'shila olmaydi
         await _cache.RemoveAsync(CreateRoomCommandHandler.RoomKey(live.Code));
 
@@ -274,6 +302,58 @@ public class LobbyHub : Hub
 
         // 4) Live registrdan butunlay olib tashla
         _state.Remove(live.Code);
+    }
+
+    /// <summary>
+    /// Poyga boshlangach 5 daqiqalik taymer qo'yadi. Bu vaqtda hamma tugatmasa
+    /// (kimdir yozib bo'lmasa) — xona avtomatik o'chiriladi va o'yinchilar xabardor qilinadi.
+    /// Hub instansiyasi har chaqiruvda yangilanadi, shuning uchun taymer fire-and-forget
+    /// Task sifatida ishlaydi va yopish ishlarini yangi DI scope ichida bajaradi.
+    /// </summary>
+    private void ScheduleRaceTimeout(RoomLive live, string code)
+    {
+        live.RaceTimeoutCts?.Cancel();
+        var cts = new CancellationTokenSource();
+        live.RaceTimeoutCts = cts;
+
+        var round = live.Round;                 // shu poyga uchun amal qiladi
+        var hub = _hub;
+        var scopeFactory = _scopeFactory;
+        var state = _state;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(TimeSpan.FromMinutes(GameConstants.RoomRaceTimeoutMinutes), cts.Token);
+            }
+            catch (OperationCanceledException) { return; } // hamma tugatdi / xona yopildi
+
+            // Hali ham o'sha poyga davom etyaptimi?
+            if (live.Round != round || live.Status != RoomStatus.InProgress) return;
+
+            live.Status = RoomStatus.Expired;
+
+            using var scope = scopeFactory.CreateScope();
+            var cache = scope.ServiceProvider.GetRequiredService<ICacheService>();
+            var db = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+
+            await cache.RemoveAsync(CreateRoomCommandHandler.RoomKey(code));
+
+            var room = await db.Rooms.FirstOrDefaultAsync(r => r.Id == live.RoomId);
+            if (room is not null && room.Status != RoomStatus.Finished)
+            {
+                room.Status = RoomStatus.Expired;
+                await db.SaveChangesAsync();
+            }
+
+            await hub.Clients.Group(code).SendAsync("RoomClosed", new
+            {
+                reason = $"Poyga {GameConstants.RoomRaceTimeoutMinutes} daqiqada tugamadi — xona avtomatik o'chirildi."
+            });
+
+            state.Remove(code);
+        });
     }
 
     private async Task PersistFinishedAsync(RoomLive live)

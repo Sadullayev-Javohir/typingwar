@@ -20,6 +20,38 @@
             <div class="tw-rcard-icon"><i class="bi bi-plus-circle"></i></div>
             <h2>Xona yaratish</h2>
             <p>Yangi xona ochasiz va sizga 8 xonali noyob kod beriladi. Kodni do'stlaringizga ulashing.</p>
+
+            <!-- Poyga sozlamalari (host tanlaydi — barcha o'yinchilar shu matnni yozadi) -->
+            <div class="tw-config tw-room-config" id="tw-room-config">
+                <div class="tw-config-group" data-group="language">
+                    <span class="tw-config-label"><i class="bi bi-translate"></i>Til:</span>
+                    <button type="button" class="tw-opt" data-key="language" data-value="Uzbek">uz</button>
+                    <button type="button" class="tw-opt" data-key="language" data-value="English">en</button>
+                </div>
+                <div class="tw-config-group" data-group="mode">
+                    <span class="tw-config-label"><i class="bi bi-type"></i>Rejim:</span>
+                    <button type="button" class="tw-opt" data-key="textMode" data-value="Words">so'z</button>
+                    <button type="button" class="tw-opt" data-key="textMode" data-value="Sentences">Iqtiboslar</button>
+                    <button type="button" class="tw-opt" data-key="textMode" data-value="Numbers">raqam</button>
+                    <button type="button" class="tw-opt" data-key="textMode" data-value="Code">kod</button>
+                </div>
+                <div class="tw-config-group" data-group="quote" style="display:none">
+                    <span class="tw-config-label"><i class="bi bi-rulers"></i>Uzunlik:</span>
+                    <button type="button" class="tw-opt" data-key="quoteLength" data-value="all">barchasi</button>
+                    <button type="button" class="tw-opt" data-key="quoteLength" data-value="short">qisqa</button>
+                    <button type="button" class="tw-opt" data-key="quoteLength" data-value="medium">o'rta</button>
+                    <button type="button" class="tw-opt" data-key="quoteLength" data-value="long">uzun</button>
+                    <button type="button" class="tw-opt" data-key="quoteLength" data-value="thick">juda uzun</button>
+                </div>
+                <div class="tw-config-group" data-group="count">
+                    <span class="tw-config-label"><i class="bi bi-hash"></i>So'z:</span>
+                    <button type="button" class="tw-opt" data-key="wordCount" data-value="10">10</button>
+                    <button type="button" class="tw-opt" data-key="wordCount" data-value="25">25</button>
+                    <button type="button" class="tw-opt" data-key="wordCount" data-value="50">50</button>
+                    <button type="button" class="tw-opt" data-key="wordCount" data-value="100">100</button>
+                </div>
+            </div>
+
             <button id="tw-create" class="tw-rbtn">
                 <i class="bi bi-rocket-takeoff"></i>
                 <span>Xona yaratish</span>
