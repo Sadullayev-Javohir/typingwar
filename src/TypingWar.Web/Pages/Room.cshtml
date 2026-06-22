@@ -65,7 +65,23 @@
                     <h4>Poyga natijalari</h4>
                     <p id="tw-rr-sub">Barcha o'yinchilar statistikasi</p>
                 </div>
+
+                <div class="tw-rr-chart">
+                    <canvas id="tw-room-chart" height="220"></canvas>
+                    <div id="tw-room-chart-tip" class="tw-chart-tip" style="display:none"></div>
+                    <div id="tw-room-legend" class="tw-rr-legend"></div>
+                </div>
+
                 <div id="tw-room-cards" class="tw-rr-cards"></div>
+
+                <div class="tw-rr-actions">
+                    <button id="tw-restart" class="btn btn-tw d-none">
+                        <i class="bi bi-arrow-repeat me-1"></i>Qaytadan boshlash
+                    </button>
+                    <p id="tw-rr-wait" class="text-secondary small mb-0 d-none">
+                        Host yangi poyga boshlashini kuting…
+                    </p>
+                </div>
             </div>
         </div>
     </div>

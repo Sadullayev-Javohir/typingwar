@@ -339,6 +339,21 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-17] /Room natija grafigi (barcha o'yinchilar, Practice line graph
+    uslubida): oxirgi o'yinchi yozib bo'lgach (RaceFinished — barcha Finished
+    bo'lgandagina chaqiriladi) natija oynasida soniyalik WPM chiziq grafigi
+    chiqadi, har o'yinchi alohida rangda (CHART_COLORS palitra). Backend:
+    RoomPlayerLive.WpmSeries (double[]), LobbyHub.FinishRace endi wpmSeries
+    parametrini oladi (300s gacha cheklangan), View()+RaceFinished'ga qo'shildi,
+    StartRace seriyani tozalaydi. Frontend (room.js): keyEvents tarixi
+    (onKey'da {t,correct}), buildWpmSeries (Practice mantiqi), drawRoomChart
+    (ko'p chiziq, to'r, Y/X belgilar, hover ko'rsatkich+nuqtalar),
+    onRoomChartHover tooltip (har soniyada barcha o'yinchilar WPM si),
+    renderChartLegend (rangli izoh), natija kartalariga rangli nuqta. Host'ga
+    "Qaytadan boshlash" tugmasi (StartRace → hamma uchun yangi countdown),
+    boshqalarga "Host kuting…" matni. Room.cshtml: tw-rr-chart canvas+tip+
+    legend + tw-rr-actions. site.css: .tw-rr-chart/.tw-rr-legend/.tw-rr-dot/
+    .tw-rr-actions. sw.js cache v18. Build OK, 75 test o'tadi.
   - [2026-06-17] Xona poyga sozlamalari + Practice typing + natija oynasi + 5daq taymer:
     (1) /Rooms "Xona yaratish" kartasiga Practice'dagi katta config div nusxalandi
     (til/rejim/so'z soni/iqtibos uzunligi — timed yo'q). Host tanlaydi, rooms.js
@@ -417,7 +432,7 @@ Hal qilinmagan muammolar:
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
   - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
-Oxirgi git commit: Xona poyga sozlamalari + Practice typing + natija oynasi + 5daq taymer
+Oxirgi git commit: /Room natija grafigi (barcha o'yinchilar line graph) + host qaytadan boshlash
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.

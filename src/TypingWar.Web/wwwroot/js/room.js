@@ -43,6 +43,9 @@
     let chars = [], letterEls = [], status = [], pos = 0, keypresses = 0,
         startTime = null, finished = false, lastReport = 0;
     let wordsInner = null, caretEl = null, liveTimer = null;
+    let keyEvents = [];   // har bosish: {t: soniya, correct} — natija grafigi uchun
+    // natija grafigi holati (hover qayta chizish uchun)
+    let lastResults = null, roomChartGeom = null;
     // sabotaj holati
     let mySabotageUsed = false, raceActive = false, sabBannerTimer = null;
 
@@ -290,6 +293,7 @@
     // ── Poyga (typing) ──
     function beginRace(text) {
         pos = 0; keypresses = 0; startTime = null; finished = false; lastReport = 0;
+        keyEvents = [];
         if (liveTimer) clearInterval(liveTimer);
         liveTimer = null;
         if (wpmEl) wpmEl.textContent = "0";
@@ -355,6 +359,7 @@
 
         const correct = normChar(ev.key) === normChar(chars[pos]);
         keypresses++;
+        keyEvents.push({ t: elapsed(), correct });   // natija grafigi tarixi
         if (window.TWSound && S) window.TWSound.play(S.get("soundOnClick"), correct);
 
         // "Xatodan to'xtash" yoqilgan bo'lsa (ko'r rejimdan tashqari): xato belgida karet turadi
@@ -397,7 +402,27 @@
         const wpm = Math.round(((cc / 5) / minutes) * 100) / 100;
         const rawWpm = Math.round(((keypresses / 5) / minutes) * 100) / 100;
         const acc = keypresses > 0 ? Math.round((cc / keypresses) * 10000) / 100 : 0;
-        conn.invoke("FinishRace", code, wpm, rawWpm, acc).catch(() => { });
+        const series = buildWpmSeries(e);
+        conn.invoke("FinishRace", code, wpm, rawWpm, acc, series).catch(() => { });
+    }
+
+    // Har soniya uchun net WPM qatori (natija grafigi uchun) — Practice bilan bir xil mantiq
+    function buildWpmSeries(duration) {
+        const secs = Math.max(1, Math.ceil(duration));
+        const corN = new Array(secs).fill(0);
+        for (const ev of keyEvents) {
+            if (!ev.correct) continue;
+            let i = Math.floor(ev.t);
+            if (i < 0) i = 0; if (i >= secs) i = secs - 1;
+            corN[i]++;
+        }
+        const series = [];
+        for (let i = 0; i < secs; i++) {
+            let win = 1;
+            if (i === secs - 1) win = Math.max(0.5, duration - (secs - 1)); // oxirgi to'liqsiz soniya
+            series.push(Math.round((corN[i] / 5) / (win / 60)));
+        }
+        return series;
     }
 
     // ── Sabotaj ──
@@ -484,7 +509,15 @@
         setTimeout(() => { location.href = "/Rooms"; }, 6000);
     }
 
+    // ── Rang palitrasi (har o'yinchiga grafikda alohida rang) ──
+    const CHART_COLORS = [
+        "#E8A020", "#3b82f6", "#22c55e", "#ef4444", "#a855f7",
+        "#ec4899", "#14b8a6", "#f59e0b", "#8b5cf6", "#06b6d4"
+    ];
+    function colorFor(idx) { return CHART_COLORS[idx % CHART_COLORS.length]; }
+
     // ── Natijalar oynasi (barcha o'yinchilar statistikasi bitta oynada) ──
+    // Bu funksiya faqat oxirgi o'yinchi ham yozib bo'lgach (RaceFinished) chaqiriladi.
     function showResults(results) {
         raceActive = false;
         if (liveTimer) clearInterval(liveTimer);
@@ -494,10 +527,21 @@
         cdEl.classList.add("d-none");
         resultEl.classList.remove("d-none");
 
+        lastResults = results;
+
         const sub = $("tw-rr-sub");
         if (sub) sub.textContent = results.length + " o'yinchi · eng tez barmoqlar yuqorida";
 
-        cardsEl.innerHTML = results.map(r => {
+        // Grafik: barcha o'yinchilarning soniyalik WPM chiziqlari + rangli izoh
+        renderChartLegend(results);
+        requestAnimationFrame(() => drawRoomChart(results)); // layoutdan keyin (clientWidth to'g'ri)
+
+        // Host uchun "qaytadan boshlash" tugmasi (yangi o'yin), boshqalarga kutish matni
+        const restartBtn = $("tw-restart"), waitMsg = $("tw-rr-wait");
+        if (restartBtn) restartBtn.classList.toggle("d-none", !isHost);
+        if (waitMsg) waitMsg.classList.toggle("d-none", isHost);
+
+        cardsEl.innerHTML = results.map((r, i) => {
             const medal = r.place === 1 ? "🥇" : r.place === 2 ? "🥈" : r.place === 3 ? "🥉" : null;
             const place = medal ? `<span class="tw-rr-medal">${medal}</span>`
                 : `<span class="tw-rr-place">${r.place}.</span>`;
@@ -505,8 +549,10 @@
             const winner = r.place === 1 ? " tw-rr-winner" : "";
             const crown = r.isHost
                 ? '<i class="bi bi-crown-fill" style="color:var(--tw-gold)"></i> ' : '';
+            const dot = `<i class="tw-rr-dot" style="background:${colorFor(i)}"></i>`;
             return `<div class="tw-rr-card${winner}${mine}">
                 <div class="tw-rr-rank">${place}</div>
+                ${dot}
                 <div class="tw-rr-name">${crown}${esc(r.name)}${mine ? ' <small>(siz)</small>' : ''}</div>
                 <div class="tw-rr-metrics">
                     <div class="tw-rr-m"><span>${Math.round(r.wpm || 0)}</span><label>wpm</label></div>
@@ -517,8 +563,156 @@
         }).join("");
     }
 
+    // Rangli izoh (legend) — har o'yinchi qaysi chiziq ekanini ko'rsatadi
+    function renderChartLegend(results) {
+        const legend = $("tw-room-legend");
+        if (!legend) return;
+        legend.innerHTML = results.map((r, i) => {
+            const me = (myConnId && r.connId === myConnId) ? " (siz)" : "";
+            return `<span class="tw-rr-lg"><i class="tw-rr-dot" style="background:${colorFor(i)}"></i>${esc(r.name)}${me}</span>`;
+        }).join("");
+    }
+
+    // Barcha o'yinchilarning soniyalik WPM chiziqlarini bitta grafikda chizadi (Practice uslubida)
+    function drawRoomChart(results, hoverIdx) {
+        const canvas = $("tw-room-chart");
+        if (!canvas) return;
+        const series = results.map(r => Array.isArray(r.wpmSeries) ? r.wpmSeries : []);
+        const maxLen = Math.max(1, ...series.map(s => s.length));
+        if (maxLen < 1) return;
+
+        const dpr = window.devicePixelRatio || 1;
+        const cssW = canvas.clientWidth || 600;
+        const cssH = 220;
+        canvas.width = Math.round(cssW * dpr);
+        canvas.height = Math.round(cssH * dpr);
+        const ctx = canvas.getContext("2d");
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, cssW, cssH);
+
+        const cs = getComputedStyle(document.documentElement);
+        const sub = "#8a8aa0";
+        const padL = 38, padR = 12, padT = 14, padB = 22;
+        const plotW = Math.max(10, cssW - padL - padR);
+        const plotH = cssH - padT - padB;
+        const n = maxLen;
+
+        let maxWpm = 10;
+        series.forEach(s => s.forEach(v => { if (v > maxWpm) maxWpm = v; }));
+        const maxY = Math.max(20, Math.ceil(maxWpm / 20) * 20);
+        const xAt = i => n <= 1 ? padL + plotW / 2 : padL + (i / (n - 1)) * plotW;
+        const yAt = v => padT + plotH - (Math.max(0, v) / maxY) * plotH;
+
+        roomChartGeom = { padL, padT, plotW, plotH, n, xAt, maxY, cssW, cssH };
+
+        // To'r va Y belgilar
+        ctx.font = "10px " + ((cs.getPropertyValue("--tw-ui-font") || "").trim() || "sans-serif");
+        const steps = 4;
+        for (let s = 0; s <= steps; s++) {
+            const val = maxY * s / steps;
+            const y = yAt(val);
+            ctx.strokeStyle = "rgba(138,138,160,.14)"; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(cssW - padR, y); ctx.stroke();
+            ctx.fillStyle = sub; ctx.fillText(String(Math.round(val)), 6, y + 3);
+        }
+        // X belgilar (soniya)
+        ctx.fillStyle = sub; ctx.textAlign = "center";
+        const xStep = Math.max(1, Math.round(n / 8));
+        for (let i = 0; i < n; i += xStep) ctx.fillText(String(i + 1), xAt(i), cssH - 6);
+        ctx.textAlign = "start";
+
+        // Hover ko'rsatkich chizig'i
+        if (hoverIdx != null && hoverIdx >= 0 && hoverIdx < n) {
+            const hx = xAt(hoverIdx);
+            ctx.strokeStyle = "rgba(232,160,32,.5)"; ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.moveTo(hx, padT); ctx.lineTo(hx, padT + plotH); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Har o'yinchi chizig'i
+        series.forEach((s, idx) => {
+            if (!s.length) return;
+            const col = colorFor(idx);
+            ctx.strokeStyle = col; ctx.lineWidth = 2.2; ctx.lineJoin = "round"; ctx.beginPath();
+            let started = false;
+            for (let i = 0; i < s.length; i++) {
+                const x = xAt(i), y = yAt(s[i]);
+                if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        });
+
+        // Hover dagi nuqtalar
+        if (hoverIdx != null && hoverIdx >= 0 && hoverIdx < n) {
+            const hx = xAt(hoverIdx);
+            series.forEach((s, idx) => {
+                if (hoverIdx >= s.length) return;
+                ctx.beginPath(); ctx.arc(hx, yAt(s[hoverIdx]), 4, 0, Math.PI * 2);
+                ctx.fillStyle = colorFor(idx); ctx.fill();
+                ctx.lineWidth = 2; ctx.strokeStyle = (cs.getPropertyValue("--tw-bg") || "#0F0F1A").trim();
+                ctx.stroke();
+            });
+        }
+    }
+
+    // Sichqoncha grafik ustida — eng yaqin soniyada barcha o'yinchilar WPM si
+    function onRoomChartHover(ev) {
+        if (!lastResults || !roomChartGeom) return;
+        const canvas = $("tw-room-chart"), tip = $("tw-room-chart-tip");
+        if (!canvas || !tip) return;
+        const rect = canvas.getBoundingClientRect();
+        const mx = ev.clientX - rect.left;
+        const g = roomChartGeom, n = g.n;
+        let idx = n <= 1 ? 0 : Math.round(((mx - g.padL) / g.plotW) * (n - 1));
+        idx = Math.max(0, Math.min(n - 1, idx));
+
+        drawRoomChart(lastResults, idx);
+
+        let rows = "<div class='tw-tip-sec'>" + (idx + 1) + "-soniya</div>";
+        lastResults.forEach((r, i) => {
+            const s = Array.isArray(r.wpmSeries) ? r.wpmSeries : [];
+            const v = idx < s.length ? Math.round(s[idx]) : "—";
+            rows += "<div><i class='tw-lg-dot' style='background:" + colorFor(i) + "'></i>" +
+                esc(r.name) + ": <b>" + v + "</b></div>";
+        });
+        tip.innerHTML = rows;
+
+        const hx = g.xAt(idx);
+        tip.style.display = "block";
+        const tipW = tip.offsetWidth;
+        let left = hx - tipW / 2;
+        left = Math.max(0, Math.min(g.cssW - tipW, left));
+        tip.style.left = left + "px";
+        tip.style.top = "0px";
+    }
+
+    function onRoomChartLeave() {
+        const tip = $("tw-room-chart-tip");
+        if (tip) tip.style.display = "none";
+        if (lastResults) drawRoomChart(lastResults);
+    }
+
+    const roomChartCanvas = $("tw-room-chart");
+    if (roomChartCanvas) {
+        roomChartCanvas.addEventListener("mousemove", onRoomChartHover);
+        roomChartCanvas.addEventListener("mouseleave", onRoomChartLeave);
+    }
+
+    // Host "qaytadan boshlash" tugmasi — yangi poyga (StartRace hamma uchun yangi countdown beradi)
+    const restartBtn = $("tw-restart");
+    if (restartBtn) restartBtn.addEventListener("click", () => {
+        restartBtn.disabled = true;
+        conn.invoke("StartRace", code)
+            .catch(() => { errEl.textContent = "Yangi poygani boshlashda xatolik."; })
+            .finally(() => { restartBtn.disabled = false; });
+    });
+
     // Sozlamalar o'zgarsa (tema/karet/ko'rsatkichlar) — darhol qo'llash
     if (S && S.onChange) S.onChange(() => { applyStatVisibility(); moveCaret(); });
-    window.addEventListener("resize", () => moveCaret());
+    window.addEventListener("resize", () => {
+        moveCaret();
+        if (lastResults && !resultEl.classList.contains("d-none")) drawRoomChart(lastResults);
+    });
     applyStatVisibility();
 })();

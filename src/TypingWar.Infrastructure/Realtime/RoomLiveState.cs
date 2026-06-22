@@ -16,6 +16,8 @@ public class RoomPlayerLive
     public double Accuracy { get; set; }
     public bool Finished { get; set; }
     public int? Place { get; set; }
+    /// <summary>Soniyalik net WPM qatori (natija grafigi uchun — klient yuboradi).</summary>
+    public double[] WpmSeries { get; set; } = Array.Empty<double>();
 }
 
 /// <summary>Live xona holati (in-memory).</summary>

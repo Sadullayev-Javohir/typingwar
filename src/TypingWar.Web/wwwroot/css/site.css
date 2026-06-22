@@ -751,6 +751,19 @@ body.tw-record {
 .tw-rr-head h4 { color: var(--tw-text); font-weight: 800; margin: .4rem 0 .15rem; }
 .tw-rr-head p { color: var(--tw-muted); font-size: .85rem; margin: 0; }
 
+.tw-rr-chart { position: relative; margin-bottom: 1.1rem; }
+.tw-rr-chart canvas { width: 100%; height: 220px; display: block; }
+.tw-rr-legend {
+    display: flex; flex-wrap: wrap; gap: .4rem 1rem; justify-content: center;
+    margin-top: .6rem; font-size: .8rem; color: var(--tw-muted);
+}
+.tw-rr-lg { display: inline-flex; align-items: center; }
+.tw-rr-dot {
+    display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+    margin-right: .4rem; flex: 0 0 auto;
+}
+.tw-rr-actions { text-align: center; margin-top: 1.2rem; }
+
 .tw-rr-cards { display: flex; flex-direction: column; gap: .6rem; }
 .tw-rr-card {
     display: flex; align-items: center; gap: .85rem;

@@ -55,7 +55,8 @@ public class LobbyHub : Hub
         rawWpm = p.RawWpm,
         accuracy = p.Accuracy,
         finished = p.Finished,
-        place = p.Place
+        place = p.Place,
+        wpmSeries = p.WpmSeries
     };
 
     public async Task JoinRoom(string code, string? displayName)
@@ -117,6 +118,7 @@ public class LobbyHub : Hub
         foreach (var p in live.Players.Values)
         {
             p.Finished = false; p.Progress = 0; p.Wpm = 0; p.RawWpm = 0; p.Accuracy = 0; p.Place = null;
+            p.WpmSeries = Array.Empty<double>();
         }
 
         live.Status = RoomStatus.Countdown;
@@ -217,7 +219,7 @@ public class LobbyHub : Hub
         });
     }
 
-    public async Task FinishRace(string code, double wpm, double rawWpm, double accuracy)
+    public async Task FinishRace(string code, double wpm, double rawWpm, double accuracy, double[]? wpmSeries = null)
     {
         code = code.ToUpperInvariant();
         if (!_state.TryGet(code, out var live)) return;
@@ -227,6 +229,8 @@ public class LobbyHub : Hub
         p.Wpm = wpm;
         p.RawWpm = rawWpm;
         p.Accuracy = accuracy;
+        // Soniyalik WPM qatori (natija grafigi) — ishonchsiz uzunlikni cheklaymiz (5 daqiqa = 300s)
+        p.WpmSeries = wpmSeries is { Length: > 0 } ? wpmSeries.Take(300).ToArray() : Array.Empty<double>();
         p.Progress = 100;
         p.Place = Interlocked.Increment(ref live.FinishOrder);
 
