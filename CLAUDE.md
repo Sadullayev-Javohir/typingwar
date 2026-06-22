@@ -339,6 +339,19 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-17] /Rooms qayta dizayn (zamonaviy) + host chiqsa kod o'chadi:
+    Rooms.cshtml butunlay yangilandi — hero (badge+sarlavha), 2 ta zamonaviy
+    karta (Xona yaratish / Kodga qo'shilish, Bootstrap Icons: plus-circle,
+    rocket-takeoff, box-arrow-in-right, hash, arrow-right-circle), kod kiritish
+    inputi stilize, va "Xona yaratish bo'yicha qoidalar" bo'limi (6 qoida,
+    iconli grid). site.css'ga .tw-rooms-hero/.tw-rcard/.tw-rbtn/.tw-join-input/
+    .tw-rules/.tw-room-closed (token-driven) qo'shildi; eski .tw-room-card
+    o'chirildi. Host xonani tark etsa kod butunlay o'chadi: LobbyHub.
+    RemoveConnection host'ni aniqlaydi → CloseRoomAsync (Redis room:{code} key
+    o'chiriladi, DB Room.Status=Expired, "RoomClosed" yuboriladi, RoomLiveState.
+    Remove). GetRoom Redis+DB'da topa olmaydi/Expired → null, qo'shilish to'xtaydi.
+    room.js: "RoomClosed" → showRoomClosed overlay + 6s'da /Rooms ga qaytaradi.
+    sw.js cache v16. Build OK, 75 test o'tadi.
   - [2026-06-16] Iqtibos uzunlik filtri: Iqtibos rejimida o'ng tomondagi
     "Tur/So'z/Vaqt" guruhlari yashiriladi, o'rniga "Uzunlik": barchasi/qisqa/
     o'rta/uzun/juda uzun (all/short/medium/long/thick). Chegaralar belgi soni
@@ -383,7 +396,7 @@ Hal qilinmagan muammolar:
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
   - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
-Oxirgi git commit: Poyga g'olibi to'g'ri belgilarga bog'landi (aldash himoyasi)
+Oxirgi git commit: /Rooms zamonaviy dizayn + host chiqsa xona kodi o'chadi
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.

@@ -135,6 +135,7 @@
     });
     conn.on("RaceStarting", d => startCountdown(d.text, d.countdown));
     conn.on("RaceFinished", results => showResults(results));
+    conn.on("RoomClosed", d => showRoomClosed(d && d.reason));
 
     conn.start()
         .then(() => { myConnId = conn.connectionId; return conn.invoke("JoinRoom", code, displayName); })
@@ -295,6 +296,26 @@
             <span class="tw-accent">${SAB_LABEL[d.type] || esc(d.type)}</span>`;
         sabFeed.prepend(li);
         while (sabFeed.children.length > 5) sabFeed.lastChild.remove();
+    }
+
+    // Host chiqib xona yopilganda — o'yinchini xabardor qilib, /Rooms ga qaytarish
+    let roomClosed = false;
+    function showRoomClosed(reason) {
+        if (roomClosed) return;
+        roomClosed = true;
+        finished = true; raceActive = false;
+        try { conn.stop(); } catch (e) { }
+        const r = document.getElementById("tw-room");
+        if (!r) return;
+        r.innerHTML = `<div class="tw-room-closed">
+            <i class="bi bi-door-closed-fill"></i>
+            <h4>Xona yopildi</h4>
+            <p>${esc(reason || "Xona egasi chiqdi — bu koddan boshqa foydalanib bo'lmaydi.")}</p>
+            <a href="/Rooms" class="tw-rbtn" style="text-decoration:none">
+                <i class="bi bi-arrow-left-circle"></i><span>Xonalarga qaytish</span>
+            </a>
+        </div>`;
+        setTimeout(() => { location.href = "/Rooms"; }, 6000);
     }
 
     function showResults(results) {

@@ -53,4 +53,7 @@ public class RoomLiveState
         if (Rooms.TryGetValue(code, out var r) && r.Players.IsEmpty)
             Rooms.TryRemove(code, out _);
     }
+
+    /// <summary>Xonani live registrdan butunlay olib tashlaydi (host chiqib xona yopilganda).</summary>
+    public void Remove(string code) => Rooms.TryRemove(code, out _);
 }

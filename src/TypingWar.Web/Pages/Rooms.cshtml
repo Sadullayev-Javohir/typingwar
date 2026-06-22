@@ -1,33 +1,99 @@
 @page
+@using TypingWar.Domain.Constants
 @model RoomsModel
 @{
     ViewData["Title"] = "Do'stlar musobaqasi";
 }
 
 <div class="tw-rooms">
-    <h2 class="tw-accent text-center mb-4">Do'stlar musobaqasi</h2>
 
-    <div class="row g-4 justify-content-center">
-        <div class="col-md-5">
-            <div class="tw-room-card text-center">
-                <h5>Xona yaratish</h5>
-                <p class="text-secondary">Yangi xona ochib, kodni do'stlaringizga ulashing.</p>
-                <button id="tw-create" class="btn btn-tw">Xona yaratish</button>
-                <div id="tw-create-err" class="text-danger mt-2"></div>
-            </div>
-        </div>
-        <div class="col-md-5">
-            <div class="tw-room-card text-center">
-                <h5>Kodga qo'shilish</h5>
-                <p class="text-secondary">Do'stingiz bergan 8 xonali kodni kiriting.</p>
-                <form id="tw-join" class="d-flex gap-2 justify-content-center">
-                    <input class="form-control text-uppercase" name="code" maxlength="8" placeholder="ABCD2345"
-                           style="max-width:160px; letter-spacing:.2em; text-align:center" required>
-                    <button class="btn btn-tw" type="submit">Qo'shilish</button>
-                </form>
-            </div>
-        </div>
+    <header class="tw-rooms-hero">
+        <span class="tw-rooms-badge"><i class="bi bi-people"></i> Do'stlar musobaqasi</span>
+        <h1>Xona ochib, do'stlaring bilan poyga qil</h1>
+        <p>Yangi xona yarat yoki do'sting bergan kodni kiritib jamoaga qo'shil. Eng tez barmoqlar g'alaba qozonadi.</p>
+    </header>
+
+    <div class="tw-rooms-grid">
+
+        <!-- Xona yaratish -->
+        <section class="tw-rcard tw-rcard--create">
+            <div class="tw-rcard-icon"><i class="bi bi-plus-circle"></i></div>
+            <h2>Xona yaratish</h2>
+            <p>Yangi xona ochasiz va sizga 8 xonali noyob kod beriladi. Kodni do'stlaringizga ulashing.</p>
+            <button id="tw-create" class="tw-rbtn">
+                <i class="bi bi-rocket-takeoff"></i>
+                <span>Xona yaratish</span>
+            </button>
+            <div id="tw-create-err" class="tw-rcard-err"></div>
+        </section>
+
+        <!-- Kodga qo'shilish -->
+        <section class="tw-rcard tw-rcard--join">
+            <div class="tw-rcard-icon"><i class="bi bi-box-arrow-in-right"></i></div>
+            <h2>Kodga qo'shilish</h2>
+            <p>Do'stingiz bergan 8 xonali kodni kiriting va xonaga qo'shiling.</p>
+            <form id="tw-join" class="tw-join-form">
+                <div class="tw-join-input">
+                    <i class="bi bi-hash"></i>
+                    <input name="code" maxlength="8" placeholder="ABCD2345" autocomplete="off"
+                           spellcheck="false" required />
+                </div>
+                <button class="tw-rbtn tw-rbtn--outline" type="submit">
+                    <i class="bi bi-arrow-right-circle"></i>
+                    <span>Qo'shilish</span>
+                </button>
+            </form>
+        </section>
     </div>
+
+    <!-- Xona yaratish bo'yicha qoidalar -->
+    <section class="tw-rules">
+        <h3><i class="bi bi-shield-check"></i> Xona yaratish bo'yicha qoidalar</h3>
+        <ul class="tw-rules-list">
+            <li>
+                <i class="bi bi-key"></i>
+                <div>
+                    <strong>Noyob 8 xonali kod</strong>
+                    Har xona uchun chalkashmaydigan kod beriladi (I, O, 0, 1 harflarsiz).
+                </div>
+            </li>
+            <li>
+                <i class="bi bi-clock-history"></i>
+                <div>
+                    <strong>Kod @GameConstants.RoomCodeTtlMinutes daqiqa amal qiladi</strong>
+                    Bu vaqtdan keyin kod avtomatik o'chadi va qayta ishlatib bo'lmaydi.
+                </div>
+            </li>
+            <li>
+                <i class="bi bi-door-closed"></i>
+                <div>
+                    <strong>Egasi chiqsa — xona yopiladi</strong>
+                    Xona yaratuvchisi (host) chiqishi bilan kod darhol o'chadi. Bu koddan boshqa hech kim foydalana olmaydi.
+                </div>
+            </li>
+            <li>
+                <i class="bi bi-flag"></i>
+                <div>
+                    <strong>Poygani faqat host boshlaydi</strong>
+                    Barcha tayyor bo'lgach, host "Boshlash" tugmasini bosadi — 3-2-1 hisob ketadi.
+                </div>
+            </li>
+            <li>
+                <i class="bi bi-lightning-charge"></i>
+                <div>
+                    <strong>Sabotaj — @GameConstants.MinPlayersForSabotage+ o'yinchi</strong>
+                    Kamida @GameConstants.MinPlayersForSabotage o'yinchi bo'lsa, poygada bir marta raqibga sabotaj yuborish mumkin.
+                </div>
+            </li>
+            <li>
+                <i class="bi bi-person-check"></i>
+                <div>
+                    <strong>Xona ochish uchun tizimga kirish kerak</strong>
+                    Mehmonlar faqat kod orqali qo'shila oladi; xona yaratish ro'yxatdan o'tgan foydalanuvchilar uchun.
+                </div>
+            </li>
+        </ul>
+    </section>
 </div>
 
 @section Scripts {

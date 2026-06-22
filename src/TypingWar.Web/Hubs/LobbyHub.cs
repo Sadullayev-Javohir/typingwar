@@ -237,8 +237,43 @@ public class LobbyHub : Hub
         {
             await Groups.RemoveFromGroupAsync(connectionId, code);
             await Clients.Group(code).SendAsync("PlayerLeft", new { connId = connectionId, name = p.Name });
+
+            // Host xonani tark etsa — kod butunlay o'chadi va qayta ishlatib bo'lmaydi.
+            if (p.IsHost)
+            {
+                await CloseRoomAsync(live, p.Name);
+                return;
+            }
         }
         _state.RemoveIfEmpty(code);
+    }
+
+    /// <summary>
+    /// Host chiqib xona yopilganda: Redis kodini o'chiradi (yangi qo'shilish to'xtaydi),
+    /// DB da xonani Expired deb belgilaydi (GetRoom endi null qaytaradi), qolgan
+    /// o'yinchilarni xabardor qiladi va live holatdan o'chiradi.
+    /// </summary>
+    private async Task CloseRoomAsync(RoomLive live, string hostName)
+    {
+        // 1) Redis kodini o'chir — bu kod orqali boshqa hech kim qo'shila olmaydi
+        await _cache.RemoveAsync(CreateRoomCommandHandler.RoomKey(live.Code));
+
+        // 2) DB da xonani Expired deb belgila (yakunlangan poyga holatiga tegmaymiz)
+        var room = await _db.Rooms.FirstOrDefaultAsync(r => r.Id == live.RoomId);
+        if (room is not null && room.Status != RoomStatus.Finished)
+        {
+            room.Status = RoomStatus.Expired;
+            await _db.SaveChangesAsync();
+        }
+
+        // 3) Qolgan o'yinchilarni xabardor qil (klient ularni xonadan chiqaradi)
+        await Clients.Group(live.Code).SendAsync("RoomClosed", new
+        {
+            reason = $"Xona egasi ({hostName}) chiqdi — xona yopildi va kod o'chirildi."
+        });
+
+        // 4) Live registrdan butunlay olib tashla
+        _state.Remove(live.Code);
     }
 
     private async Task PersistFinishedAsync(RoomLive live)
