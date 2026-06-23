@@ -62,13 +62,25 @@
         }
     }
 
+    // Har o'yinchiga BARQAROR rang indeksi — barcha brauzerlarda bir xil bo'lishi uchun
+    // viewerga (isMe/lokal tartib) bog'liq EMAS: host birinchi (oltin=0), keyin connId
+    // bo'yicha saralangan. connId har klientda bir xil bo'lgani uchun rang ham bir xil.
+    function colorIdxFor(id) {
+        const ids = Array.from(players.keys()).sort((a, b) => {
+            const ha = players.get(a) && players.get(a).isHost ? 0 : 1;
+            const hb = players.get(b) && players.get(b).isHost ? 0 : 1;
+            if (ha !== hb) return ha - hb;
+            return a < b ? -1 : a > b ? 1 : 0;
+        });
+        return ids.indexOf(id);
+    }
+
     // ── O'yinchilar ro'yxati (har birida mushuk) ──
     function renderPlayers() {
         playersEl.innerHTML = "";
-        let idx = 0;
         players.forEach((p, id) => {
             const isMe = id === myConnId;
-            const colorIdx = isMe ? 0 : idx + 1;
+            const colorIdx = colorIdxFor(id);
             const crown = p.isHost
                 ? '<i class="bi bi-crown-fill me-1" style="color:var(--tw-gold)"></i>'
                 : '';
@@ -85,7 +97,6 @@
             playersEl.appendChild(li);
             li.dataset.conn = id;
             applyCheetahState(li, p);
-            idx++;
         });
     }
 
