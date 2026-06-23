@@ -3,12 +3,16 @@
 // Cheetah runner helper: creates track HTML with animated cheetah SVG
 window.TwCheetah = (function () {
     const COLORS = [
-        'tw-cheetah-gold',   // 0 — foydalanuvchi
+        'tw-cheetah-gold',   // 0 — host (oltin/ko'k)
         'tw-cheetah-blue',   // 1
         'tw-cheetah-green',  // 2
         'tw-cheetah-purple', // 3
         'tw-cheetah-red',    // 4
-        'tw-cheetah-cyan'    // 5
+        'tw-cheetah-cyan',   // 5
+        'tw-cheetah-pink',   // 6
+        'tw-cheetah-orange', // 7
+        'tw-cheetah-teal',   // 8
+        'tw-cheetah-violet'  // 9
     ];
 
     function calcLeft(pct) {

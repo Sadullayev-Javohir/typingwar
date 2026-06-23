@@ -50,6 +50,7 @@ public class LobbyHub : Hub
         connId = p.ConnectionId,
         name = p.Name,
         isHost = p.IsHost,
+        colorIndex = p.ColorIndex,
         progress = p.Progress,
         wpm = p.Wpm,
         rawWpm = p.RawWpm,
@@ -84,12 +85,29 @@ public class LobbyHub : Hub
             live.HostGraceCts = null;
         }
 
+        // Refresh seamless bo'lishi uchun: shu foydalanuvchining eski (uzilayotgan) ulanishlarini
+        // olib tashlaymiz va boshqalarni xabardor qilamiz — aks holda dublikat mushuk qoladi.
+        int? reuseColor = null;
+        if (uid.HasValue)
+        {
+            foreach (var kv in live.Players.Where(x => x.Value.UserId == uid && x.Key != Context.ConnectionId).ToList())
+            {
+                if (live.Players.TryRemove(kv.Key, out var old))
+                {
+                    reuseColor ??= old.ColorIndex; // refreshda rang o'zgarmasin
+                    await Groups.RemoveFromGroupAsync(kv.Key, code);
+                    await Clients.Group(code).SendAsync("PlayerLeft", new { connId = kv.Key, name = old.Name });
+                }
+            }
+        }
+
         var player = new RoomPlayerLive
         {
             ConnectionId = Context.ConnectionId,
             UserId = uid,
             Name = name,
-            IsHost = isHost
+            IsHost = isHost,
+            ColorIndex = isHost ? 0 : (reuseColor ?? NextColorIndex(live))
         };
         live.Players[Context.ConnectionId] = player;
 
@@ -103,6 +121,15 @@ public class LobbyHub : Hub
             players = live.Players.Values.Select(View).ToList()
         });
         await Clients.OthersInGroup(code).SendAsync("PlayerJoined", View(player));
+    }
+
+    /// <summary>Bo'sh bo'lgan eng kichik rang slogini qaytaradi (host=0 band, qolganlar 1+).</summary>
+    private static int NextColorIndex(RoomLive live)
+    {
+        var used = live.Players.Values.Select(p => p.ColorIndex).ToHashSet();
+        var idx = 1;
+        while (used.Contains(idx)) idx++;
+        return idx;
     }
 
     public async Task StartRace(string code)

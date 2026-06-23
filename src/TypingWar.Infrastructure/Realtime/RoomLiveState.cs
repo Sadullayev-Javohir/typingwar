@@ -10,6 +10,8 @@ public class RoomPlayerLive
     public Guid? UserId { get; init; }
     public string Name { get; set; } = "Mehmon";
     public bool IsHost { get; set; }
+    /// <summary>Barqaror rang slogi (host=0). Barcha klientlarda bir xil mushuk rangi uchun.</summary>
+    public int ColorIndex { get; set; }
     public double Progress { get; set; }
     public double Wpm { get; set; }
     public double RawWpm { get; set; }

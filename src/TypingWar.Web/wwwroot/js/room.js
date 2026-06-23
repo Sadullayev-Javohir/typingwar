@@ -62,25 +62,14 @@
         }
     }
 
-    // Har o'yinchiga BARQAROR rang indeksi — barcha brauzerlarda bir xil bo'lishi uchun
-    // viewerga (isMe/lokal tartib) bog'liq EMAS: host birinchi (oltin=0), keyin connId
-    // bo'yicha saralangan. connId har klientda bir xil bo'lgani uchun rang ham bir xil.
-    function colorIdxFor(id) {
-        const ids = Array.from(players.keys()).sort((a, b) => {
-            const ha = players.get(a) && players.get(a).isHost ? 0 : 1;
-            const hb = players.get(b) && players.get(b).isHost ? 0 : 1;
-            if (ha !== hb) return ha - hb;
-            return a < b ? -1 : a > b ? 1 : 0;
-        });
-        return ids.indexOf(id);
-    }
-
     // ── O'yinchilar ro'yxati (har birida mushuk) ──
     function renderPlayers() {
         playersEl.innerHTML = "";
         players.forEach((p, id) => {
             const isMe = id === myConnId;
-            const colorIdx = colorIdxFor(id);
+            // Rang serverda barqaror tayinlanadi (host=0) — barcha brauzerlarda bir xil,
+            // refreshda ham o'zgarmaydi. 10 tagacha alohida rang.
+            const colorIdx = p.colorIndex || 0;
             const crown = p.isHost
                 ? '<i class="bi bi-crown-fill me-1" style="color:var(--tw-gold)"></i>'
                 : '';
@@ -518,11 +507,13 @@
     }
 
     // ── Rang palitrasi (har o'yinchiga grafikda alohida rang) ──
+    // Mushuk ranglariga mos (site.css .tw-cheetah-*) — natija grafigi rangi == jonli mushuk rangi
     const CHART_COLORS = [
-        "#E8A020", "#3b82f6", "#22c55e", "#ef4444", "#a855f7",
-        "#ec4899", "#14b8a6", "#f59e0b", "#8b5cf6", "#06b6d4"
+        "#0070f3", "#5aa0ff", "#40d870", "#c060ff", "#ff5566",
+        "#40d8e8", "#ff5599", "#ff9933", "#2dd4bf", "#8b5cf6"
     ];
-    function colorFor(idx) { return CHART_COLORS[idx % CHART_COLORS.length]; }
+    function colorFor(idx) { return CHART_COLORS[(idx || 0) % CHART_COLORS.length]; }
+    function colorOf(r) { return colorFor(r ? (r.colorIndex || 0) : 0); } // o'yinchining barqaror rangi
 
     // ── Natijalar oynasi (barcha o'yinchilar statistikasi bitta oynada) ──
     // Bu funksiya faqat oxirgi o'yinchi ham yozib bo'lgach (RaceFinished) chaqiriladi.
@@ -557,7 +548,7 @@
             const winner = r.place === 1 ? " tw-rr-winner" : "";
             const crown = r.isHost
                 ? '<i class="bi bi-crown-fill" style="color:var(--tw-gold)"></i> ' : '';
-            const dot = `<i class="tw-rr-dot" style="background:${colorFor(i)}"></i>`;
+            const dot = `<i class="tw-rr-dot" style="background:${colorOf(r)}"></i>`;
             return `<div class="tw-rr-card${winner}${mine}">
                 <div class="tw-rr-rank">${place}</div>
                 ${dot}
@@ -577,7 +568,7 @@
         if (!legend) return;
         legend.innerHTML = results.map((r, i) => {
             const me = (myConnId && r.connId === myConnId) ? " (siz)" : "";
-            return `<span class="tw-rr-lg"><i class="tw-rr-dot" style="background:${colorFor(i)}"></i>${esc(r.name)}${me}</span>`;
+            return `<span class="tw-rr-lg"><i class="tw-rr-dot" style="background:${colorOf(r)}"></i>${esc(r.name)}${me}</span>`;
         }).join("");
     }
 
@@ -641,7 +632,7 @@
         // Har o'yinchi chizig'i
         series.forEach((s, idx) => {
             if (!s.length) return;
-            const col = colorFor(idx);
+            const col = colorOf(results[idx]);
             ctx.strokeStyle = col; ctx.lineWidth = 2.2; ctx.lineJoin = "round"; ctx.beginPath();
             let started = false;
             for (let i = 0; i < s.length; i++) {
@@ -657,7 +648,7 @@
             series.forEach((s, idx) => {
                 if (hoverIdx >= s.length) return;
                 ctx.beginPath(); ctx.arc(hx, yAt(s[hoverIdx]), 4, 0, Math.PI * 2);
-                ctx.fillStyle = colorFor(idx); ctx.fill();
+                ctx.fillStyle = colorOf(results[idx]); ctx.fill();
                 ctx.lineWidth = 2; ctx.strokeStyle = (cs.getPropertyValue("--tw-bg") || "#0F0F1A").trim();
                 ctx.stroke();
             });
@@ -681,7 +672,7 @@
         lastResults.forEach((r, i) => {
             const s = Array.isArray(r.wpmSeries) ? r.wpmSeries : [];
             const v = idx < s.length ? Math.round(s[idx]) : "—";
-            rows += "<div><i class='tw-lg-dot' style='background:" + colorFor(i) + "'></i>" +
+            rows += "<div><i class='tw-lg-dot' style='background:" + colorOf(r) + "'></i>" +
                 esc(r.name) + ": <b>" + v + "</b></div>";
         });
         tip.innerHTML = rows;
