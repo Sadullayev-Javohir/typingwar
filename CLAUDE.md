@@ -407,6 +407,19 @@ Yaxshilanishlar:
     PracticeTextDto'ga Source qo'shildi, natija ekranida "Manba: ..." ko'rsatiladi
     (typing-engine.js + .tw-r-source CSS). Build OK, 70 test, endpoint sinaldi.
 Tuzatilgan xatolar:
+  - [2026-06-17] /Room poyga VAQTGA qarab hisoblanadi (umumiy soat): avval
+    har o'yinchining soati BIRINCHI tugma bosilganda boshlanardi (startIfNeeded
+    → startTime null), shuning uchun kech boshlagan (masalan 1 daqiqa keyin)
+    lekin tez yozgan o'yinchi bekor turgan vaqti hisobga olinmay yutib ketardi.
+    Tuzatildi: room.js'da startIfNeeded olib tashlandi; soat (startTime +
+    liveTimer) endi beginRace'da — countdown tugagach HAMMA uchun bir umumiy
+    lahzada boshlanadi. Natijada elapsed/WPM/live taymer/wpmNow/keyEvents.t
+    barchasi poyga boshidan o'lchanadi; bekor turish WPM'ni pasaytiradi va
+    g'olib real vaqtda birinchi tugatgan (server FinishOrder) bo'ladi. Grafik
+    ham vaqt bo'yicha tekislanadi (har soniya = poyga boshidan bir xil real
+    soniya). Headless brauzerda tasdiqlandi: 3s yozmay turilganda taymer 3
+    ko'rsatdi (eski kodda 0), C natija WPM=175 (umumiy soat) — faqat-typing
+    bo'lsa 1667 bo'lardi. sw.js cache v19.
   - [2026-06-17] Aldash himoyasi (ko'r rejim / xatodan-to'xtash-o'chiq):
     foydalanuvchi xatoni ko'rmay yoki karetni to'xtatmay, (a) bitta tugmani bosib
     turib yoki (b) turli xil tasodifiy belgilarni tez bosib matn oxiriga "yetib"
@@ -432,7 +445,7 @@ Hal qilinmagan muammolar:
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
   - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
-Oxirgi git commit: /Room natija grafigi (barcha o'yinchilar line graph) + host qaytadan boshlash
+Oxirgi git commit: /Room poyga VAQTGA qarab hisoblanadi — umumiy soat (kech boshlash jazolanadi)
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.

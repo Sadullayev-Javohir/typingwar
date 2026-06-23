@@ -312,6 +312,12 @@
         clearSabotageEffects();
         sabFeed.innerHTML = "";
         updateSabotagePanel();
+
+        // ⏱ Poyga soati HAMMA uchun shu umumiy lahzada (countdown tugagach) boshlanadi —
+        // birinchi tugma bosilganda emas. Shunday qilib kech boshlagan o'yinchining
+        // bekor turgan vaqti ham hisoblanadi: musobaqa VAQTGA qarab adolatli baholanadi.
+        startTime = performance.now();
+        liveTimer = setInterval(tick, 150);
     }
 
     wordsEl.addEventListener("click", () => wordsEl.focus());
@@ -319,13 +325,6 @@
 
     const elapsed = () => startTime === null ? 0 : (performance.now() - startTime) / 1000;
     const wpmNow = () => { const e = elapsed(); return e > 0 ? (correctCount() / 5) / (e / 60) : 0; };
-
-    function startIfNeeded() {
-        if (startTime === null) {
-            startTime = performance.now();
-            liveTimer = setInterval(tick, 150);
-        }
-    }
 
     function tick() {
         if (finished) return;
@@ -354,8 +353,6 @@
         // Aldash himoyasi: tugmani bosib turish (auto-repeat) — bitta bosish = bitta belgi
         if (ev.repeat) return;
         if (pos >= chars.length) return;
-
-        startIfNeeded();
 
         const correct = normChar(ev.key) === normChar(chars[pos]);
         keypresses++;
