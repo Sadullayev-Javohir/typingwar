@@ -77,6 +77,13 @@ public class LobbyHub : Hub
         bool isHost = uid.HasValue && uid.Value == room.HostId;
         var name = ResolveName(displayName, isHost);
 
+        // Host qaytib ulandi (masalan sahifani yangiladi) — kutilayotgan yopishni bekor qil
+        if (isHost)
+        {
+            live.HostGraceCts?.Cancel();
+            live.HostGraceCts = null;
+        }
+
         var player = new RoomPlayerLive
         {
             ConnectionId = Context.ConnectionId,
@@ -249,18 +256,24 @@ public class LobbyHub : Hub
     public async Task LeaveRoom(string code)
     {
         code = code.ToUpperInvariant();
-        await RemoveConnection(code, Context.ConnectionId);
+        // Tugma orqali chiqish — bu aniq tark etish, darrov yopamiz (refresh emas).
+        await RemoveConnection(code, Context.ConnectionId, immediate: true);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         var live = _state.FindByConnection(Context.ConnectionId);
         if (live is not null)
-            await RemoveConnection(live.Code, Context.ConnectionId);
+            // Uzilish refresh/tarmoq bo'lishi mumkin — host bo'lsa grace beramiz.
+            await RemoveConnection(live.Code, Context.ConnectionId, immediate: false);
         await base.OnDisconnectedAsync(exception);
     }
 
-    private async Task RemoveConnection(string code, string connectionId)
+    /// <param name="immediate">
+    /// true — host darrov xonani yopadi (tugma orqali chiqish). false — host uzildi
+    /// (refresh/tarmoq bo'lishi mumkin): grace taymeri qo'yiladi, host qaytib ulansa xona saqlanadi.
+    /// </param>
+    private async Task RemoveConnection(string code, string connectionId, bool immediate)
     {
         if (!_state.TryGet(code, out var live)) return;
         if (live.Players.TryRemove(connectionId, out var p))
@@ -271,11 +284,65 @@ public class LobbyHub : Hub
             // Host xonani tark etsa — kod butunlay o'chadi va qayta ishlatib bo'lmaydi.
             if (p.IsHost)
             {
-                await CloseRoomAsync(live, p.Name);
+                if (immediate)
+                    await CloseRoomAsync(live, p.Name);
+                else
+                    ScheduleHostGraceClose(live, p.Name);   // refresh bo'lishi mumkin — kutamiz
                 return;
             }
         }
         _state.RemoveIfEmpty(code);
+    }
+
+    /// <summary>
+    /// Host uzilganda (refresh/tarmoq) xonani darrov yopmaydi: grace soniyalari ichida
+    /// host qaytib ulansa (JoinRoom HostGraceCts ni bekor qiladi) xona saqlanadi.
+    /// Aks holda — xona yopiladi (Redis kod o'chadi, DB Expired, o'yinchilar xabardor).
+    /// </summary>
+    private void ScheduleHostGraceClose(RoomLive live, string hostName)
+    {
+        live.HostGraceCts?.Cancel();
+        var cts = new CancellationTokenSource();
+        live.HostGraceCts = cts;
+
+        var hub = _hub;
+        var scopeFactory = _scopeFactory;
+        var state = _state;
+        var code = live.Code;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(GameConstants.RoomHostReconnectGraceSeconds), cts.Token);
+            }
+            catch (OperationCanceledException) { return; } // host qaytib keldi (refresh) — yopmaymiz
+
+            // Host shu vaqt ichida qaytib ulanmadi? (qaytsa Players da host bo'lardi)
+            if (live.Players.Values.Any(x => x.IsHost)) return;
+
+            live.RaceTimeoutCts?.Cancel();
+
+            using var scope = scopeFactory.CreateScope();
+            var cache = scope.ServiceProvider.GetRequiredService<ICacheService>();
+            var db = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+
+            await cache.RemoveAsync(CreateRoomCommandHandler.RoomKey(code));
+
+            var room = await db.Rooms.FirstOrDefaultAsync(r => r.Id == live.RoomId);
+            if (room is not null && room.Status != RoomStatus.Finished)
+            {
+                room.Status = RoomStatus.Expired;
+                await db.SaveChangesAsync();
+            }
+
+            await hub.Clients.Group(code).SendAsync("RoomClosed", new
+            {
+                reason = $"Xona egasi ({hostName}) chiqdi — xona yopildi va kod o'chirildi."
+            });
+
+            state.Remove(code);
+        });
     }
 
     /// <summary>
@@ -286,6 +353,7 @@ public class LobbyHub : Hub
     private async Task CloseRoomAsync(RoomLive live, string hostName)
     {
         live.RaceTimeoutCts?.Cancel();   // xona yopildi — poyga taymeri kerak emas
+        live.HostGraceCts?.Cancel();     // grace taymeri ham kerak emas
 
         // 1) Redis kodini o'chir — bu kod orqali boshqa hech kim qo'shila olmaydi
         await _cache.RemoveAsync(CreateRoomCommandHandler.RoomKey(live.Code));

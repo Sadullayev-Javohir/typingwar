@@ -31,6 +31,12 @@ public static class GameConstants
     /// </summary>
     public const int RoomRaceTimeoutMinutes = 5;
 
+    /// <summary>
+    /// Host uzilgach (masalan sahifani yangilaganda) xona darrov yopilmaydi —
+    /// shu soniyalar ichida host qaytib ulansa xona saqlanadi. Aks holda yopiladi.
+    /// </summary>
+    public const int RoomHostReconnectGraceSeconds = 12;
+
     /// <summary>5x5 jamoaviy musobaqa — har jamoada maksimal a'zo.</summary>
     public const int TeamSize = 5;
 
