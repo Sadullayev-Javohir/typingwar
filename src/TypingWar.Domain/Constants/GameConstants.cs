@@ -37,6 +37,13 @@ public static class GameConstants
     /// </summary>
     public const int RoomHostReconnectGraceSeconds = 12;
 
+    /// <summary>
+    /// Oddiy o'yinchi uzilganda (refresh/tarmoq/SignalR avto-qayta ulanish) xona ro'yxatidan
+    /// darrov o'chirilmaydi — shu soniyalar ichida qaytib ulansa o'yinchi (mushuki, natijasi)
+    /// saqlanadi. Aks holda transient uzilish o'yinchini poygadan tushirib yuborardi.
+    /// </summary>
+    public const int RoomMemberReconnectGraceSeconds = 10;
+
     /// <summary>5x5 jamoaviy musobaqa — har jamoada maksimal a'zo.</summary>
     public const int TeamSize = 5;
 

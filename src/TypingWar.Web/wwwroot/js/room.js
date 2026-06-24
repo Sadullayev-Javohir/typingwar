@@ -37,6 +37,7 @@
     };
 
     let myConnId = null, isHost = false;
+    let myFinishPayload = null;   // tugatgandan keyin qayta ulanishda natijani qayta yuborish uchun
     const players = new Map();
 
     // typing holati (Practice bilan bir xil)
@@ -169,6 +170,24 @@
     conn.on("RaceFinished", results => showResults(results));
     conn.on("RoomClosed", d => showRoomClosed(d && d.reason));
 
+    // SignalR avto-qayta ulanish: ulanish tiklangach connId YANGI bo'ladi va eski guruh
+    // obunasi yo'qoladi. Qayta JoinRoom qilmasak — o'yinchi hammaning ro'yxatidan tushib
+    // qoladi va FinishRace e'tiborsiz qoladi (natija/linegraphdan yo'qoladi). Shuning uchun
+    // qayta ulangach majburiy qayta qo'shilamiz (server eski connId ni grace bilan tozalaydi).
+    conn.onreconnected(() => {
+        myConnId = conn.connectionId;
+        conn.invoke("JoinRoom", code, displayName)
+            .then(() => {
+                // Tugatib bo'lgan bo'lsak — server yangi (tugamagan) yozuv yaratdi, natijani qayta
+                // yuboramiz, aks holda poyga bizni kutib "tugamay" qolardi.
+                if (finished && myFinishPayload) {
+                    const f = myFinishPayload;
+                    conn.invoke("FinishRace", code, f.wpm, f.rawWpm, f.acc, f.series).catch(() => { });
+                }
+            })
+            .catch(() => { });
+    });
+
     conn.start()
         .then(() => { myConnId = conn.connectionId; return conn.invoke("JoinRoom", code, displayName); })
         .catch(() => { errEl.textContent = "Ulanishda xatolik."; });
@@ -293,7 +312,7 @@
     // ── Poyga (typing) ──
     function beginRace(text) {
         pos = 0; keypresses = 0; startTime = null; finished = false; lastReport = 0;
-        keyEvents = [];
+        keyEvents = []; myFinishPayload = null;
         if (liveTimer) clearInterval(liveTimer);
         liveTimer = null;
         if (wpmEl) wpmEl.textContent = "0";
@@ -400,6 +419,7 @@
         const rawWpm = Math.round(((keypresses / 5) / minutes) * 100) / 100;
         const acc = keypresses > 0 ? Math.round((cc / keypresses) * 10000) / 100 : 0;
         const series = buildWpmSeries(e);
+        myFinishPayload = { wpm, rawWpm, acc, series };
         conn.invoke("FinishRace", code, wpm, rawWpm, acc, series).catch(() => { });
     }
 

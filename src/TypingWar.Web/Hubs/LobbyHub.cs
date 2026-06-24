@@ -310,6 +310,18 @@ public class LobbyHub : Hub
     private async Task RemoveConnection(string code, string connectionId, bool immediate)
     {
         if (!_state.TryGet(code, out var live)) return;
+
+        // Tugma orqali emas, uzilish (immediate=false) bo'lsa: oddiy o'yinchini DARROV o'chirmaymiz —
+        // bu SignalR avto-qayta ulanishi / refresh / qisqa tarmoq uzilishi bo'lishi mumkin. Grace
+        // soniyalari ichida o'yinchi qaytib ulansa (yangi connId bilan) eski connId baribir grace
+        // tugagach tozalanadi, lekin o'yinchi poygadan tushib qolmaydi va natija ro'yxatidan yo'qolmaydi.
+        if (!immediate && live.Players.TryGetValue(connectionId, out var existing) && !existing.IsHost)
+        {
+            await Groups.RemoveFromGroupAsync(connectionId, code);
+            ScheduleMemberGraceRemoval(code, connectionId);
+            return;
+        }
+
         if (live.Players.TryRemove(connectionId, out var p))
         {
             await Groups.RemoveFromGroupAsync(connectionId, code);
@@ -326,6 +338,49 @@ public class LobbyHub : Hub
             }
         }
         _state.RemoveIfEmpty(code);
+    }
+
+    /// <summary>
+    /// Oddiy o'yinchi uzilganda darrov o'chirmaydi: grace soniyalaridan keyin (agar shu connId hali
+    /// xonada bo'lsa — ya'ni qaytib ulanmagan bo'lsa) o'chiradi va xabardor qiladi. Agar bu paytda
+    /// poyga davom etayotgan bo'lib, qolganlar allaqachon tugatgan bo'lsa — natija oynasini chiqaradi
+    /// (aks holda ketgan o'yinchi tufayli poyga hech qachon "tugamasdi"). Hub instansiyasi transient,
+    /// shuning uchun fire-and-forget Task + _hub + yangi DI scope ishlatamiz.
+    /// </summary>
+    private void ScheduleMemberGraceRemoval(string code, string connectionId)
+    {
+        var hub = _hub;
+        var state = _state;
+        var scopeFactory = _scopeFactory;
+
+        _ = Task.Run(async () =>
+        {
+            try { await Task.Delay(TimeSpan.FromSeconds(GameConstants.RoomMemberReconnectGraceSeconds)); }
+            catch { }
+
+            if (!state.TryGet(code, out var live)) return;
+            // O'yinchi shu vaqt ichida qaytib ulanmadi? (qaytsa eski connId JoinRoom'da olib tashlanadi)
+            if (!live.Players.TryRemove(connectionId, out var p)) return;
+
+            await hub.Clients.Group(code).SendAsync("PlayerLeft", new { connId = connectionId, name = p.Name });
+
+            // Ketgan o'yinchi tufayli poyga "All Finished" ga yetmay qolgan bo'lishi mumkin — qayta tekshir.
+            if (live.Status == RoomStatus.InProgress && !live.Players.IsEmpty &&
+                live.Players.Values.All(x => x.Finished))
+            {
+                live.RaceTimeoutCts?.Cancel();
+                live.Status = RoomStatus.Finished;
+                var results = live.Players.Values.OrderBy(x => x.Place).Select(View).ToList();
+                await hub.Clients.Group(code).SendAsync("RaceFinished", results);
+
+                using var scope = scopeFactory.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+                var room = await db.Rooms.FirstOrDefaultAsync(r => r.Id == live.RoomId);
+                if (room is not null) { room.Status = RoomStatus.Finished; await db.SaveChangesAsync(); }
+            }
+
+            state.RemoveIfEmpty(code);
+        });
     }
 
     /// <summary>
