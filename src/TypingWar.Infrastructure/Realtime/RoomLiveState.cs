@@ -36,6 +36,7 @@ public class RoomLive
     public int Round;        // har StartRace da oshadi — sabotaj guard ni poygaga bog'laydi
     public CancellationTokenSource? RaceTimeoutCts; // poyga 5 daqiqada tugamasa — xona o'chadi
     public CancellationTokenSource? HostGraceCts;   // host uzilgach grace taymeri (refresh bo'lishi mumkin)
+    public object ColorLock { get; } = new();       // rang slogini ATOMAR tayinlash uchun (to'qnashuvsiz)
     public ConcurrentDictionary<string, RoomPlayerLive> Players { get; } = new();
 }
 

@@ -106,10 +106,26 @@ public class LobbyHub : Hub
             ConnectionId = Context.ConnectionId,
             UserId = uid,
             Name = name,
-            IsHost = isHost,
-            ColorIndex = isHost ? 0 : (reuseColor ?? NextColorIndex(live))
+            IsHost = isHost
         };
-        live.Players[Context.ConnectionId] = player;
+
+        // Rangni ATOMAR tayinlash + qo'shish — bir vaqtda kirgan o'yinchilar bir xil rang
+        // OLMASLIGI uchun (har birida alohida rang kafolatlanadi). Lock ichida await yo'q.
+        lock (live.ColorLock)
+        {
+            var used = live.Players.Values.Select(p => p.ColorIndex).ToHashSet();
+            if (isHost)
+                player.ColorIndex = 0;                       // host doim oltin slot
+            else if (reuseColor is int rc && !used.Contains(rc))
+                player.ColorIndex = rc;                      // refreshda eski rang (agar hali bo'sh)
+            else
+            {
+                var idx = 1;                                 // 0 — host uchun band
+                while (used.Contains(idx)) idx++;            // eng kichik bo'sh slot
+                player.ColorIndex = idx;
+            }
+            live.Players[Context.ConnectionId] = player;
+        }
 
         await Groups.AddToGroupAsync(Context.ConnectionId, code);
 
@@ -121,15 +137,6 @@ public class LobbyHub : Hub
             players = live.Players.Values.Select(View).ToList()
         });
         await Clients.OthersInGroup(code).SendAsync("PlayerJoined", View(player));
-    }
-
-    /// <summary>Bo'sh bo'lgan eng kichik rang slogini qaytaradi (host=0 band, qolganlar 1+).</summary>
-    private static int NextColorIndex(RoomLive live)
-    {
-        var used = live.Players.Values.Select(p => p.ColorIndex).ToHashSet();
-        var idx = 1;
-        while (used.Contains(idx)) idx++;
-        return idx;
     }
 
     public async Task StartRace(string code)
