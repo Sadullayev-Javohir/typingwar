@@ -365,7 +365,7 @@ body[data-tw-bg="mono"]::after { display: none; }
     pointer-events: none;
 }
 @keyframes tw-blink { 50% { opacity: 0; } }
-@keyframes tw-caret-pulse { 0%,100% { transform: scaleY(1); opacity: 1; } 50% { transform: scaleY(.6); opacity: .5; } }
+@keyframes tw-caret-pulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
 @keyframes tw-caret-rainbow { 0% { background-position: 0 0; } 100% { background-position: 0 300%; } }
 
 /* O'lcham/joylashuv JS (moveCaret) da hisoblanadi — bu yerda faqat ko'rinish */

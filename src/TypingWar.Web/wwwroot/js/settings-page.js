@@ -228,7 +228,18 @@
 
     /* ─── Toggle (checkbox) ─── */
     document.querySelectorAll('input[data-tw][type="checkbox"]').forEach(el => {
-        el.addEventListener('change', () => S.set(el.dataset.tw, el.checked));
+        el.addEventListener('change', () => {
+            const key = el.dataset.tw;
+            // Ko'r rejim va Xatoda to'xtash bir-biriga zid: biri yonsa, ikkinchisi o'chadi
+            if (key === 'blindMode' && el.checked) {
+                S.setAll({ blindMode: true, stopOnError: false });
+            } else if (key === 'stopOnError' && el.checked) {
+                S.setAll({ stopOnError: true, blindMode: false });
+            } else {
+                S.set(key, el.checked);
+            }
+            refresh();
+        });
     });
 
     /* ─── Font size range ─── */
