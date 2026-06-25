@@ -339,6 +339,21 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-17] /Contest qayta loyihalashtirildi — /Practice typing engine + natija linegraph:
+    (1) Contest.cshtml butunlay yangilandi — hero (badge+sarlavha+sana+streak), 2 ustun
+    (col-lg-8 o'yin + col-lg-4 sticky leaderboard top 20). O'yin maydoni /Practice bilan
+    bir xil: live WPM/Aniqlik/Soniya paneli, mushuk yo'lakchasi, .tw-words typing maydoni,
+    Qaytadan tugmasi va to'liq natija ekrani (hero WPM/aniqlik + canvas grafik + tooltip +
+    legend + meta: raw/belgilar/barqarorlik/vaqt/o'rin). (2) contest.js to'liq qayta yozildi —
+    typing-engine.js darajasidagi engine (normChar, karet uslublari, qator surilishi, joriy
+    so'z, ovoz TWSound, ko'r rejim, xatoda to'xtash, auto-repeat himoyasi, aniqlik darvozasi
+    50%), lekin matn KUNLIK MUSOBAQA matnidan (config yo'q — barcha bir xil matn yozadi).
+    (3) Yozib bo'lgach LINEGRAPH: buildGraphData (soniyalik raw/net WPM+xato+aniqlik),
+    drawChart (oltin WPM, kulrang raw, qizil xato nuqtalari, to'r, hover), onChartHover
+    tooltip — Practice bilan bir xil. (4) Natijadan keyin /api/contests/submit, o'rin+streak+
+    badge+g'olib xabari natija ekranida, leaderboard+streak refreshStatus bilan yangilanadi.
+    site.css: #tw-contest-game.tw-show-result + .tw-contest-hero/.tw-board-card. sw.js cache v25.
+    Build OK, 75 test o'tadi, /Contest 200 + barcha element + API matn tasdiqlandi.
   - [2026-06-17] /Teams butunlay /Rooms kabi qayta loyihalashtirildi (jamoaviy poyga):
     (1) /Teams sahifasi /Rooms dizayniga keltirildi — hero, "Musobaqa yaratish"
     kartasida Practice config (til/rejim/so'z soni/iqtibos uzunligi), "Jamoaga

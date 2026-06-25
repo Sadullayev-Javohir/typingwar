@@ -421,7 +421,11 @@ body[data-tw-caret="Bottom"] .tw-caret { border-radius: 1px; }
 #tw-practice.tw-show-result .tw-stats,
 #tw-practice.tw-show-result .tw-practice-track,
 #tw-practice.tw-show-result .tw-words,
-#tw-practice.tw-show-result .tw-actions { display: none !important; }
+#tw-practice.tw-show-result .tw-actions,
+#tw-contest-game.tw-show-result .tw-stats,
+#tw-contest-game.tw-show-result .tw-practice-track,
+#tw-contest-game.tw-show-result .tw-words,
+#tw-contest-game.tw-show-result .tw-actions { display: none !important; }
 
 .tw-result-screen {
     display: flex; flex-direction: column; gap: 1.5rem;
@@ -1550,3 +1554,24 @@ body.tw-record {
 }
 a.tw-author-link:hover { border-color: rgba(0,112,243,.5); color: var(--tw-gold); }
 .tw-author-link i { color: var(--tw-gold); }
+
+/* ───── Kunlik musobaqa (/Contest) ───── */
+.tw-contest-page { max-width: 1100px; margin: 0 auto; }
+.tw-contest-hero { text-align: center; margin: .5rem 0 1.25rem; }
+.tw-contest-badge { display: inline-block; background: var(--tw-surface);
+    border: 1px solid rgba(232,160,32,.3); color: var(--tw-gold);
+    border-radius: 999px; padding: .3rem .9rem; font-size: .8rem; font-weight: 600; }
+.tw-contest-title { font-family: var(--tw-font); font-weight: 800; margin: .6rem 0 .3rem;
+    font-size: clamp(1.8rem, 4vw, 2.6rem); }
+.tw-contest-title { color: var(--tw-gold); }
+.tw-contest-sub { color: #9a9aab; max-width: 640px; margin: 0 auto; font-size: .98rem; }
+.tw-contest-date { display: block; margin-top: .35rem; color: var(--tw-gold); font-weight: 600; font-size: .9rem; }
+.tw-contest-hero .tw-streak { margin: .9rem auto 0; max-width: 420px; }
+
+.tw-board-card { background: var(--tw-surface); border: 1px solid rgba(255,255,255,.06);
+    border-radius: 14px; padding: 1rem 1.1rem; position: sticky; top: 1rem; }
+.tw-board-title { color: #cfcfdd; font-weight: 700; margin-bottom: .8rem; }
+.tw-board-title i { color: var(--tw-gold); }
+.tw-board-title small { color: #888; font-weight: 500; }
+.tw-contest-ranks { max-width: 100%; margin: 0; }
+.tw-contest-ranks li { font-size: .9rem; }
