@@ -1,39 +1,137 @@
 @page
+@using TypingWar.Domain.Constants
 @model TeamsModel
 @{
-    ViewData["Title"] = "5x5 Jamoaviy";
+    ViewData["Title"] = "5x5 Jamoaviy musobaqa";
 }
 
 <div class="tw-rooms">
-    <h2 class="tw-accent text-center mb-4">5x5 Jamoaviy musobaqa</h2>
 
-    <div class="row g-4 justify-content-center">
-        <div class="col-md-5">
-            <div class="tw-room-card text-center">
-                <h5>Musobaqa yaratish</h5>
-                <p class="text-secondary">Yangi jamoaviy musobaqa ochib, kodni ulashing.</p>
-                <button id="tw-tcreate" class="btn btn-tw">Yaratish</button>
-                <div id="tw-tcreate-err" class="text-danger mt-2"></div>
+    <header class="tw-rooms-hero">
+        <span class="tw-rooms-badge"><i class="bi bi-people-fill"></i> 5x5 Jamoaviy musobaqa</span>
+        <h1>Ikki jamoa bo'lib, barmoqlar jangiga chiqing</h1>
+        <p>Yangi musobaqa oching yoki kodni kiritib jamoaga qo'shiling. Jamoa a'zolarining WPM yig'indisi qaysi jamoa g'olib ekanini hal qiladi.</p>
+    </header>
+
+    <div class="tw-rooms-grid">
+
+        <!-- Musobaqa yaratish -->
+        <section class="tw-rcard tw-rcard--create">
+            <div class="tw-rcard-icon"><i class="bi bi-plus-circle"></i></div>
+            <h2>Musobaqa yaratish</h2>
+            <p>Yangi jamoaviy musobaqa ochasiz, sizga 8 xonali kod beriladi. Siz host bo'lasiz va Jamoa A da boshlaysiz.</p>
+
+            <!-- Poyga sozlamalari (host tanlaydi — barcha o'yinchilar shu matnni yozadi) -->
+            <div class="tw-config tw-room-config" id="tw-team-config">
+                <div class="tw-config-group" data-group="language">
+                    <span class="tw-config-label"><i class="bi bi-translate"></i>Til:</span>
+                    <button type="button" class="tw-opt" data-key="language" data-value="Uzbek">uz</button>
+                    <button type="button" class="tw-opt" data-key="language" data-value="English">en</button>
+                </div>
+                <div class="tw-config-group" data-group="mode">
+                    <span class="tw-config-label"><i class="bi bi-type"></i>Rejim:</span>
+                    <button type="button" class="tw-opt" data-key="textMode" data-value="Words">so'z</button>
+                    <button type="button" class="tw-opt" data-key="textMode" data-value="Sentences">Iqtiboslar</button>
+                    <button type="button" class="tw-opt" data-key="textMode" data-value="Numbers">raqam</button>
+                    <button type="button" class="tw-opt" data-key="textMode" data-value="Code">kod</button>
+                </div>
+                <div class="tw-config-group" data-group="quote" style="display:none">
+                    <span class="tw-config-label"><i class="bi bi-rulers"></i>Uzunlik:</span>
+                    <button type="button" class="tw-opt" data-key="quoteLength" data-value="all">barchasi</button>
+                    <button type="button" class="tw-opt" data-key="quoteLength" data-value="short">qisqa</button>
+                    <button type="button" class="tw-opt" data-key="quoteLength" data-value="medium">o'rta</button>
+                    <button type="button" class="tw-opt" data-key="quoteLength" data-value="long">uzun</button>
+                    <button type="button" class="tw-opt" data-key="quoteLength" data-value="thick">juda uzun</button>
+                </div>
+                <div class="tw-config-group" data-group="count">
+                    <span class="tw-config-label"><i class="bi bi-hash"></i>So'z:</span>
+                    <button type="button" class="tw-opt" data-key="wordCount" data-value="10">10</button>
+                    <button type="button" class="tw-opt" data-key="wordCount" data-value="25">25</button>
+                    <button type="button" class="tw-opt" data-key="wordCount" data-value="50">50</button>
+                    <button type="button" class="tw-opt" data-key="wordCount" data-value="100">100</button>
+                </div>
             </div>
-        </div>
-        <div class="col-md-5">
-            <div class="tw-room-card text-center">
-                <h5>Qo'shilish</h5>
-                <p class="text-secondary">Kod va jamoani tanlang.</p>
-                <form id="tw-tjoin" class="d-flex flex-column gap-2 align-items-center">
-                    <input class="form-control text-uppercase" name="code" maxlength="8" placeholder="ABCD2345"
-                           style="max-width:160px; letter-spacing:.2em; text-align:center" required>
-                    <div class="btn-group" role="group">
-                        <input type="radio" class="btn-check" name="side" id="sA" value="A" checked>
-                        <label class="btn btn-outline-warning" for="sA">Jamoa A</label>
-                        <input type="radio" class="btn-check" name="side" id="sB" value="B">
-                        <label class="btn btn-outline-warning" for="sB">Jamoa B</label>
-                    </div>
-                    <button class="btn btn-tw" type="submit">Qo'shilish</button>
-                </form>
-            </div>
-        </div>
+
+            <button id="tw-tcreate" class="tw-rbtn">
+                <i class="bi bi-rocket-takeoff"></i>
+                <span>Musobaqa yaratish</span>
+            </button>
+            <div id="tw-tcreate-err" class="tw-rcard-err"></div>
+        </section>
+
+        <!-- Kodga qo'shilish -->
+        <section class="tw-rcard tw-rcard--join">
+            <div class="tw-rcard-icon"><i class="bi bi-box-arrow-in-right"></i></div>
+            <h2>Jamoaga qo'shilish</h2>
+            <p>Kodni kiriting va o'zingiz xohlagan jamoani (A yoki B) tanlab qo'shiling.</p>
+            <form id="tw-tjoin" class="tw-join-form">
+                <div class="tw-join-input">
+                    <i class="bi bi-hash"></i>
+                    <input name="code" maxlength="8" placeholder="ABCD2345" autocomplete="off"
+                           spellcheck="false" required />
+                </div>
+                <div class="tw-side-pick">
+                    <input type="radio" class="btn-check" name="side" id="sA" value="A" checked>
+                    <label class="tw-side-btn tw-side-btn--a" for="sA"><i class="bi bi-flag-fill"></i> Jamoa A</label>
+                    <input type="radio" class="btn-check" name="side" id="sB" value="B">
+                    <label class="tw-side-btn tw-side-btn--b" for="sB"><i class="bi bi-flag-fill"></i> Jamoa B</label>
+                </div>
+                <button class="tw-rbtn tw-rbtn--outline" type="submit">
+                    <i class="bi bi-arrow-right-circle"></i>
+                    <span>Qo'shilish</span>
+                </button>
+            </form>
+        </section>
     </div>
+
+    <!-- Qoidalar -->
+    <section class="tw-rules">
+        <h3><i class="bi bi-shield-check"></i> Jamoaviy musobaqa qoidalari</h3>
+        <ul class="tw-rules-list">
+            <li>
+                <i class="bi bi-people"></i>
+                <div>
+                    <strong>Har jamoada maksimal @GameConstants.TeamSize a'zo</strong>
+                    Ikki jamoa (A va B) bir xil matnni yozadi. To'lgan jamoaga qo'shilib bo'lmaydi.
+                </div>
+            </li>
+            <li>
+                <i class="bi bi-calculator"></i>
+                <div>
+                    <strong>Jamoa balli — a'zolar WPM yig'indisi</strong>
+                    Har a'zoning WPM si jamoa ballisiga qo'shiladi. Yuqori yig'indi to'plagan jamoa g'olib.
+                </div>
+            </li>
+            <li>
+                <i class="bi bi-clock-history"></i>
+                <div>
+                    <strong>Kod @GameConstants.RoomCodeTtlMinutes daqiqa amal qiladi</strong>
+                    Bu vaqtdan keyin kod avtomatik o'chadi va qayta ishlatib bo'lmaydi.
+                </div>
+            </li>
+            <li>
+                <i class="bi bi-door-closed"></i>
+                <div>
+                    <strong>Egasi chiqsa — musobaqa yopiladi</strong>
+                    Host chiqishi bilan kod darhol o'chadi va musobaqa yakunlanadi.
+                </div>
+            </li>
+            <li>
+                <i class="bi bi-flag"></i>
+                <div>
+                    <strong>Poygani faqat host boshlaydi</strong>
+                    Hamma tayyor bo'lgach host "Boshlash" tugmasini bosadi — 3-2-1 hisob ketadi.
+                </div>
+            </li>
+            <li>
+                <i class="bi bi-graph-up"></i>
+                <div>
+                    <strong>Har jamoa uchun alohida grafik</strong>
+                    Yakunda har jamoa a'zolarining soniyalik WPM chiziqlari ikki alohida grafikda ko'rsatiladi.
+                </div>
+            </li>
+        </ul>
+    </section>
 </div>
 
 @section Scripts {

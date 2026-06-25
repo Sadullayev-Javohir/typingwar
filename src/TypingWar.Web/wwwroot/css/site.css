@@ -968,6 +968,43 @@ body.tw-record {
 .tw-side-a-label { color: var(--tw-gold); }
 .tw-side-b-label { color: #5aa0ff; }
 
+/* Jamoa tanlash (Join kartasi) */
+.tw-side-pick { display: flex; gap: .5rem; }
+.tw-side-btn {
+    flex: 1; cursor: pointer; text-align: center; padding: .55rem .4rem;
+    border-radius: 10px; border: 1px solid var(--tw-border); background: var(--tw-surface);
+    color: var(--tw-muted); font-weight: 600; font-size: .9rem; transition: all .15s; margin: 0;
+}
+.tw-side-btn i { margin-right: .25rem; }
+.tw-side-btn--a i { color: var(--tw-gold); }
+.tw-side-btn--b i { color: #5aa0ff; }
+.btn-check:checked + .tw-side-btn--a { border-color: var(--tw-gold); color: var(--tw-gold);
+    box-shadow: inset 0 0 0 1px var(--tw-gold); }
+.btn-check:checked + .tw-side-btn--b { border-color: #5aa0ff; color: #5aa0ff;
+    box-shadow: inset 0 0 0 1px #5aa0ff; }
+
+/* Natija — har jamoa uchun alohida grafik */
+.tw-team-verdict { font-size: 1.6rem; font-weight: 800; color: var(--tw-muted); margin: .35rem 0 .1rem; }
+.tw-team-verdict.tw-win { color: var(--tw-gold); }
+.tw-tr-charts {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.2rem;
+}
+@@media (max-width: 720px) { .tw-tr-charts { grid-template-columns: 1fr; } }
+.tw-tr-chartbox {
+    background: var(--tw-surface); border: 1px solid var(--tw-border);
+    border-radius: 14px; padding: .85rem .9rem;
+}
+.tw-tr-chartbox.tw-side-a { border-top: 3px solid var(--tw-gold); }
+.tw-tr-chartbox.tw-side-b { border-top: 3px solid #5aa0ff; }
+.tw-tr-chart-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem; }
+.tw-tr-team-name { font-weight: 700; font-size: .95rem; color: var(--tw-text); }
+.tw-side-a .tw-tr-team-name i { color: var(--tw-gold); }
+.tw-side-b .tw-tr-team-name i { color: #5aa0ff; }
+.tw-tr-team-score { font-family: var(--tw-font); font-size: 1.5rem; font-weight: 800; }
+.tw-side-a .tw-tr-team-score { color: var(--tw-gold); }
+.tw-side-b .tw-tr-team-score { color: #5aa0ff; }
+.tw-tr-chartbox .tw-rr-chart canvas { height: 200px; }
+
 /* ───── Poyga (AI/Ghost/Blind) ───── */
 .tw-racepage { max-width: 900px; margin: 1.5rem auto; }
 .tw-vs { max-width: 780px; margin: 0 auto 1.5rem; }

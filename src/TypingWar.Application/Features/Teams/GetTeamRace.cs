@@ -26,13 +26,15 @@ public class GetTeamRaceQueryHandler : IRequestHandler<GetTeamRaceQuery, TeamRac
         var raw = await _cache.GetStringAsync(CreateTeamRaceCommandHandler.TeamKey(code));
         if (raw is null) return null;
 
-        var parts = raw.Split('|');
-        if (parts.Length != 2 || !Guid.TryParse(parts[0], out var raceId) || !Guid.TryParse(parts[1], out var hostId))
+        // Format: "{id}|{hostId}|{settingsJson}" (settings ixtiyoriy — eski yozuvlarda yo'q).
+        var parts = raw.Split('|', 3);
+        if (parts.Length < 2 || !Guid.TryParse(parts[0], out var raceId) || !Guid.TryParse(parts[1], out var hostId))
             return null;
+        var settings = parts.Length == 3 && !string.IsNullOrWhiteSpace(parts[2]) ? parts[2] : "{}";
 
         var race = await _db.TeamRaces.FirstOrDefaultAsync(r => r.Id == raceId, cancellationToken);
         if (race is null) return null;
 
-        return new TeamRaceDto(race.Id, code, hostId, race.Status, _currentUser.UserId == hostId);
+        return new TeamRaceDto(race.Id, code, hostId, race.Status, _currentUser.UserId == hostId, settings);
     }
 }

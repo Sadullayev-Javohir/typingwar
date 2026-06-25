@@ -9,13 +9,14 @@
      data-authenticated="@Model.IsAuthenticated.ToString().ToLower()"
      data-username="@Model.Username">
 
-    <div class="text-center mb-2">
+    <div class="tw-room-head text-center mb-2">
         <span class="text-secondary">Kod:</span>
         <span id="tw-team-code" class="tw-room-code"></span>
         <button id="tw-team-copy" class="btn btn-sm btn-outline-warning ms-2">nusxa</button>
     </div>
     <div id="tw-team-err" class="text-danger text-center"></div>
 
+    <!-- Jamoa balli (a'zolar WPM yig'indisi) -->
     <div class="tw-team-scores">
         <div class="tw-team-score tw-side-a"><span id="tw-score-a">0</span><label>Jamoa A</label></div>
         <div class="tw-vs-mid">VS</div>
@@ -24,29 +25,93 @@
 
     <div class="row g-3 mt-1">
         <div class="col-6">
-            <h6 class="text-center tw-side-a-label">Jamoa A</h6>
+            <h6 class="text-center tw-side-a-label"><i class="bi bi-flag-fill"></i> Jamoa A</h6>
             <ul id="tw-team-a" class="tw-players"></ul>
         </div>
         <div class="col-6">
-            <h6 class="text-center tw-side-b-label">Jamoa B</h6>
+            <h6 class="text-center tw-side-b-label"><i class="bi bi-flag-fill"></i> Jamoa B</h6>
             <ul id="tw-team-b" class="tw-players"></ul>
         </div>
     </div>
 
     <div class="text-center mt-2">
-        <button id="tw-switch" class="btn btn-sm btn-outline-warning">Jamoani almashtirish</button>
-        <button id="tw-team-start" class="btn btn-tw ms-2 d-none">Boshlash (host)</button>
+        <button id="tw-switch" class="btn btn-sm btn-outline-warning">
+            <i class="bi bi-arrow-left-right me-1"></i>Jamoani almashtirish
+        </button>
+        <button id="tw-team-start" class="btn btn-tw ms-2 d-none">
+            <i class="bi bi-flag me-1"></i>Boshlash (host)
+        </button>
         <p id="tw-team-wait" class="text-secondary small mt-2">Host boshlashini kuting…</p>
     </div>
 
     <div id="tw-team-countdown" class="tw-countdown d-none"></div>
+
     <div id="tw-team-race" class="d-none mt-3">
-        <div id="tw-team-words" class="tw-words" tabindex="0"></div>
+        <div class="tw-stats" id="tw-team-statspanel">
+            <div class="tw-stat" id="tw-team-stat-wpm">
+                <span id="tw-team-wpm">0</span>
+                <label><i class="bi bi-speedometer2"></i>WPM</label>
+            </div>
+            <div class="tw-stat" id="tw-team-stat-acc">
+                <span id="tw-team-acc">100</span>
+                <label><i class="bi bi-bullseye"></i>Aniqlik %</label>
+            </div>
+            <div class="tw-stat" id="tw-team-stat-timer">
+                <span id="tw-team-timer">0</span>
+                <label><i class="bi bi-clock"></i>Soniya</label>
+            </div>
+        </div>
+        <div class="tw-wordswrap">
+            <div id="tw-team-words" class="tw-words" tabindex="0"></div>
+        </div>
     </div>
 
-    <div id="tw-team-result" class="tw-result d-none">
-        <h3 id="tw-team-verdict" class="tw-accent text-center"></h3>
-        <p class="text-center" id="tw-team-detail"></p>
+    <!-- Natija: har jamoa uchun alohida WPM grafigi + verdikt -->
+    <div id="tw-team-result" class="tw-room-result d-none">
+        <div class="tw-rr-head">
+            <i class="bi bi-trophy-fill"></i>
+            <h3 id="tw-team-verdict" class="tw-team-verdict"></h3>
+            <p id="tw-team-detail"></p>
+        </div>
+
+        <div class="tw-tr-charts">
+            <div class="tw-tr-chartbox tw-side-a">
+                <div class="tw-tr-chart-head">
+                    <span class="tw-tr-team-name"><i class="bi bi-flag-fill"></i> Jamoa A</span>
+                    <span class="tw-tr-team-score" id="tw-tr-score-a">0</span>
+                </div>
+                <div class="tw-rr-chart">
+                    <canvas id="tw-chart-a" height="200"></canvas>
+                    <div id="tw-chart-a-tip" class="tw-chart-tip" style="display:none"></div>
+                    <div id="tw-legend-a" class="tw-rr-legend"></div>
+                </div>
+            </div>
+            <div class="tw-tr-chartbox tw-side-b">
+                <div class="tw-tr-chart-head">
+                    <span class="tw-tr-team-name"><i class="bi bi-flag-fill"></i> Jamoa B</span>
+                    <span class="tw-tr-team-score" id="tw-tr-score-b">0</span>
+                </div>
+                <div class="tw-rr-chart">
+                    <canvas id="tw-chart-b" height="200"></canvas>
+                    <div id="tw-chart-b-tip" class="tw-chart-tip" style="display:none"></div>
+                    <div id="tw-legend-b" class="tw-rr-legend"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6"><div id="tw-cards-a" class="tw-rr-cards"></div></div>
+            <div class="col-md-6"><div id="tw-cards-b" class="tw-rr-cards"></div></div>
+        </div>
+
+        <div class="tw-rr-actions">
+            <button id="tw-team-restart" class="btn btn-tw d-none">
+                <i class="bi bi-arrow-repeat me-1"></i>Qaytadan boshlash
+            </button>
+            <p id="tw-team-rr-wait" class="text-secondary small mb-0 d-none">
+                Host yangi poyga boshlashini kuting…
+            </p>
+        </div>
     </div>
 </div>
 

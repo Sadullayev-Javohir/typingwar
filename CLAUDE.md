@@ -339,6 +339,31 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-17] /Teams butunlay /Rooms kabi qayta loyihalashtirildi (jamoaviy poyga):
+    (1) /Teams sahifasi /Rooms dizayniga keltirildi — hero, "Musobaqa yaratish"
+    kartasida Practice config (til/rejim/so'z soni/iqtibos uzunligi), "Jamoaga
+    qo'shilish" kartasida kod + jamoa (A/B) tanlash (.tw-side-pick/.tw-side-btn),
+    va jamoaviy qoidalar bo'limi. teams.js cfg holatini TWSettings'dan boshlaydi va
+    POST /api/teamraces body'da yuboradi. (2) Matn endi /Practice dan — host tanlagan
+    sozlamalar JSON Redis qiymatiga saqlanadi ("{id}|{hostId}|{settings}"),
+    GetTeamRace Split('|',3) bilan o'qiydi, TeamRaceHub.BuildTextRequest (Rooms bilan
+    bir xil) matn so'rovini quradi (avval hardcoded Sentences/Uzbek/25 edi).
+    (3) Team.cshtml + team.js to'liq qayta yozildi — room.js darajasidagi typing
+    engine (karet uslublari, qator surilishi, joriy so'z, ovoz, ko'r rejim, xatoda
+    to'xtash, auto-repeat himoyasi, normChar), umumiy soat (countdown tugagach hamma
+    uchun bir lahzada, bekor turish jazolanadi), live WPM/Aniqlik/Soniya paneli.
+    (4) Natija: HAR JAMOA UCHUN ALOHIDA WPM grafigi (tw-chart-a / tw-chart-b) — har
+    a'zo alohida rangda (barqaror ColorIndex, atomar tayinlash), hover tooltip har
+    soniyada, rangli legend, jamoa bo'yicha natija kartalari (wpm/raw/aniqlik),
+    verdikt (g'olib jamoa) + jamoa balli (WPM yig'indisi). (5) TeamRaceHub LobbyHub
+    arxitekturasiga keltirildi: qayta-ulanish grace (RoomMemberReconnectGraceSeconds),
+    host grace + chiqsa yopilish (TeamRaceClosed, Redis kod o'chadi, DB Finished),
+    5 daqiqalik poyga taymeri, RawWpm + WpmSeries, FinishRace(wpm,raw,acc,series),
+    Place (FinishOrder). TeamRaceLive/TeamPlayerLive kengaytirildi (Settings/Round/
+    CTS/ColorLock/ColorIndex/RawWpm/WpmSeries/Place). TeamMembers persist dublikatdan
+    himoyalandi. site.css: .tw-tr-charts/.tw-tr-chartbox/.tw-tr-team-*/.tw-team-verdict/
+    .tw-side-btn. sw.js cache v24. Build OK, 75 test o'tadi, /Teams+/Team render +
+    teamrace negotiate 200, GET 404 / POST unauth 401 tasdiqlandi.
   - [2026-06-17] /Room natija grafigi (barcha o'yinchilar, Practice line graph
     uslubida): oxirgi o'yinchi yozib bo'lgach (RaceFinished — barcha Finished
     bo'lgandagina chaqiriladi) natija oynasida soniyalik WPM chiziq grafigi
@@ -445,7 +470,7 @@ Hal qilinmagan muammolar:
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
   - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
-Oxirgi git commit: /Room poyga VAQTGA qarab hisoblanadi — umumiy soat (kech boshlash jazolanadi)
+Oxirgi git commit: /Teams qayta loyihalashtirildi — /Rooms kabi jamoaviy poyga, matn /Practice'dan, har jamoa uchun alohida WPM grafigi
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.
