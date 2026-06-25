@@ -11,4 +11,9 @@ public class TournamentPlayer
     public string Username { get; set; } = string.Empty;
     public int Seed { get; set; }
     public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
+    /// <summary>O'yinchi qaysi roundda tushib qoldi (0 = hali o'yinda / chempion).</summary>
+    public int EliminatedRound { get; set; }
+    /// <summary>Turnir davomidagi eng yaxshi WPM (yakuniy statistika uchun).</summary>
+    public double BestWpm { get; set; }
+    public double BestAccuracy { get; set; }
 }

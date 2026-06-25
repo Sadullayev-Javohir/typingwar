@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using TypingWar.Application.Features.Tournaments;
 
 namespace TypingWar.Web.Controllers;
 
-/// <summary>Turnirlar — ro'yxat, yaratish, ro'yxatdan o'tish, boshlash, ko'rish.</summary>
+/// <summary>Turnirlar — ro'yxat, yaratish, ro'yxatdan o'tish, seed tartibi, ko'rish.
+/// Boshlash/raund/g'olib aniqlash real-time TournamentHub orqali (host tekshiruvi bilan).</summary>
 public class TournamentsController : ApiControllerBase
 {
     [HttpGet]
@@ -18,13 +20,14 @@ public class TournamentsController : ApiControllerBase
         return t is null ? NotFound(new { error = "Turnir topilmadi." }) : Ok(t);
     }
 
-    public record CreateTournamentRequest(string Name, int Capacity, DateTime StartAt);
+    public record CreateTournamentRequest(string Name, int Capacity, DateTime StartAt, object? Settings);
 
     [Authorize]
     [HttpPost]
     public async Task<ActionResult<object>> Create([FromBody] CreateTournamentRequest req)
     {
-        var id = await Mediator.Send(new CreateTournamentCommand(req.Name, req.Capacity, req.StartAt));
+        var settingsJson = req.Settings is null ? null : JsonSerializer.Serialize(req.Settings);
+        var id = await Mediator.Send(new CreateTournamentCommand(req.Name, req.Capacity, req.StartAt, settingsJson));
         return Ok(new { id });
     }
 
@@ -36,11 +39,13 @@ public class TournamentsController : ApiControllerBase
         return Ok();
     }
 
+    public record SeedOrderRequest(List<Guid> OrderedUserIds);
+
     [Authorize]
-    [HttpPost("{id:guid}/start")]
-    public async Task<IActionResult> Start(Guid id)
+    [HttpPost("{id:guid}/seed")]
+    public async Task<IActionResult> Seed(Guid id, [FromBody] SeedOrderRequest req)
     {
-        await Mediator.Send(new StartTournamentCommand(id));
+        await Mediator.Send(new SetSeedOrderCommand(id, req.OrderedUserIds ?? new List<Guid>()));
         return Ok();
     }
 }

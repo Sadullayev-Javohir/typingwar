@@ -50,6 +50,7 @@ public static class DependencyInjection
         // Real-time holat (in-memory singletonlar)
         services.AddSingleton<Realtime.RoomLiveState>();
         services.AddSingleton<Realtime.TeamRaceLiveState>();
+        services.AddSingleton<Realtime.TournamentLiveState>();
 
         // Adaptiv AI raqib
         services.AddScoped<IAiOpponentService, Ai.AiOpponentService>();

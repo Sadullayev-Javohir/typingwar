@@ -339,6 +339,34 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-17] /Tournaments butunlay qayta loyihalashtirildi — LIVE playoff turnir
+    (head-to-head poyga, host boshqaruvi, tomoshabin havolasi):
+    (1) Backend modeli: Tournament.HostId qo'shildi; TournamentMatch'ga ball maydonlari
+    (Player1/2Wpm, Player1/2Accuracy); TournamentPlayer'ga EliminatedRound/BestWpm/BestAccuracy.
+    Migration AddTournamentHostAndStats (DB yangilandi). CreateTournament endi host + Settings
+    (poyga matni JSON) saqlaydi. GetTournament kengaytirildi: seed'li o'yinchilar, ball'li
+    match'lar, yakuniy Standings (chempion 1-o'rin → kechroq tushganlar → BestWpm), isHost/myUserId.
+    (2) Yangi CQRS: RecordMatchOutcome (ball yozadi, g'olibni aniqlaydi/host majburlaydi,
+    yutqazganni EliminatedRound bilan belgilaydi, bracketni o'tkazadi, final→chempion),
+    PrepareRound (bye'larni avtomatik o'tkazib, keyingi raceable roundni topadi yoki turnir
+    tugaganini aniqlaydi), SetSeedOrder (host bracket tartibini belgilaydi). Sof
+    Domain.Services/MatchOutcome (aniqlik darvozasi 50% → tez yozgan g'olib, aldash himoyasi) +
+    7 yangi unit test (jami 82). ReportMatchResult o'chirildi.
+    (3) TournamentHub to'liq qayta yozildi (TournamentLiveState singleton, in-memory):
+    JoinTournament (tomoshabin+resume), StartTournament (host), StartRound (host: PrepareRound
+    +matn+countdown), ReportProgress, FinishMatch (ikkalasi tugagach DecideMatch), ForceWinner
+    (host no-show/uzilish uchun), Touch (register/seed broadcast), RoundComplete/TournamentFinished,
+    5 daqiqalik raund taymeri (avtomatik progress bo'yicha hal). Host tekshiruvi hub'da
+    Context.User orqali (mediator current-user hub'da null bo'lgani uchun register/seed REST'da).
+    (4) Frontend: /Tournaments (Rooms uslubidagi hero + config'li yaratish + live ro'yxat),
+    /Tournament — to'liq live sahifa: ro'yxat bosqichi (seed reorder strelkalari, Qatnashish/
+    Boshlash), host boshqaruv paneli, /Practice typing engine (karet/scroll/ovoz/ko'r rejim/
+    auto-repeat himoyasi), mening+raqib mushuk yo'lakchasi, live bracket (LIVE badge+progress
+    bar+host force-winner), zamonaviy "Yutqazdingiz" oynasi (statistika bilan), "keyingi raundga
+    o'tdingiz" toast, yakuniy Standings (medal+WPM bar+aniqlik), "Havolani nusxalash" tomoshabin
+    havolasi. site.css turnir bloki, sw.js cache v26. Build OK, 82 test, REST (create/register/
+    seed/host-guard) + to'liq LIVE oqim (StartTournament→StartRound→FinishMatch→bracket o'tish→
+    bye-final→chempion+standings) .NET SignalR klient bilan uchma-uch tasdiqlandi.
   - [2026-06-17] /Contest qayta loyihalashtirildi — /Practice typing engine + natija linegraph:
     (1) Contest.cshtml butunlay yangilandi — hero (badge+sarlavha+sana+streak), 2 ustun
     (col-lg-8 o'yin + col-lg-4 sticky leaderboard top 20). O'yin maydoni /Practice bilan
@@ -485,7 +513,7 @@ Hal qilinmagan muammolar:
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
   - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
-Oxirgi git commit: /Teams qayta loyihalashtirildi — /Rooms kabi jamoaviy poyga, matn /Practice'dan, har jamoa uchun alohida WPM grafigi
+Oxirgi git commit: /Tournaments LIVE playoff turnir — head-to-head poyga, host boshqaruvi, bye/bracket avtomatik o'tish, yakuniy statistika, tomoshabin havolasi
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.

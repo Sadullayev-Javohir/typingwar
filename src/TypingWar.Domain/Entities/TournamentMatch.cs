@@ -12,5 +12,10 @@ public class TournamentMatch
     public Guid? Player1Id { get; set; }
     public Guid? Player2Id { get; set; }
     public Guid? WinnerId { get; set; }
+    /// <summary>O'yin natijasi (poyga tugagach saqlanadi).</summary>
+    public double Player1Wpm { get; set; }
+    public double Player2Wpm { get; set; }
+    public double Player1Accuracy { get; set; }
+    public double Player2Accuracy { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

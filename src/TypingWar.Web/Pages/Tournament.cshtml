@@ -4,26 +4,127 @@
     ViewData["Title"] = "Turnir";
 }
 
-<div id="tw-tournament" class="tw-tournament" data-authenticated="@Model.IsAuthenticated.ToString().ToLower()">
-    <div class="text-center mb-2">
-        <h2 id="tw-tourn-name" class="tw-accent mb-0">…</h2>
-        <span id="tw-tourn-meta" class="text-secondary"></span>
+<div id="tw-tournament" class="tw-tourn"
+     data-authenticated="@Model.IsAuthenticated.ToString().ToLower()"
+     data-username="@Model.Username"
+     data-userid="@Model.UserId">
+
+    <!-- Sarlavha -->
+    <header class="tw-tourn-header">
+        <div class="tw-tourn-htext">
+            <span id="tw-tstatus" class="tw-tbadge">…</span>
+            <h1 id="tw-tname">…</h1>
+            <p id="tw-tmeta" class="tw-tourn-sub"></p>
+        </div>
+        <div class="tw-tourn-hactions">
+            <button id="tw-tshare" class="tw-rbtn tw-rbtn--outline tw-rbtn--sm">
+                <i class="bi bi-link-45deg"></i><span>Havolani nusxalash</span>
+            </button>
+        </div>
+    </header>
+
+    <div id="tw-terr" class="tw-rcard-err text-center"></div>
+
+    <!-- Chempion banneri -->
+    <div id="tw-champion" class="tw-tchampion d-none"></div>
+
+    <!-- Ro'yxat bosqichi -->
+    <section id="tw-reg" class="tw-treg d-none">
+        <div class="tw-treg-grid">
+            <div class="tw-treg-players">
+                <h3><i class="bi bi-people-fill"></i> Ishtirokchilar <span id="tw-reg-count" class="tw-treg-count"></span></h3>
+                <ul id="tw-reg-list" class="tw-seed-list"></ul>
+                <p id="tw-host-seedhint" class="tw-thint d-none">
+                    <i class="bi bi-arrows-move"></i> Strelkalar bilan tartibni o'zgartiring — bu kim kim bilan o'ynashini belgilaydi.
+                </p>
+            </div>
+            <div class="tw-treg-side">
+                <div id="tw-reg-actions">
+                    <button id="tw-register" class="tw-rbtn d-none"><i class="bi bi-person-plus"></i><span>Qatnashish</span></button>
+                    <div id="tw-registered" class="tw-treg-ok d-none"><i class="bi bi-check-circle-fill"></i> Siz ro'yxatdasiz</div>
+                    <button id="tw-start" class="tw-rbtn tw-rbtn--gold d-none"><i class="bi bi-flag-fill"></i><span>Turnirni boshlash</span></button>
+                    <p id="tw-login-hint" class="tw-thint d-none">Qatnashish uchun <a href="/Login" class="tw-accent">tizimga kiring</a>.</p>
+                </div>
+                <div id="tw-countdown-start" class="tw-tcd-start d-none"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Host boshqaruv paneli (poyga bosqichi) -->
+    <section id="tw-host-bar" class="tw-host-bar d-none">
+        <div class="tw-host-bar-info">
+            <i class="bi bi-sliders"></i>
+            <span id="tw-host-status">Boshqaruv</span>
+        </div>
+        <button id="tw-startround" class="tw-rbtn tw-rbtn--gold tw-rbtn--sm d-none">
+            <i class="bi bi-play-fill"></i><span>Raundni boshlash</span>
+        </button>
+    </section>
+
+    <!-- Poyga maydoni (ishtirokchi yozadi) -->
+    <section id="tw-stage" class="tw-tstage d-none">
+        <div id="tw-countdown" class="tw-countdown d-none"></div>
+
+        <div id="tw-race" class="d-none">
+            <div class="tw-tmatch-head">
+                <span class="tw-tmatch-me" id="tw-me-name">Siz</span>
+                <span class="tw-tmatch-vs">VS</span>
+                <span class="tw-tmatch-opp" id="tw-opp-name">Raqib</span>
+            </div>
+
+            <div class="tw-tlanes">
+                <div class="tw-tlane" id="tw-lane-me"></div>
+                <div class="tw-tlane" id="tw-lane-opp"></div>
+            </div>
+
+            <div class="tw-stats" id="tw-tstats">
+                <div class="tw-stat" id="tw-stat-wpm"><span id="tw-wpm">0</span><label><i class="bi bi-speedometer2"></i>WPM</label></div>
+                <div class="tw-stat" id="tw-stat-acc"><span id="tw-acc">100</span><label><i class="bi bi-bullseye"></i>Aniqlik %</label></div>
+                <div class="tw-stat" id="tw-stat-timer"><span id="tw-timer">0</span><label><i class="bi bi-clock"></i>Soniya</label></div>
+            </div>
+
+            <div id="tw-wordswrap" class="tw-wordswrap">
+                <div id="tw-words" class="tw-words" tabindex="0"></div>
+            </div>
+        </div>
+
+        <div id="tw-wait-round" class="tw-twait d-none">
+            <i class="bi bi-hourglass-split"></i>
+            <p id="tw-wait-msg">Keyingi raundni kuting…</p>
+        </div>
+    </section>
+
+    <!-- Bracket (hamma ko'radi) -->
+    <section id="tw-bracket-wrap" class="tw-bracket-wrap d-none">
+        <h3 class="tw-bracket-title"><i class="bi bi-diagram-3"></i> Bracket</h3>
+        <div id="tw-bracket" class="tw-tbracket"></div>
+    </section>
+
+    <!-- Yakuniy joylar -->
+    <section id="tw-standings" class="tw-standings d-none">
+        <h3 class="tw-bracket-title"><i class="bi bi-bar-chart-line-fill"></i> Yakuniy natijalar</h3>
+        <div id="tw-standings-body"></div>
+    </section>
+</div>
+
+<!-- Tushib qolish (yutqazish) oynasi -->
+<div id="tw-elim-overlay" class="tw-elim-overlay d-none">
+    <div class="tw-elim-card">
+        <div class="tw-elim-icon"><i class="bi bi-emoji-frown"></i></div>
+        <h2>Yutqazdingiz</h2>
+        <p id="tw-elim-text">Bu raundda raqibingiz tezroq yozdi.</p>
+        <div id="tw-elim-stats" class="tw-elim-stats"></div>
+        <div class="tw-elim-actions">
+            <button id="tw-elim-watch" class="tw-rbtn tw-rbtn--gold"><i class="bi bi-broadcast"></i><span>Tomoshabin sifatida kuzatish</span></button>
+            <a href="/Tournaments" class="tw-rbtn tw-rbtn--outline" style="text-decoration:none"><i class="bi bi-arrow-left-circle"></i><span>Turnirlarga qaytish</span></a>
+        </div>
     </div>
-    <div id="tw-tourn-champion" class="tw-champion d-none"></div>
-    <div id="tw-tourn-err" class="text-danger text-center"></div>
+</div>
 
-    <div class="text-center my-3">
-        <button id="tw-tourn-register" class="btn btn-tw d-none">Ro'yxatdan o'tish</button>
-        <button id="tw-tourn-start" class="btn btn-outline-warning d-none">Boshlash</button>
-    </div>
-
-    <div id="tw-tourn-players" class="tw-tourn-players"></div>
-
-    <h6 id="tw-bracket-title" class="text-secondary mt-3 d-none">Bracket</h6>
-    <div id="tw-bracket" class="tw-bracket"></div>
-    <p id="tw-tourn-hint" class="text-secondary small text-center d-none">
-        O'yin g'olibini belgilash uchun ism ustiga bosing.
-    </p>
+<!-- G'alaba (keyingi raundga o'tish) toast -->
+<div id="tw-advance-toast" class="tw-advance-toast d-none">
+    <i class="bi bi-check-circle-fill"></i>
+    <div><strong>Keyingi raundga o'tdingiz!</strong><span id="tw-advance-sub">Keyingi raundni kuting.</span></div>
 </div>
 
 @section Scripts {

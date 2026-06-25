@@ -7,6 +7,8 @@ namespace TypingWar.Domain.Entities;
 public class Tournament : BaseEntity
 {
     public string Name { get; set; } = string.Empty;
+    /// <summary>Turnirni yaratgan (boshqaruvchi) foydalanuvchi.</summary>
+    public Guid HostId { get; set; }
     public TournamentStatus Status { get; set; } = TournamentStatus.Registration;
     public BracketType BracketType { get; set; } = BracketType.SingleElimination;
     public DateTime StartAt { get; set; }

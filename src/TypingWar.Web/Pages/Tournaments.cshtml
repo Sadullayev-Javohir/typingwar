@@ -4,40 +4,95 @@
     ViewData["Title"] = "Turnirlar";
 }
 
-<div class="tw-rooms" data-authenticated="@Model.IsAuthenticated.ToString().ToLower()" id="tw-tournaments">
-    <h2 class="tw-accent text-center mb-4">Turnirlar</h2>
+<div class="tw-rooms" id="tw-tournaments" data-authenticated="@Model.IsAuthenticated.ToString().ToLower()">
 
-    @if (Model.IsAuthenticated)
-    {
-        <div class="tw-room-card mb-4">
-            <h5>Yangi turnir</h5>
-            <form id="tw-tourn-create" class="row g-2 align-items-end">
-                <div class="col-md-5">
-                    <label class="form-label small">Nomi</label>
-                    <input class="form-control" name="name" maxlength="80" placeholder="Hafta turniri" required>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small">Sig'im</label>
-                    <select class="form-select" name="capacity">
-                        <option value="4">4</option>
-                        <option value="8">8</option>
-                        <option value="16" selected>16</option>
-                        <option value="32">32</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label small">Boshlanish</label>
-                    <input class="form-control" type="datetime-local" name="startAt" required>
-                </div>
-                <div class="col-12">
-                    <button class="btn btn-tw mt-2" type="submit">Yaratish</button>
-                    <span id="tw-tourn-createerr" class="text-danger ms-2"></span>
-                </div>
-            </form>
-        </div>
-    }
+    <header class="tw-rooms-hero">
+        <span class="tw-rooms-badge"><i class="bi bi-trophy"></i> Playoff turnirlar</span>
+        <h1>Playoff turnir tashkil et yoki qatnash</h1>
+        <p>Futboldagi kabi chiqib ketish bracketi: har bosqichda yutgan keyingisiga o'tadi, finalgacha davom etadi. Tomoshabinlar havola orqali jonli kuzatadi.</p>
+    </header>
 
-    <ul id="tw-tourn-list" class="tw-ranks"></ul>
+    <div class="tw-rooms-grid">
+
+        <!-- Turnir yaratish -->
+        <section class="tw-rcard tw-rcard--create">
+            <div class="tw-rcard-icon"><i class="bi bi-trophy-fill"></i></div>
+            <h2>Turnir yaratish</h2>
+            <p>Nomi, ishtirokchilar sonini va poyga matnini tanlang. Siz turnir egasi (boshqaruvchi) bo'lasiz.</p>
+
+            <div class="tw-tcreate">
+                <label class="tw-tlabel"><i class="bi bi-pencil"></i> Nomi</label>
+                <input id="tw-t-name" class="tw-tinput" maxlength="80" placeholder="Hafta chempionati" autocomplete="off">
+
+                <label class="tw-tlabel"><i class="bi bi-people"></i> Ishtirokchilar (bracket sig'imi)</label>
+                <div class="tw-config-group" data-group="capacity">
+                    <button type="button" class="tw-opt" data-cap="4">4</button>
+                    <button type="button" class="tw-opt" data-cap="8">8</button>
+                    <button type="button" class="tw-opt tw-active" data-cap="16">16</button>
+                    <button type="button" class="tw-opt" data-cap="32">32</button>
+                </div>
+
+                <label class="tw-tlabel"><i class="bi bi-clock"></i> Boshlanish vaqti</label>
+                <input id="tw-t-start" class="tw-tinput" type="datetime-local">
+                <small class="tw-thint">Bo'sh qoldirilsa — boshlashni o'zingiz qo'lda boshqarasiz.</small>
+
+                <label class="tw-tlabel"><i class="bi bi-type"></i> Poyga matni</label>
+                <div class="tw-config tw-room-config" id="tw-t-config">
+                    <div class="tw-config-group" data-group="language">
+                        <span class="tw-config-label"><i class="bi bi-translate"></i>Til:</span>
+                        <button type="button" class="tw-opt" data-key="language" data-value="Uzbek">uz</button>
+                        <button type="button" class="tw-opt" data-key="language" data-value="English">en</button>
+                    </div>
+                    <div class="tw-config-group" data-group="mode">
+                        <span class="tw-config-label"><i class="bi bi-type"></i>Rejim:</span>
+                        <button type="button" class="tw-opt" data-key="textMode" data-value="Words">so'z</button>
+                        <button type="button" class="tw-opt" data-key="textMode" data-value="Sentences">Iqtiboslar</button>
+                        <button type="button" class="tw-opt" data-key="textMode" data-value="Numbers">raqam</button>
+                        <button type="button" class="tw-opt" data-key="textMode" data-value="Code">kod</button>
+                    </div>
+                    <div class="tw-config-group" data-group="quote" style="display:none">
+                        <span class="tw-config-label"><i class="bi bi-rulers"></i>Uzunlik:</span>
+                        <button type="button" class="tw-opt" data-key="quoteLength" data-value="all">barchasi</button>
+                        <button type="button" class="tw-opt" data-key="quoteLength" data-value="short">qisqa</button>
+                        <button type="button" class="tw-opt" data-key="quoteLength" data-value="medium">o'rta</button>
+                        <button type="button" class="tw-opt" data-key="quoteLength" data-value="long">uzun</button>
+                    </div>
+                    <div class="tw-config-group" data-group="count">
+                        <span class="tw-config-label"><i class="bi bi-hash"></i>So'z:</span>
+                        <button type="button" class="tw-opt" data-key="wordCount" data-value="10">10</button>
+                        <button type="button" class="tw-opt" data-key="wordCount" data-value="25">25</button>
+                        <button type="button" class="tw-opt" data-key="wordCount" data-value="50">50</button>
+                        <button type="button" class="tw-opt" data-key="wordCount" data-value="100">100</button>
+                    </div>
+                </div>
+
+                <button id="tw-t-create" class="tw-rbtn">
+                    <i class="bi bi-rocket-takeoff"></i><span>Turnir yaratish</span>
+                </button>
+                <div id="tw-t-createerr" class="tw-rcard-err"></div>
+            </div>
+        </section>
+
+        <!-- Mavjud turnirlar -->
+        <section class="tw-rcard tw-rcard--join">
+            <div class="tw-rcard-icon"><i class="bi bi-list-ol"></i></div>
+            <h2>Turnirlar</h2>
+            <p>Ro'yxatdan o'ting, qatnashing yoki tomoshabin sifatida jonli kuzating.</p>
+            <ul id="tw-tourn-list" class="tw-tlist"></ul>
+        </section>
+    </div>
+
+    <section class="tw-rules">
+        <h3><i class="bi bi-shield-check"></i> Turnir qanday ishlaydi</h3>
+        <ul class="tw-rules-list">
+            <li><i class="bi bi-person-plus"></i><div><strong>Qatnashish</strong>Tizimga kiring va "Qatnashish" tugmasini bosing — bracketdan joy olasiz.</div></li>
+            <li><i class="bi bi-diagram-3"></i><div><strong>Playoff bracket</strong>Har juftlik poyga qiladi; yutgan keyingi bosqichga o'tadi, yutqazgan tushadi.</div></li>
+            <li><i class="bi bi-stopwatch"></i><div><strong>Avtomatik boshlanish</strong>Belgilangan vaqt kelganda turnir avtomatik ochiladi.</div></li>
+            <li><i class="bi bi-sliders"></i><div><strong>Host boshqaradi</strong>Turnir egasi seedlarni joylaydi, raundlarni boshlaydi va kerak bo'lsa g'olibni belgilaydi.</div></li>
+            <li><i class="bi bi-broadcast"></i><div><strong>Jonli tomosha</strong>Turnir havolasini ulashing — istalgan kishi natijalarni real vaqtda kuzatadi.</div></li>
+            <li><i class="bi bi-bar-chart-line"></i><div><strong>Yakuniy statistika</strong>Final tugagach barcha o'rinlar, eng yaxshi WPM va aniqlik ko'rsatiladi.</div></li>
+        </ul>
+    </section>
 </div>
 
 @section Scripts {

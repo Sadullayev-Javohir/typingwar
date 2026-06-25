@@ -5,8 +5,8 @@ using TypingWar.Domain.Services;
 
 namespace TypingWar.Application.Features.Tournaments;
 
-/// <summary>Yangi turnir yaratadi (Registration holatida).</summary>
-public record CreateTournamentCommand(string Name, int Capacity, DateTime StartAt) : IRequest<Guid>;
+/// <summary>Yangi turnir yaratadi (Registration holatida). Settings — poyga matni sozlamalari (JSON).</summary>
+public record CreateTournamentCommand(string Name, int Capacity, DateTime StartAt, string? Settings) : IRequest<Guid>;
 
 public class CreateTournamentCommandHandler : IRequestHandler<CreateTournamentCommand, Guid>
 {
@@ -21,8 +21,8 @@ public class CreateTournamentCommandHandler : IRequestHandler<CreateTournamentCo
 
     public async Task<Guid> Handle(CreateTournamentCommand request, CancellationToken cancellationToken)
     {
-        if (_currentUser.UserId is null)
-            throw new UnauthorizedAccessException("Turnir yaratish uchun tizimga kiring.");
+        var uid = _currentUser.UserId
+            ?? throw new UnauthorizedAccessException("Turnir yaratish uchun tizimga kiring.");
 
         if (!TournamentBracket.IsValidCapacity(request.Capacity))
             throw new InvalidOperationException("Sig'im 4, 8, 16 yoki 32 bo'lishi kerak.");
@@ -33,8 +33,10 @@ public class CreateTournamentCommandHandler : IRequestHandler<CreateTournamentCo
         var tournament = new Tournament
         {
             Name = name,
+            HostId = uid,
             Capacity = request.Capacity,
             StartAt = request.StartAt.ToUniversalTime(),
+            Settings = string.IsNullOrWhiteSpace(request.Settings) ? "{}" : request.Settings,
             Status = Domain.Enums.TournamentStatus.Registration
         };
         _db.Tournaments.Add(tournament);
