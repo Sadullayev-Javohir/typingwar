@@ -18,6 +18,9 @@
 
     const STATUS = { 0: "Ro'yxat ochiq", 1: "Davom etmoqda", 2: "Tugagan" };
     const STATUS_CLASS = { 0: "tw-st-reg", 1: "tw-st-live", 2: "tw-st-done" };
+    // Backend enumni STRING ("Registration"/"InProgress"/"Finished") qaytaradi — raqamga normallashtiramiz
+    const statusKey = s => typeof s === "number" ? s
+        : ({ Registration: 0, InProgress: 1, Finished: 2 }[s] ?? -1);
 
     // ── Holat ──
     let detail = null, conn = null;
@@ -57,6 +60,7 @@
     function render() {
         if (!detail) return;
         const info = detail.info;
+        info.status = statusKey(info.status);   // string → raqam (barcha taqqoslashlar uchun)
 
         // Sarlavha
         $("tw-tname").textContent = info.name;
@@ -90,11 +94,13 @@
         list.innerHTML = (detail.players || []).map((p, i) => {
             const me = eq(p.userId, myUserId) ? ' <small class="tw-seed-me">(siz)</small>' : '';
             const ctrl = isHost ? `<span class="tw-seed-ctrl">
-                <button class="tw-seed-up" data-uid="${p.userId}" ${i === 0 ? "disabled" : ""}><i class="bi bi-chevron-up"></i></button>
-                <button class="tw-seed-down" data-uid="${p.userId}" ${i === detail.players.length - 1 ? "disabled" : ""}><i class="bi bi-chevron-down"></i></button>
+                <button class="tw-seed-up" data-uid="${p.userId}" title="Yuqoriga" ${i === 0 ? "disabled" : ""}><i class="bi bi-chevron-up"></i></button>
+                <button class="tw-seed-down" data-uid="${p.userId}" title="Pastga" ${i === detail.players.length - 1 ? "disabled" : ""}><i class="bi bi-chevron-down"></i></button>
+                <button class="tw-seed-drop" data-uid="${p.userId}" title="Chiqarish"><i class="bi bi-x-lg"></i></button>
             </span>` : '';
             return `<li class="tw-seed-item">
                 <span class="tw-seed-no">${i + 1}</span>
+                <span class="tw-seed-ava" style="--c:${avatarColor(p.username)}">${initials(p.username)}</span>
                 <span class="tw-seed-name">${esc(p.username)}${me}</span>
                 ${ctrl}
             </li>`;
@@ -105,6 +111,7 @@
         if (isHost) {
             list.querySelectorAll(".tw-seed-up").forEach(b => b.addEventListener("click", () => moveSeed(b.dataset.uid, -1)));
             list.querySelectorAll(".tw-seed-down").forEach(b => b.addEventListener("click", () => moveSeed(b.dataset.uid, 1)));
+            list.querySelectorAll(".tw-seed-drop").forEach(b => b.addEventListener("click", () => dropPlayer(b.dataset.uid)));
         }
 
         // Tugmalar
@@ -112,7 +119,36 @@
         $("tw-register").classList.toggle("d-none", !canRegister);
         $("tw-registered").classList.toggle("d-none", !(isAuth && isRegistered));
         $("tw-login-hint").classList.toggle("d-none", isAuth);
-        $("tw-start").classList.toggle("d-none", !(isHost && info.playerCount >= 2));
+        const canStart = isHost && info.playerCount >= 2;
+        const startBtn = $("tw-start");
+        startBtn.classList.toggle("d-none", !canStart);
+        if (canStart) startBtn.querySelector("span").textContent =
+            (new Date(info.startAt) > new Date()) ? "Hoziroq boshlash" : "Turnirni boshlash";
+    }
+
+    function dropPlayer(uid) {
+        if (!confirm("Bu o'yinchini turnirdan chiqarmoqchimisiz?")) return;
+        fetch(`/api/tournaments/${id}/drop`, {
+            method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin",
+            body: JSON.stringify({ userId: uid })
+        }).then(r => {
+            if (r.ok) { conn && conn.invoke("Touch", id).catch(() => { }); loadDetail(); }
+            else r.json().then(b => $("tw-terr").textContent = b.error || "Xatolik.").catch(() => { });
+        });
+    }
+
+    // ── Avatar yordamchilari ──
+    function initials(name) {
+        const s = String(name || "?").trim();
+        const parts = s.split(/\s+/);
+        const a = (parts[0] || "")[0] || "?";
+        const b = parts.length > 1 ? (parts[1] || "")[0] : (parts[0] || "")[1] || "";
+        return (a + b).toUpperCase();
+    }
+    function avatarColor(name) {
+        let h = 0; const s = String(name || "");
+        for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) & 0xffffff;
+        return `hsl(${h % 360}, 62%, 52%)`;
     }
 
     function moveSeed(uid, dir) {
@@ -142,7 +178,7 @@
             ? "Raund davom etmoqda…" : "Keyingi raundni boshlashga tayyor";
     }
 
-    // ── Bracket ──
+    // ── Bracket (kuchli playoff xaritasi) ──
     function renderBracket(info) {
         const wrap = $("tw-bracket-wrap");
         const matches = detail.matches || [];
@@ -152,48 +188,58 @@
 
         const rounds = {};
         matches.forEach(m => { (rounds[m.round] = rounds[m.round] || []).push(m); });
+        const keys = Object.keys(rounds).sort((a, b) => a - b);
+        const lastKey = keys[keys.length - 1];
 
-        $("tw-bracket").innerHTML = Object.keys(rounds).sort((a, b) => a - b).map(rk => {
+        $("tw-bracket").innerHTML = keys.map(rk => {
             const ms = rounds[rk].sort((a, b) => a.slot - b.slot);
-            return `<div class="tw-tround">
-                <div class="tw-tround-name">${esc(ms[0].roundName)}</div>
-                ${ms.map(matchHtml).join("")}
+            const isFinal = rk === lastKey;
+            return `<div class="tw-bk-round${isFinal ? " tw-bk-round--final" : ""}">
+                <div class="tw-bk-rname">${esc(ms[0].roundName)}</div>
+                <div class="tw-bk-col">${ms.map(m => matchHtml(m, isFinal)).join("")}</div>
             </div>`;
         }).join("");
 
         // Host force-winner tugmalari (faol round, hal qilinmagan o'yinlar)
         if (isHost && info.status === 1) {
-            $("tw-bracket").querySelectorAll(".tw-force").forEach(b =>
+            $("tw-bracket").querySelectorAll(".tw-bk-force").forEach(b =>
                 b.addEventListener("click", () => forceWinner(b.dataset.match, b.dataset.uid)));
         }
     }
 
-    function matchHtml(m) {
+    function matchHtml(m, isFinal) {
         const lv = live[m.id];
         const decided = !!m.winnerId;
         const racing = roundActive && !decided && m.player1Id && m.player2Id;
+        const liveBadge = racing ? `<span class="tw-bk-live">● LIVE</span>` : "";
 
         const side = (pid, pname, wpm, isP1) => {
-            if (!pid) return `<div class="tw-tslot tw-tempty">—</div>`;
+            const slotNo = isP1 ? 1 : 2;
+            if (!pid) return `<div class="tw-bk-side tw-bk-empty" data-slot="${slotNo}">
+                <span class="tw-bk-ava">?</span><span class="tw-bk-pname">kutilmoqda…</span></div>`;
             const won = eq(m.winnerId, pid);
-            const cls = "tw-tslot" + (decided ? (won ? " tw-twon" : " tw-tlost") : "");
-            let metric = "";
-            if (decided) metric = `<span class="tw-tslot-wpm">${Math.round(wpm || 0)}</span>`;
-            else if (racing && lv) {
-                const sl = isP1 ? lv.p1 : lv.p2;
-                if (sl) metric = `<span class="tw-tslot-wpm${sl.fin ? " tw-tfin" : ""}">${Math.round(sl.wpm || 0)}</span>`;
-            }
-            const prog = (racing && lv) ? ((isP1 ? lv.p1 : lv.p2) || {}).prog || 0 : (decided ? 100 : 0);
-            const bar = racing ? `<span class="tw-tslot-bar"><span style="width:${prog}%"></span></span>` : "";
-            const force = (isHost && racing) ? `<button class="tw-force" data-match="${m.id}" data-uid="${pid}" title="G'olib deb belgilash"><i class="bi bi-hand-thumbs-up"></i></button>` : "";
-            return `<div class="${cls}">
-                <span class="tw-tslot-name">${esc(pname || "?")}</span>${metric}${force}${bar}
+            const cls = "tw-bk-side" + (decided ? (won ? " tw-bk-won" : " tw-bk-lost") : "");
+            const lvSlot = lv ? (isP1 ? lv.p1 : lv.p2) : null;
+            let metricVal = 0, fin = false;
+            if (decided) metricVal = wpm || 0;
+            else if (racing && lvSlot) { metricVal = lvSlot.wpm || 0; fin = lvSlot.fin; }
+            const prog = (racing && lvSlot) ? (lvSlot.prog || 0) : (decided && won ? 100 : 0);
+            const showMetric = decided || racing;
+            const metric = `<span class="tw-bk-wpm${fin ? " tw-bk-fin" : ""}"${showMetric ? "" : ' style="visibility:hidden"'}>${Math.round(metricVal)}<small>wpm</small></span>`;
+            const force = (isHost && racing) ? `<button class="tw-bk-force" data-match="${m.id}" data-uid="${pid}" title="G'olib deb belgilash"><i class="bi bi-hand-thumbs-up-fill"></i></button>` : "";
+            const crown = (decided && won) ? `<i class="bi bi-trophy-fill tw-bk-crown"></i>` : "";
+            return `<div class="${cls}" data-slot="${slotNo}">
+                <span class="tw-bk-ava" style="--c:${avatarColor(pname)}">${initials(pname)}</span>
+                <span class="tw-bk-pname">${esc(pname || "?")}</span>
+                ${crown}${metric}${force}
+                <span class="tw-bk-bar"><span style="width:${prog}%"></span></span>
             </div>`;
         };
-        const liveBadge = racing ? `<span class="tw-tmatch-live">LIVE</span>` : "";
-        return `<div class="tw-tmatch${racing ? " tw-tmatch-racing" : ""}">
+
+        return `<div class="tw-bk-match${racing ? " tw-bk-racing" : ""}${decided ? " tw-bk-decided" : ""}${isFinal ? " tw-bk-match--final" : ""}" id="tw-bk-${m.id}">
             ${liveBadge}
             ${side(m.player1Id, m.player1, m.player1Wpm, true)}
+            <span class="tw-bk-vs">VS</span>
             ${side(m.player2Id, m.player2, m.player2Wpm, false)}
         </div>`;
     }
@@ -492,7 +538,25 @@
         updateBracketMatch(d.matchId);
     }
 
-    function updateBracketMatch(matchId) { if (detail) renderBracket(detail.info); }
+    // Live progress — faqat o'zgargan o'yinni joyida yangilaymiz (to'liq qayta chizmaymiz, silliq bo'lsin)
+    function updateBracketMatch(matchId) {
+        const lv = live[matchId]; if (!lv) return;
+        const el = $("tw-bk-" + matchId);
+        if (!el) { if (detail) renderBracket(detail.info); return; }
+        [["1", lv.p1], ["2", lv.p2]].forEach(([slot, s]) => {
+            if (!s) return;
+            const side = el.querySelector(`.tw-bk-side[data-slot="${slot}"]`);
+            if (!side) return;
+            const bar = side.querySelector(".tw-bk-bar > span");
+            if (bar) bar.style.width = (s.prog || 0) + "%";
+            const wpm = side.querySelector(".tw-bk-wpm");
+            if (wpm) {
+                wpm.style.visibility = "";
+                wpm.classList.toggle("tw-bk-fin", !!s.fin);
+                wpm.firstChild ? wpm.firstChild.textContent = Math.round(s.wpm || 0) : wpm.textContent = Math.round(s.wpm || 0);
+            }
+        });
+    }
 
     function onMatchDecided(d) {
         // bracket loadDetail (StateChanged) bilan yangilanadi; bu yerda mening o'yinim natijasi

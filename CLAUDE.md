@@ -339,6 +339,23 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-17] /Tournaments — qatnashish + host drop + hoziroq boshlash + kuchli playoff dizayn:
+    (1) MUHIM TUZATISH: API enumlarni JsonStringEnumConverter bilan STRING ("Registration"/
+    "InProgress"/"Finished") qaytaradi, lekin tournaments.js/tournament.js status'ni RAQAM bilan
+    (===0) solishtirardi — shu sabab /Tournament'da ro'yxat bo'limi (#tw-reg) doim d-none qolib,
+    HECH KIM QATNASHA OLMAYDI edi. statusKey() helper (string→raqam) qo'shildi, render()'da
+    info.status normallashtiriladi; barcha taqqoslashlar tuzaldi. (2) /Tournaments ro'yxatiga
+    to'g'ridan-to'g'ri "Qatnashish" tugmasi (Registration), "Jonli kuzatish" (InProgress),
+    "Natijalar" (Finished) + sig'im bari; join → register → /Tournament. (3) Host "drop":
+    DropTournamentPlayerCommand (host-only, Registration-only, qayta seed) + /api/tournaments/
+    {id}/drop, seed ro'yxatida x tugmasi. (4) Hoziroq boshlash: host start tugmasi StartAt'dan
+    qat'i nazar ishlaydi (label belgilangan vaqtdan oldin "Hoziroq boshlash"). (5) Kuchli playoff
+    bracket dizayni: round ustunlari (header pill, final urg'usi), avatar (initial+rang)li match
+    kartalari, VS, ulagich chiziqlar, LIVE pulse, g'olib glow/toj, gradient progress barlar,
+    live progress JOYIDA yangilanadi (to'liq qayta chizilmaydi → silliq). Chempion banner
+    animatsiyali. site.css tw-bk-*/tw-titem-btn/tw-seed-ava/champIn. sw.js cache v27. Build OK,
+    82 test, /Tournaments+/Tournament 200, drop 401(unauth), reg bo'limi headless'da ko'rinishi
+    tasdiqlandi.
   - [2026-06-17] /Tournaments butunlay qayta loyihalashtirildi — LIVE playoff turnir
     (head-to-head poyga, host boshqaruvi, tomoshabin havolasi):
     (1) Backend modeli: Tournament.HostId qo'shildi; TournamentMatch'ga ball maydonlari

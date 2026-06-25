@@ -17,6 +17,9 @@
     const esc = s => String(s || "").replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
     const STATUS = { 0: "Ro'yxat ochiq", 1: "Davom etmoqda", 2: "Tugagan" };
     const STATUS_CLASS = { 0: "tw-st-reg", 1: "tw-st-live", 2: "tw-st-done" };
+    // Backend enumni STRING qaytaradi — raqamga normallashtiramiz
+    const statusKey = s => typeof s === "number" ? s
+        : ({ Registration: 0, InProgress: 1, Finished: 2 }[s] ?? -1);
 
     let capacity = 16;
 
@@ -69,6 +72,28 @@
         });
     }
 
+    const isAuth = root.dataset.authenticated === "true";
+
+    function actionFor(t) {
+        const full = t.playerCount >= t.capacity;
+        if (t.status === 0) {   // statusKey orqali normallashtirilgan
+            if (full) return `<a class="tw-titem-btn tw-titem-btn--watch" href="/Tournament?id=${t.id}"><i class="bi bi-eye"></i> To'lgan — ko'rish</a>`;
+            return `<button type="button" class="tw-titem-btn tw-titem-btn--join" data-join="${t.id}"><i class="bi bi-person-plus-fill"></i> Qatnashish</button>`;
+        }
+        if (t.status === 1) return `<a class="tw-titem-btn tw-titem-btn--live" href="/Tournament?id=${t.id}"><i class="bi bi-broadcast"></i> Jonli kuzatish</a>`;
+        return `<a class="tw-titem-btn tw-titem-btn--watch" href="/Tournament?id=${t.id}"><i class="bi bi-bar-chart-line"></i> Natijalar</a>`;
+    }
+
+    async function joinTournament(tid) {
+        if (!isAuth) { window.location.href = "/Login"; return; }
+        try {
+            const r = await fetch(`/api/tournaments/${tid}/register`, { method: "POST", credentials: "same-origin" });
+            if (r.status === 401) { window.location.href = "/Login"; return; }
+            // Muvaffaqiyatli yoki allaqachon ro'yxatda — bracket sahifasiga o'tamiz
+            window.location.href = "/Tournament?id=" + tid;
+        } catch { window.location.href = "/Tournament?id=" + tid; }
+    }
+
     async function load() {
         try {
             const r = await fetch("/api/tournaments", { credentials: "same-origin" });
@@ -76,21 +101,28 @@
             const items = await r.json();
             if (!items.length) { listEl.innerHTML = `<li class="tw-tlist-empty">Hali turnir yo'q. Birinchi bo'lib yarating!</li>`; return; }
             listEl.innerHTML = items.map(t => {
+                t.status = statusKey(t.status);
                 const when = new Date(t.startAt).toLocaleString();
                 const sc = STATUS_CLASS[t.status] || "";
+                const pct = Math.min(100, Math.round((t.playerCount / Math.max(1, t.capacity)) * 100));
                 return `<li class="tw-titem">
                     <a class="tw-titem-link" href="/Tournament?id=${t.id}">
                         <span class="tw-titem-top">
-                            <span class="tw-titem-name">${esc(t.name)}</span>
+                            <span class="tw-titem-name"><i class="bi bi-trophy"></i> ${esc(t.name)}</span>
                             <span class="tw-tbadge ${sc}">${STATUS[t.status] || t.status}</span>
                         </span>
                         <span class="tw-titem-meta">
                             <span><i class="bi bi-people"></i> ${t.playerCount}/${t.capacity}</span>
                             <span><i class="bi bi-clock"></i> ${esc(when)}</span>
                         </span>
+                        <span class="tw-titem-cap"><span style="width:${pct}%"></span></span>
                     </a>
+                    <div class="tw-titem-action">${actionFor(t)}</div>
                 </li>`;
             }).join("");
+
+            listEl.querySelectorAll("[data-join]").forEach(b =>
+                b.addEventListener("click", e => { e.preventDefault(); joinTournament(b.dataset.join); }));
         } catch { /* jim */ }
     }
 

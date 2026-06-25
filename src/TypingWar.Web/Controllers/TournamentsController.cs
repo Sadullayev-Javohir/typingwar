@@ -48,4 +48,15 @@ public class TournamentsController : ApiControllerBase
         await Mediator.Send(new SetSeedOrderCommand(id, req.OrderedUserIds ?? new List<Guid>()));
         return Ok();
     }
+
+    public record DropPlayerRequest(Guid UserId);
+
+    /// <summary>Host bracketdan o'yinchini chiqaradi (faqat ro'yxat bosqichida).</summary>
+    [Authorize]
+    [HttpPost("{id:guid}/drop")]
+    public async Task<IActionResult> Drop(Guid id, [FromBody] DropPlayerRequest req)
+    {
+        await Mediator.Send(new DropTournamentPlayerCommand(id, req.UserId));
+        return Ok();
+    }
 }
