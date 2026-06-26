@@ -339,6 +339,23 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-17] /Tournament — gepard kubogi qayta quruldi + matn turi tuzatildi:
+    (1) MATN TURI BUG: turnir yaratishda "So'z" (10 ta) tanlansa ham doim Iqtibos matni chiqardi.
+    Sabab: TournamentsController.Create Settings'ni `object?` (JsonElement) sifatida bog'lab,
+    JS camelCase kalitlarini (language/textMode/wordCount) saqlardi; BuildTextRequest esa
+    `RoomRaceSettings`'ga case-SENSITIVE deserialize qilib, PascalCase kutardi → barchasi
+    standartga (Sentences/Iqtibos) tushib qolardi. Tuzatildi: Create endi typed `RoomRaceSettings?`
+    bilan bog'laydi (Rooms kabi → PascalCase saqlanadi) + BuildTextRequest case-insensitive
+    (eski camelCase yozuvlar uchun). Endi qaysi rejim tanlansa o'sha matn chiqadi.
+    (2) 3D GEPARD KUBOGI QAYTA QURILDI: avval gepard SAKRASH pozasida edi, boshi kamera kadridan
+    yuqorida qolib KO'RINMASDI. Endi g'urur bilan O'TIRGAN, kameraga to'g'ridan-to'g'ri QARAGAN
+    gepard: aniq bosh (dumaloq quloqlar+ichi, oldinga qaragan ko'zlar+chaqnoq, tumshuq+burun+og'iz,
+    GEPARD BELGISI ko'z yoshi chiziqlari), tik old oyoqlar kosa labida, bukilgan orqa oyoqlar,
+    uzun yon-yuqoriga jingalak dum, va tanada qora XOLLAR (gepard naqshi). Bosh tirik harakatlanadi
+    (atrofga nazar+nafas). Kamera qayta sozlandi (fov 36, pos 0/2.35/9.6, lookAt 0/2.05/0) — butun
+    kubok poydevordan boshigacha kadrga sig'adi. celebrate()/konfetti/uchqun/nur saqlandi.
+    sw.js cache v29. Build OK, 97 test, headless Chrome (angle/swiftshader): canvas+WebGL+TWTrophy
+    xatosiz, chempion celebrate yo'li xatosiz tasdiqlandi.
   - [2026-06-17] /Tournament — host o'chirish + avtomatik bracket + PLAYOFF MARKAZIDA 3D OLTIN
     GEPARD KUBOGI (three.js):
     (1) Host turnirni o'chiradi: DeleteTournamentCommand (host-only, istalgan bosqichda — o'yinlar+

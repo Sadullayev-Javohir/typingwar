@@ -23,9 +23,10 @@ const ACCENT = 0xff9900;
     const H = () => mount.clientHeight || 340;
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(34, W() / H(), 0.1, 100);
-    camera.position.set(0, 2.0, 8.2);
-    camera.lookAt(0, 1.55, 0);
+    const camera = new THREE.PerspectiveCamera(36, W() / H(), 0.1, 100);
+    // Butun kubok (poydevordan gepard boshigacha, ~y 0..4.1) kadrga sig'sin
+    camera.position.set(0, 2.35, 9.6);
+    camera.lookAt(0, 2.05, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(W(), H());
@@ -42,13 +43,13 @@ const ACCENT = 0xff9900;
     const rim = new THREE.DirectionalLight(ACCENT, 1.1);
     rim.position.set(-4, 2, -3); scene.add(rim);
     // Kubokdan TARALADIGAN oltin nur
-    const glow = new THREE.PointLight(GOLD, 2.2, 16, 1.6);
-    glow.position.set(0, 2.0, 0.6); scene.add(glow);
-    const glow2 = new THREE.PointLight(BRIGHT, 1.2, 10, 2);
-    glow2.position.set(0, 3.2, 0.4); scene.add(glow2);
+    const glow = new THREE.PointLight(GOLD, 2.2, 18, 1.6);
+    glow.position.set(0, 2.4, 0.8); scene.add(glow);
+    const glow2 = new THREE.PointLight(BRIGHT, 1.3, 12, 2);
+    glow2.position.set(0, 3.7, 0.5); scene.add(glow2);
     // Aylanuvchi spot (yuzaga uchqunlar o'ynashi uchun)
-    const spot = new THREE.SpotLight(BRIGHT, 1.6, 14, Math.PI / 6, 0.6, 1.2);
-    spot.position.set(2.5, 5, 3); spot.target.position.set(0, 2, 0);
+    const spot = new THREE.SpotLight(BRIGHT, 1.6, 16, Math.PI / 6, 0.6, 1.2);
+    spot.position.set(2.5, 5.5, 3.5); spot.target.position.set(0, 2.6, 0);
     scene.add(spot); scene.add(spot.target);
 
     // ───── Materiallar ─────
@@ -101,61 +102,102 @@ const ACCENT = 0xff9900;
     }
     handle(1); handle(-1);
 
-    // ═════════ Sakrab turgan OLTIN GEPARD (kosa ustida) ═════════
-    const cub = new THREE.Group();
-    cub.position.set(0, 3.18, 0);
-    cub.scale.setScalar(0.92);
-    trophy.add(cub);
+    // ═════════ G'URUR BILAN O'TIRGAN OLTIN GEPARD (kosa ustida, kameraga qaragan) ═════════
+    // +Z = kameraga qarab. Bosh aniq ko'rinadi: quloqlar, ko'zlar, tumshuq,
+    // gepardning belgisi — ko'z yoshi chiziqlari, va tanada qora xollar.
+    const cat = new THREE.Group();
+    cat.position.set(0, 2.98, 0);   // kosa labida o'tiradi
+    cat.scale.setScalar(0.95);
+    trophy.add(cat);
 
-    // tana (cho'zilgan, sakrash holatida — biroz oldinga engashgan)
-    const torso = part(new THREE.CapsuleGeometry(0.34, 0.78, 10, 18), goldMat);
-    torso.rotation.z = Math.PI / 2; torso.rotation.y = 0.15; torso.rotation.x = -0.12;
-    torso.position.set(0, 0.55, 0); cub.add(torso);
-    // ko'krak
-    const chest = part(new THREE.SphereGeometry(0.32, 18, 16), goldMat);
-    chest.position.set(0.5, 0.6, 0); chest.scale.set(0.9, 1, 0.9); cub.add(chest);
-    // dumba
-    const haunch = part(new THREE.SphereGeometry(0.36, 18, 16), goldMat);
-    haunch.position.set(-0.5, 0.56, 0); cub.add(haunch);
-
-    // bo'yin + bosh (yuqoriga ko'tarilgan — g'urur bilan)
-    const neck = part(new THREE.CylinderGeometry(0.17, 0.24, 0.5, 16), goldMat);
-    neck.position.set(0.74, 0.92, 0); neck.rotation.z = -0.7; cub.add(neck);
-    const head = new THREE.Group(); head.position.set(0.98, 1.18, 0); cub.add(head);
-    const skull = part(new THREE.SphereGeometry(0.28, 18, 16), goldMat);
-    skull.scale.set(1, 0.95, 0.92); head.add(skull);
-    const snout = part(new THREE.CylinderGeometry(0.12, 0.18, 0.28, 14), goldMat);
-    snout.rotation.z = -Math.PI / 2 - 0.15; snout.position.set(0.27, -0.04, 0); head.add(snout);
-    const nose = part(new THREE.SphereGeometry(0.07, 10, 10), darkMat);
-    nose.position.set(0.42, -0.02, 0); head.add(nose);
-    [-1, 1].forEach((s) => {
-        const ear = part(new THREE.ConeGeometry(0.12, 0.2, 14), goldMat);
-        ear.position.set(-0.05, 0.26, 0.16 * s); ear.rotation.x = 0.3 * s; head.add(ear);
-        const eye = part(new THREE.SphereGeometry(0.055, 12, 12), eyeMat);
-        eye.position.set(0.18, 0.06, 0.14 * s); head.add(eye);
-        // ko'z yoshi chizig'i (gepard belgisi)
-        const tear = part(new THREE.BoxGeometry(0.04, 0.2, 0.03), darkMat);
-        tear.position.set(0.2, -0.12, 0.12 * s); tear.rotation.z = 0.4; head.add(tear);
+    // ── dumba / o'tirgan tag qismi (orqada) ──
+    const rump = part(new THREE.SphereGeometry(0.46, 22, 18), goldMat);
+    rump.position.set(0, 0.42, -0.34); rump.scale.set(1, 0.92, 1.05); cat.add(rump);
+    // bukilgan orqa oyoq (har ikki yon) — o'tirgan holat
+    [-1, 1].forEach(s => {
+        const thigh = part(new THREE.SphereGeometry(0.27, 16, 14), goldMat);
+        thigh.position.set(0.34 * s, 0.34, -0.05); thigh.scale.set(0.85, 0.95, 1.25); cat.add(thigh);
+        const shin = part(new THREE.CapsuleGeometry(0.1, 0.34, 8, 14), goldMat);
+        shin.position.set(0.36 * s, 0.16, 0.28); shin.rotation.x = 0.5; cat.add(shin);
+        const hpaw = part(new THREE.SphereGeometry(0.13, 12, 10), goldMat);
+        hpaw.position.set(0.36 * s, 0.06, 0.46); hpaw.scale.set(1, 0.7, 1.3); cat.add(hpaw);
     });
 
-    // oyoqlar (sakrash — old oldinga, orqa orqaga cho'zilgan)
-    function leg(x, z, ang) {
-        const upper = part(new THREE.CylinderGeometry(0.09, 0.07, 0.5, 12), goldMat);
-        upper.position.set(x, 0.3, z); upper.rotation.z = ang; cub.add(upper);
-        const paw = part(new THREE.SphereGeometry(0.1, 12, 10), brightMat);
-        paw.position.set(x + Math.sin(ang) * 0.3, 0.06, z); cub.add(paw);
-        return upper;
-    }
-    leg(0.62, 0.22, -0.9);  leg(0.62, -0.22, -0.9);   // old oyoqlar oldinga
-    leg(-0.6, 0.22, 0.95);  leg(-0.6, -0.22, 0.95);   // orqa oyoqlar orqaga
+    // ── tana (dumbadan ko'kragacha ko'tarilgan) ──
+    const torso = part(new THREE.CapsuleGeometry(0.36, 0.5, 12, 20), goldMat);
+    torso.position.set(0, 0.72, -0.02); torso.rotation.x = 0.36; cat.add(torso);
+    // ko'krak (oldinga, kameraga) — tik o'tirgan gepardning kuchli ko'kragi
+    const chest = part(new THREE.SphereGeometry(0.36, 20, 18), goldMat);
+    chest.position.set(0, 0.96, 0.2); chest.scale.set(0.92, 1.05, 0.95); cat.add(chest);
 
-    // uzun dum (yuqoriga jingalak)
-    const tailCurve = [[-0.86, 0.55, 0], [-1.15, 0.7, 0.05], [-1.3, 1.05, 0.0], [-1.25, 1.4, -0.05], [-1.0, 1.6, 0]];
+    // ── tik old oyoqlar (kosa labiga tushadi) ──
+    [-1, 1].forEach(s => {
+        const fore = part(new THREE.CapsuleGeometry(0.11, 0.66, 10, 16), goldMat);
+        fore.position.set(0.2 * s, 0.46, 0.42); fore.rotation.x = 0.08; cat.add(fore);
+        const fpaw = part(new THREE.SphereGeometry(0.14, 14, 12), brightMat);
+        fpaw.position.set(0.2 * s, 0.1, 0.5); fpaw.scale.set(1, 0.7, 1.35); cat.add(fpaw);
+    });
+
+    // ── bo'yin + bosh (g'urur bilan tik, kameraga qaragan) ──
+    const neck = part(new THREE.CylinderGeometry(0.2, 0.27, 0.42, 18), goldMat);
+    neck.position.set(0, 1.24, 0.16); neck.rotation.x = 0.18; cat.add(neck);
+
+    const head = new THREE.Group();
+    head.position.set(0, 1.5, 0.24);
+    cat.add(head);
+    const skull = part(new THREE.SphereGeometry(0.3, 22, 18), goldMat);
+    skull.scale.set(1, 0.96, 0.98); head.add(skull);
+    // tumshuq (kameraga, +Z)
+    const muzzle = part(new THREE.CylinderGeometry(0.15, 0.2, 0.26, 16), goldMat);
+    muzzle.rotation.x = Math.PI / 2; muzzle.position.set(0, -0.1, 0.24); muzzle.scale.set(1, 1, 0.9); head.add(muzzle);
+    const nose = part(new THREE.SphereGeometry(0.08, 12, 12), darkMat);
+    nose.position.set(0, -0.07, 0.38); nose.scale.set(1.2, 0.8, 1); head.add(nose);
+    // og'iz chizig'i
+    const mouth = part(new THREE.BoxGeometry(0.16, 0.025, 0.03), darkMat);
+    mouth.position.set(0, -0.2, 0.34); head.add(mouth);
+
+    [-1, 1].forEach((s) => {
+        // dumaloq quloqlar (gepardga xos)
+        const ear = part(new THREE.SphereGeometry(0.12, 14, 12), goldMat);
+        ear.position.set(0.16 * s, 0.28, -0.02); ear.scale.set(0.8, 1, 0.55); head.add(ear);
+        const earIn = part(new THREE.SphereGeometry(0.07, 12, 10), darkMat);
+        earIn.position.set(0.16 * s, 0.28, 0.03); earIn.scale.set(0.7, 0.9, 0.5); head.add(earIn);
+        // ko'zlar (oldinga qaragan)
+        const eye = part(new THREE.SphereGeometry(0.06, 14, 12), eyeMat);
+        eye.position.set(0.13 * s, 0.07, 0.27); head.add(eye);
+        const glint = part(new THREE.SphereGeometry(0.018, 8, 8), brightMat);
+        glint.position.set(0.15 * s, 0.1, 0.31); head.add(glint);
+        // GEPARD BELGISI — ko'z yoshi chizig'i (ko'zdan tumshuqgacha qora yo'l)
+        const tear = part(new THREE.BoxGeometry(0.035, 0.26, 0.02), darkMat);
+        tear.position.set(0.1 * s, -0.1, 0.3); tear.rotation.z = 0.18 * s; head.add(tear);
+    });
+
+    // ── uzun dum (gepardning uzun dumi — yonidan yuqoriga jingalak) ──
+    const tailCurve = [
+        [-0.05, 0.42, -0.4], [0.34, 0.24, -0.5], [0.66, 0.22, -0.5],
+        [0.86, 0.46, -0.42], [0.9, 0.82, -0.3], [0.74, 1.06, -0.18]
+    ];
     const tailSegs = [];
     tailCurve.forEach((p, i) => {
-        const seg = part(new THREE.SphereGeometry(0.13 - i * 0.012, 12, 10), i >= 3 ? darkMat : goldMat);
-        seg.position.set(p[0], p[1], p[2]); cub.add(seg); tailSegs.push(seg);
+        const seg = part(new THREE.SphereGeometry(0.15 - i * 0.013, 14, 12), i >= 4 ? darkMat : goldMat);
+        seg.position.set(p[0], p[1], p[2]); cat.add(seg); tailSegs.push(seg);
     });
+
+    // ── gepard xollari (tanada qora dog'lar — oltin yuzada urg'u) ──
+    const spotMat = new THREE.MeshStandardMaterial({ color: 0x3a2607, metalness: 0.85, roughness: 0.5 });
+    function spot3d(parent, r, count) {
+        for (let i = 0; i < count; i++) {
+            const u = Math.random() * Math.PI - Math.PI * 0.15;   // old/yon tomonga
+            const v = (Math.random() - 0.2) * Math.PI * 0.8;
+            const sp = part(new THREE.SphereGeometry(0.035 + Math.random() * 0.02, 8, 8), spotMat);
+            sp.position.set(Math.sin(v) * Math.cos(u) * r, Math.cos(v) * r * 0.9, Math.abs(Math.sin(u)) * r);
+            sp.scale.set(1, 1, 0.4);
+            parent.add(sp);
+        }
+    }
+    spot3d(rump, 0.46, 7);
+    spot3d(chest, 0.36, 5);
+    spot3d(torso, 0.36, 4);
 
     // ───── Uchqunlar (kubok atrofida orbitada uchadi) ─────
     const sparks = [];
@@ -163,8 +205,8 @@ const ACCENT = 0xff9900;
         const s = new THREE.Mesh(new THREE.SphereGeometry(0.05, 6, 6),
             new THREE.MeshBasicMaterial({ color: i % 2 ? BRIGHT : ACCENT, transparent: true, opacity: 0.9 }));
         s.userData = {
-            r: 1.4 + Math.random() * 1.6, a: Math.random() * Math.PI * 2,
-            y: 0.6 + Math.random() * 3.2, sp: 0.4 + Math.random() * 0.8, ph: Math.random() * 6
+            r: 1.4 + Math.random() * 1.7, a: Math.random() * Math.PI * 2,
+            y: 0.5 + Math.random() * 4.0, sp: 0.4 + Math.random() * 0.8, ph: Math.random() * 6
         };
         scene.add(s); sparks.push(s);
     }
@@ -180,7 +222,7 @@ const ACCENT = 0xff9900;
     }
     function burst() {
         for (const c of confetti) {
-            c.position.set((Math.random() - 0.5) * 0.6, 3.4, (Math.random() - 0.5) * 0.6);
+            c.position.set((Math.random() - 0.5) * 0.6, 4.1, (Math.random() - 0.5) * 0.6);
             c.userData.life = 2.4 + Math.random() * 1.4;
             c.userData.vx = (Math.random() - 0.5) * 4.5;
             c.userData.vy = 3.5 + Math.random() * 3.5;
@@ -234,6 +276,9 @@ const ACCENT = 0xff9900;
 
         // dum silkinishi
         tailSegs.forEach((seg, i) => { if (i >= 2) seg.position.x = tailCurve[i][0] + Math.sin(t * 3 - i) * 0.05; });
+        // bosh tirik harakati (atrofga nazar) + nafas
+        head.rotation.y = Math.sin(t * 0.7) * 0.14;
+        head.position.y = 1.5 + Math.sin(t * 1.6) * 0.016;
 
         // uchqunlar orbitada
         for (const s of sparks) {

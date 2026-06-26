@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using System.Text.Json;
+using TypingWar.Application.Features.Rooms;
 using TypingWar.Application.Features.Tournaments;
 using TypingWar.Infrastructure.Realtime;
 using TypingWar.Web.Hubs;
@@ -23,12 +24,14 @@ public class TournamentsController : ApiControllerBase
         return t is null ? NotFound(new { error = "Turnir topilmadi." }) : Ok(t);
     }
 
-    public record CreateTournamentRequest(string Name, int Capacity, DateTime StartAt, object? Settings);
+    public record CreateTournamentRequest(string Name, int Capacity, DateTime StartAt, RoomRaceSettings? Settings);
 
     [Authorize]
     [HttpPost]
     public async Task<ActionResult<object>> Create([FromBody] CreateTournamentRequest req)
     {
+        // Typed bilan bog'laymiz (Rooms kabi) — keyin PascalCase JSON saqlanadi,
+        // shu sababli BuildTextRequest matn turini (so'z/iqtibos) to'g'ri o'qiydi.
         var settingsJson = req.Settings is null ? null : JsonSerializer.Serialize(req.Settings);
         var id = await Mediator.Send(new CreateTournamentCommand(req.Name, req.Capacity, req.StartAt, settingsJson));
         return Ok(new { id });

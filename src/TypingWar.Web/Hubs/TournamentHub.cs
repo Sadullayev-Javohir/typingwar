@@ -354,11 +354,13 @@ public class TournamentHub : Hub
         });
     }
 
+    private static readonly JsonSerializerOptions CaseInsensitive = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Host tanlagan sozlamalardan (JSON) matn so'rovini quradi (Rooms bilan bir xil).</summary>
     private static PracticeTextRequest BuildTextRequest(string settingsJson)
     {
         RoomRaceSettings s;
-        try { s = JsonSerializer.Deserialize<RoomRaceSettings>(settingsJson) ?? new RoomRaceSettings(); }
+        try { s = JsonSerializer.Deserialize<RoomRaceSettings>(settingsJson, CaseInsensitive) ?? new RoomRaceSettings(); }
         catch { s = new RoomRaceSettings(); }
 
         var mode = Enum.TryParse<TextMode>(s.TextMode, true, out var m) ? m : TextMode.Sentences;
