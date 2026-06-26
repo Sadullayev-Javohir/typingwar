@@ -43,26 +43,77 @@ public class TournamentBracketTests
     }
 
     [Fact]
-    public void Build_FirstRoundFillsPlayersInOrder()
+    public void Build_FirstRoundUsesStandardSeeding()
     {
+        // Standart seeding (4lik): slotlar [1,4] va [2,3] — seed 1 va 2 qarama-qarshi yarmida.
         var players = Enumerable.Range(0, 4).Select(_ => Guid.NewGuid()).ToList();
         var slots = TournamentBracket.Build(4, players);
         var first = slots.Where(s => s.Round == 1).OrderBy(s => s.Index).ToList();
 
-        Assert.Equal(players[0], first[0].Player1Id);
-        Assert.Equal(players[1], first[0].Player2Id);
-        Assert.Equal(players[2], first[1].Player1Id);
-        Assert.Equal(players[3], first[1].Player2Id);
+        Assert.Equal(players[0], first[0].Player1Id); // seed 1
+        Assert.Equal(players[3], first[0].Player2Id); // seed 4
+        Assert.Equal(players[1], first[1].Player1Id); // seed 2
+        Assert.Equal(players[2], first[1].Player2Id); // seed 3
     }
 
     [Fact]
-    public void Build_FewerPlayers_LeavesByes()
+    public void Build_FewerPlayers_TopSeedGetsBye()
     {
+        // 3 o'yinchi, 4lik bracket: eng kuchli seed (1) bye oladi, seed 2 va 3 o'zaro o'ynaydi.
         var players = Enumerable.Range(0, 3).Select(_ => Guid.NewGuid()).ToList();
         var slots = TournamentBracket.Build(4, players);
-        var second = slots.First(s => s.Round == 1 && s.Index == 1);
-        Assert.Equal(players[2], second.Player1Id);
-        Assert.Null(second.Player2Id); // bye
+        var m0 = slots.First(s => s.Round == 1 && s.Index == 0);
+        var m1 = slots.First(s => s.Round == 1 && s.Index == 1);
+
+        Assert.Equal(players[0], m0.Player1Id); // seed 1
+        Assert.Null(m0.Player2Id);              // bye
+        Assert.Equal(players[1], m1.Player1Id); // seed 2
+        Assert.Equal(players[2], m1.Player2Id); // seed 3 — 2 va 3 o'zaro, g'olib finalda seed 1 bilan
+    }
+
+    [Theory]
+    [InlineData(2, 2)]
+    [InlineData(3, 4)]
+    [InlineData(4, 4)]
+    [InlineData(5, 8)]
+    [InlineData(8, 8)]
+    [InlineData(9, 16)]
+    [InlineData(16, 16)]
+    [InlineData(31, 32)]
+    [InlineData(1, 2)]
+    public void EffectiveCapacity_RoundsUpToPowerOfTwo(int playerCount, int expected)
+        => Assert.Equal(expected, TournamentBracket.EffectiveCapacity(playerCount));
+
+    [Fact]
+    public void Build_FivePlayers_ByesSplitAcrossBothHalves()
+    {
+        // 5 o'yinchi, 8lik bracket: byelar o'ng va chap yarmiga taqsimlanadi (bir tomonga to'planmaydi).
+        var players = Enumerable.Range(0, 5).Select(_ => Guid.NewGuid()).ToList();
+        var slots = TournamentBracket.Build(8, players).Where(s => s.Round == 1).OrderBy(s => s.Index).ToList();
+
+        bool HasBye(TournamentBracket.Slot s) => s.Player1Id is null || s.Player2Id is null;
+        // Chap yarim = slot 0,1 ; o'ng yarim = slot 2,3
+        Assert.True(HasBye(slots[0]) || HasBye(slots[1]), "Chap yarmida kamida bitta bye bo'lishi kerak.");
+        Assert.True(HasBye(slots[2]) || HasBye(slots[3]), "O'ng yarmida kamida bitta bye bo'lishi kerak.");
+    }
+
+    [Theory]
+    [InlineData(2)]
+    [InlineData(4)]
+    [InlineData(8)]
+    [InlineData(16)]
+    [InlineData(32)]
+    public void SeedOrder_IsPermutationOfAllSeeds(int capacity)
+    {
+        var order = TournamentBracket.SeedOrder(capacity);
+        Assert.Equal(capacity, order.Length);
+        Assert.Equal(Enumerable.Range(1, capacity).OrderBy(x => x), order.OrderBy(x => x));
+        // Seed 1 va seed 2 har doim qarama-qarshi yarmida (faqat finalda uchrashadi)
+        if (capacity >= 4)
+        {
+            int i1 = Array.IndexOf(order, 1), i2 = Array.IndexOf(order, 2);
+            Assert.True((i1 < capacity / 2) != (i2 < capacity / 2));
+        }
     }
 
     [Fact]

@@ -33,8 +33,13 @@ public class StartTournamentCommandHandler : IRequestHandler<StartTournamentComm
         if (players.Count < 2)
             throw new InvalidOperationException("Turnir uchun kamida 2 o'yinchi kerak.");
 
+        // Bracketni HAQIQIY ishtirokchilar soniga moslaymiz (host belgilagan sig'imdan qat'i nazar).
+        // 3 kishi → 4lik bracket (1 bye), 5 kishi → 8lik bracket (3 bye o'ng/chap teng) va h.k.
+        int effective = TournamentBracket.EffectiveCapacity(players.Count);
+        tournament.Capacity = effective;
+
         var playerIds = players.Select(p => p.UserId).ToList();
-        var slots = TournamentBracket.Build(tournament.Capacity, playerIds);
+        var slots = TournamentBracket.Build(effective, playerIds);
 
         // Slotlardan match entity lar
         var matches = slots.Select(s => new TournamentMatch

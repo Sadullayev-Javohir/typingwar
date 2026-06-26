@@ -339,6 +339,26 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-17] /Tournament — host o'chirish + avtomatik bracket + PLAYOFF MARKAZIDA 3D OLTIN
+    GEPARD KUBOGI (three.js):
+    (1) Host turnirni o'chiradi: DeleteTournamentCommand (host-only, istalgan bosqichda — o'yinlar+
+    ishtirokchilar bilan), DELETE /api/tournaments/{id} (live state tozalanadi + tomoshabinlarga
+    "TournamentDeleted" → /Tournaments ga qaytadi), /Tournament sarlavhasida "Turnirni o'chirish"
+    (tw-rbtn--danger, faqat host). (2) Bracket HAQIQIY ishtirokchilarga avtomatik moslanadi:
+    TournamentBracket.EffectiveCapacity (3→4, 5→8, 9→16; host belgilagan sig'im faqat ro'yxat
+    CHEGARASI), SeedOrder (standart playoff seeding — kuchli seedlar qarama-qarshi yarmida, byelar
+    o'ng/CHAP teng taqsimlanadi), Build standart seeding'ga o'tdi. StartTournament start vaqtida
+    Capacity = EffectiveCapacity(registered). Misol: 4 belgilab 3 kelsa → seed1 bye, seed2 vs seed3,
+    ikkalasi finalga; 32 belgilab 5 kelsa → 8lik bracket, byelar 2 yarimga bo'linadi; 2 kishi → faqat
+    final (byesiz). 8 yangi/yangilangan unit test (jami 97). (3) PLAYOFF markazida 3D oltin gepard
+    kubogi (tournament-trophy.js, ES modul, /lib/three): chalice (lathe kosa + 2 dasta + pedestal +
+    chempion plaketkasi) ustida sakrab turgan oltin gepard (bosh/quloq/ko'z yoshi chizig'i/4 oyoq/
+    uzun dum); doimo aylanadi, oltin nur taratadi (2 point light + emissive puls + aylanuvchi spot +
+    orbitadagi uchqunlar). Turnir tugagach CHEMPION KUBOKNI OLADI: yorqin portlash + 90 konfetti +
+    chempion ismi (celebrate()/"tw-trophy-champion" eventi, tournament.js onFinished+banner'dan).
+    WebGL bo'lmasa CSS 🏆 fallback. site.css tw-trophy-*, tw-rbtn--danger; sw.js cache v28
+    (+tournament-trophy.js). Build OK, 97 test, /Tournament 200, DELETE 401(unauth), 3D modul
+    headless Chrome'da WebGL canvas (three.js r160) yaratishi + xatosiz yuklanishi tasdiqlandi.
   - [2026-06-17] /Tournaments — qatnashish + host drop + hoziroq boshlash + kuchli playoff dizayn:
     (1) MUHIM TUZATISH: API enumlarni JsonStringEnumConverter bilan STRING ("Registration"/
     "InProgress"/"Finished") qaytaradi, lekin tournaments.js/tournament.js status'ni RAQAM bilan
@@ -530,7 +550,7 @@ Hal qilinmagan muammolar:
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
   - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
-Oxirgi git commit: /Tournaments LIVE playoff turnir — head-to-head poyga, host boshqaruvi, bye/bracket avtomatik o'tish, yakuniy statistika, tomoshabin havolasi
+Oxirgi git commit: /Tournament — host o'chirish + avtomatik bracket (ishtirokchilarga moslash, byelar o'ng/chap teng) + playoff markazida 3D oltin gepard kubogi (aylanadi, nur taratadi, chempion oladi)
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.

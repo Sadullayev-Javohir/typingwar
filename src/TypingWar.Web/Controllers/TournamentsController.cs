@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Text.Json;
 using TypingWar.Application.Features.Tournaments;
+using TypingWar.Infrastructure.Realtime;
+using TypingWar.Web.Hubs;
 
 namespace TypingWar.Web.Controllers;
 
@@ -57,6 +60,23 @@ public class TournamentsController : ApiControllerBase
     public async Task<IActionResult> Drop(Guid id, [FromBody] DropPlayerRequest req)
     {
         await Mediator.Send(new DropTournamentPlayerCommand(id, req.UserId));
+        return Ok();
+    }
+
+    /// <summary>Host o'z turnirini butunlay o'chiradi (istalgan bosqichda). Tomoshabinlar xabardor qilinadi.</summary>
+    [Authorize]
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        await Mediator.Send(new DeleteTournamentCommand(id));
+
+        // Live holatni tozalash + ulangan tomoshabinlarni xabardor qilish
+        var state = HttpContext.RequestServices.GetService<TournamentLiveState>();
+        state?.Remove(id);
+        var hub = HttpContext.RequestServices.GetService<IHubContext<TournamentHub>>();
+        if (hub is not null)
+            await hub.Clients.Group($"tour-{id}").SendAsync("TournamentDeleted");
+
         return Ok();
     }
 }

@@ -22,6 +22,20 @@
     const statusKey = s => typeof s === "number" ? s
         : ({ Registration: 0, InProgress: 1, Finished: 2 }[s] ?? -1);
 
+    // ── Kubok: chempion g'alabasini bildirish (3D trophy modulга) ──
+    let trophyCelebrated = false;
+    function celebrateTrophy(name) {
+        if (trophyCelebrated) return;
+        trophyCelebrated = true;
+        const fire = () => {
+            if (window.TWTrophy && window.TWTrophy.celebrate) window.TWTrophy.celebrate(name);
+            else window.dispatchEvent(new CustomEvent("tw-trophy-champion", { detail: { name } }));
+        };
+        fire();
+        // modul keyinroq yuklansa — biroz keyin yana bir bor
+        setTimeout(fire, 400);
+    }
+
     // ── Holat ──
     let detail = null, conn = null;
     let isHost = false, isRegistered = false;
@@ -74,7 +88,13 @@
         // Chempion banner
         const champEl = $("tw-champion");
         champEl.classList.toggle("d-none", !info.champion);
-        if (info.champion) champEl.innerHTML = `<i class="bi bi-trophy-fill"></i> Chempion: <b>${esc(info.champion)}</b>`;
+        if (info.champion) {
+            champEl.innerHTML = `<i class="bi bi-trophy-fill"></i> Chempion: <b>${esc(info.champion)}</b>`;
+            celebrateTrophy(info.champion);   // chempion kubokni oladi
+        }
+
+        // Host: turnirni o'chirish tugmasi (istalgan bosqichda)
+        $("tw-tdelete").classList.toggle("d-none", !isHost);
 
         renderRegistration(info);
         renderHostBar(info);
@@ -456,6 +476,10 @@
         conn.on("MatchDecided", d => onMatchDecided(d));
         conn.on("RoundComplete", () => { roundActive = false; if (!eliminated && !iAmInActiveMatch()) showWaiting("Raund tugadi. Keyingisini kuting…"); if (detail) renderHostBar(detail.info); });
         conn.on("TournamentFinished", d => onFinished(d));
+        conn.on("TournamentDeleted", () => {
+            $("tw-terr").textContent = "Bu turnir o'chirildi. Turnirlar ro'yxatiga qaytmoqda…";
+            setTimeout(() => window.location.href = "/Tournaments", 1800);
+        });
 
         conn.onreconnected(() => conn.invoke("JoinTournament", id).catch(() => { }));
         conn.start().then(() => conn.invoke("JoinTournament", id)).catch(() => { $("tw-terr").textContent = "Ulanishda xatolik."; });
@@ -608,6 +632,7 @@
         roundActive = false;
         $("tw-stage").classList.add("d-none");
         $("tw-host-bar").classList.add("d-none");
+        if (d && d.champion) celebrateTrophy(d.champion);   // chempion kubokni oladi
         loadDetail(); // standings + champion
     }
 
@@ -621,6 +646,16 @@
     });
     $("tw-start").addEventListener("click", () => conn && conn.invoke("StartTournament", id).catch(() => { }));
     $("tw-startround").addEventListener("click", () => { $("tw-terr").textContent = ""; conn && conn.invoke("StartRound", id).catch(() => { }); });
+    $("tw-tdelete").addEventListener("click", async () => {
+        if (!confirm("Turnirni butunlay o'chirmoqchimisiz? Bu amalni bekor qilib bo'lmaydi.")) return;
+        try {
+            const r = await fetch("/api/tournaments/" + id, { method: "DELETE", credentials: "same-origin" });
+            if (r.ok) { window.location.href = "/Tournaments"; return; }
+            if (r.status === 401) { window.location.href = "/Login"; return; }
+            const b = await r.json().catch(() => ({}));
+            $("tw-terr").textContent = b.error || "O'chirishda xatolik.";
+        } catch { $("tw-terr").textContent = "Tarmoq xatosi."; }
+    });
     $("tw-tshare").addEventListener("click", () => {
         const url = location.origin + "/Tournament?id=" + id;
         navigator.clipboard?.writeText(url);

@@ -20,6 +20,9 @@
             <button id="tw-tshare" class="tw-rbtn tw-rbtn--outline tw-rbtn--sm">
                 <i class="bi bi-link-45deg"></i><span>Havolani nusxalash</span>
             </button>
+            <button id="tw-tdelete" class="tw-rbtn tw-rbtn--danger tw-rbtn--sm d-none">
+                <i class="bi bi-trash3"></i><span>Turnirni o'chirish</span>
+            </button>
         </div>
     </header>
 
@@ -35,7 +38,7 @@
                 <h3><i class="bi bi-people-fill"></i> Ishtirokchilar <span id="tw-reg-count" class="tw-treg-count"></span></h3>
                 <ul id="tw-reg-list" class="tw-seed-list"></ul>
                 <p id="tw-host-seedhint" class="tw-thint d-none">
-                    <i class="bi bi-arrows-move"></i> Strelkalar bilan tartibni o'zgartiring (kim kim bilan o'ynaydi), <i class="bi bi-x-lg"></i> bilan o'yinchini chiqaring.
+                    <i class="bi bi-arrows-move"></i> Strelkalar bilan seed tartibini belgilang (yuqori seed kuchsizroq yo'l/bye oladi va kuchli seedlar faqat finalda uchrashadi), <i class="bi bi-x-lg"></i> bilan o'yinchini chiqaring. Bracket ishtirokchilar soniga avtomatik moslanadi.
                 </p>
             </div>
             <div class="tw-treg-side">
@@ -94,9 +97,20 @@
         </div>
     </section>
 
-    <!-- Bracket (hamma ko'radi) -->
+    <!-- Bracket (hamma ko'radi) — markazda aylanuvchi oltin gepard kubogi -->
     <section id="tw-bracket-wrap" class="tw-bracket-wrap d-none">
-        <h3 class="tw-bracket-title"><i class="bi bi-diagram-3"></i> Bracket</h3>
+        <h3 class="tw-bracket-title"><i class="bi bi-diagram-3"></i> Playoff bracket</h3>
+
+        <!-- Playoff markazidagi 3D OLTIN GEPARD KUBOGI -->
+        <div class="tw-trophy-stage">
+            <div id="tw-trophy-3d" class="tw-trophy-3d">
+                <div class="tw-trophy-fallback"><i class="bi bi-trophy-fill"></i></div>
+            </div>
+            <div id="tw-trophy-caption" class="tw-trophy-caption">
+                <i class="bi bi-hourglass-split"></i> Chempionni kutmoqda…
+            </div>
+        </div>
+
         <div id="tw-bracket" class="tw-tbracket"></div>
     </section>
 
@@ -130,4 +144,5 @@
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
     <script src="~/js/tournament.js" asp-append-version="true"></script>
+    <script type="module" src="~/js/tournament-trophy.js" asp-append-version="true"></script>
 }
