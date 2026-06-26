@@ -20,14 +20,15 @@
             <input class="form-control" type="password" name="password" required minlength="8">
         </div>
         <div class="mb-3">
-            <label class="form-label">Hudud (ixtiyoriy)</label>
-            <select class="form-select" name="regionCode">
-                <option value="">— tanlanmagan —</option>
+            <label class="form-label">Hudud <span class="text-danger">*</span></label>
+            <select class="form-select" name="regionCode" required>
+                <option value="" disabled selected>— hududingizni tanlang —</option>
                 @foreach (var r in Model.Regions)
                 {
                     <option value="@r.Key">@r.Value</option>
                 }
             </select>
+            <div class="form-text">Natijangiz O'zbekiston xaritasida hududingizga qo'shiladi.</div>
         </div>
         <div class="tw-auth-err text-danger mb-2"></div>
         <button class="btn btn-tw w-100" type="submit">Ro'yxatdan o'tish</button>

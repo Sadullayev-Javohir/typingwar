@@ -1,95 +1,108 @@
 @page
 @model MapModel
 @{
-    ViewData["Title"] = "O'zbekiston xaritasi";
+    ViewData["Title"] = "O'zbekiston typing xaritasi";
 }
 
-<div id="tw-map" class="tw-map" data-authenticated="@Model.IsAuthenticated.ToString().ToLower()">
-    <h2 class="tw-accent text-center mb-1">O'zbekiston typing xaritasi</h2>
-    <p class="text-secondary text-center small">Hudud ustiga bosing — o'rtacha tezlik. Issiqroq rang = tezroq.</p>
-    <div id="tw-map-err" class="text-danger text-center"></div>
+<div id="tw-map" class="tw-map">
+    <div class="tw-map-hero">
+        <span class="tw-map-badge">JONLI XARITA</span>
+        <h1>O'zbekiston typing xaritasi</h1>
+        <p>Har hududda 30 soniyalik rejimda <b>eng tez yozilgan WPM</b>. Issiqroq rang — tezroq hudud. Hudud ustiga bosing.</p>
+    </div>
 
-    <div class="row g-3">
-        <div class="col-lg-8">
-            <svg viewBox="0 0 1000 560" class="tw-uzmap" xmlns="http://www.w3.org/2000/svg">
+    <div id="tw-map-err" class="text-danger text-center small"></div>
+
+    <div class="tw-map-stage">
+        <svg id="tw-uzmap" class="tw-uzmap" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="O'zbekiston xaritasi">
+            <defs>
+                <radialGradient id="twMapGlow" cx="50%" cy="42%" r="70%">
+                    <stop offset="0%" stop-color="color-mix(in srgb, var(--tw-gold) 16%, transparent)" />
+                    <stop offset="100%" stop-color="transparent" />
+                </radialGradient>
+                <linearGradient id="twSweep" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="transparent" />
+                    <stop offset="45%" stop-color="transparent" />
+                    <stop offset="50%" stop-color="rgba(255,255,255,.16)" />
+                    <stop offset="55%" stop-color="transparent" />
+                    <stop offset="100%" stop-color="transparent" />
+                </linearGradient>
+                <filter id="twRegGlow" x="-30%" y="-30%" width="160%" height="160%">
+                    <feGaussianBlur stdDeviation="5" result="b" />
+                    <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                </filter>
+                <pattern id="twGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M40 0H0V40" fill="none" stroke="rgba(255,255,255,.035)" stroke-width="1" />
+                </pattern>
+            </defs>
+
+            <rect x="0" y="0" width="1000" height="600" fill="url(#twGrid)" />
+            <rect x="0" y="0" width="1000" height="600" fill="url(#twMapGlow)" />
+
+            <g id="tw-regions" stroke-linejoin="round" stroke-linecap="round">
                 <g class="tw-region" data-region="KARAKALPAKSTAN">
-                    <polygon points="40,40 360,40 360,250 220,300 40,260" />
-                    <text x="190" y="150">Qoraqalpog'iston</text>
+                    <path d="M95,135 L150,75 L245,52 Q320,62 322,118 Q360,120 352,175 L360,225 L315,255 L250,250 L258,300 L185,312 L120,288 Q72,230 78,180 Z" />
                 </g>
                 <g class="tw-region" data-region="KHOREZM">
-                    <polygon points="150,300 270,300 270,372 150,372" />
-                    <text x="210" y="340">Xorazm</text>
+                    <path d="M168,300 L258,300 L250,348 Q245,372 215,372 L175,368 L170,335 Z" />
                 </g>
                 <g class="tw-region" data-region="NAVOI">
-                    <polygon points="360,110 590,110 575,300 380,300 360,250" />
-                    <text x="470" y="210">Navoiy</text>
+                    <path d="M360,150 L470,140 Q560,150 612,205 L645,290 Q612,335 545,332 L470,328 L405,300 L362,255 L345,210 Z" />
                 </g>
                 <g class="tw-region" data-region="BUKHARA">
-                    <polygon points="270,360 420,330 480,440 300,485 235,405" />
-                    <text x="350" y="410">Buxoro</text>
+                    <path d="M255,358 L405,330 L470,420 Q440,490 360,508 L300,512 Q245,470 240,420 Z" />
                 </g>
                 <g class="tw-region" data-region="JIZZAKH">
-                    <polygon points="590,180 690,190 680,300 590,300" />
-                    <text x="630" y="250">Jizzax</text>
+                    <path d="M600,200 L695,208 Q708,250 700,292 L622,296 L605,250 Z" />
                 </g>
                 <g class="tw-region" data-region="SAMARKAND">
-                    <polygon points="490,300 590,300 615,395 505,415 470,355" />
-                    <text x="535" y="360">Samarqand</text>
+                    <path d="M470,332 L600,308 L625,395 Q560,420 505,418 L472,375 Z" />
                 </g>
                 <g class="tw-region" data-region="SYRDARYA">
-                    <polygon points="695,200 755,205 748,278 690,272" />
-                    <text x="720" y="245">Sirdaryo</text>
+                    <path d="M702,208 L762,214 Q758,255 750,290 L702,294 L700,248 Z" />
                 </g>
                 <g class="tw-region" data-region="TASHKENT_REGION">
-                    <polygon points="700,110 850,110 875,225 745,240 700,195" />
-                    <text x="775" y="170">Toshkent vil.</text>
+                    <path d="M700,128 L820,112 Q875,135 892,205 L800,238 L720,232 Q700,185 700,150 Z" />
                 </g>
                 <g class="tw-region" data-region="TASHKENT_CITY">
-                    <circle cx="800" cy="200" r="16" />
-                    <text x="800" y="240">Toshkent sh.</text>
+                    <circle cx="803" cy="178" r="15" />
                 </g>
                 <g class="tw-region" data-region="NAMANGAN">
-                    <polygon points="855,165 955,158 965,222 865,232" />
-                    <text x="905" y="198">Namangan</text>
+                    <path d="M858,150 L950,138 Q978,150 978,200 L905,218 L868,210 Z" />
                 </g>
                 <g class="tw-region" data-region="ANDIJAN">
-                    <polygon points="905,235 970,240 965,298 895,292" />
-                    <text x="930" y="270">Andijon</text>
+                    <path d="M908,228 L985,232 Q992,265 980,292 L918,286 L905,255 Z" />
                 </g>
                 <g class="tw-region" data-region="FERGANA">
-                    <polygon points="810,255 900,250 905,320 812,330" />
-                    <text x="855" y="295">Farg'ona</text>
+                    <path d="M815,252 L905,246 Q916,288 908,320 L838,322 L818,295 Z" />
                 </g>
                 <g class="tw-region" data-region="KASHKADARYA">
-                    <polygon points="480,440 615,405 660,500 525,535 455,480" />
-                    <text x="555" y="475">Qashqadaryo</text>
+                    <path d="M470,425 L620,402 Q668,445 672,498 L545,540 Q480,520 458,470 Z" />
                 </g>
                 <g class="tw-region" data-region="SURKHANDARYA">
-                    <polygon points="615,470 690,458 715,545 630,548" />
-                    <text x="660" y="510">Surxondaryo</text>
+                    <path d="M620,470 L695,456 Q728,510 730,565 L660,568 L628,520 Z" />
                 </g>
-            </svg>
-        </div>
+            </g>
 
-        <div class="col-lg-4">
-            <div id="tw-region-detail" class="tw-region-detail">
-                <p class="text-secondary">Hududni tanlang…</p>
+            <g id="tw-region-labels"></g>
+
+            <rect id="tw-map-sweep" x="-300" y="0" width="300" height="600" fill="url(#twSweep)" pointer-events="none" />
+        </svg>
+
+        <aside id="tw-region-detail" class="tw-region-detail tw-detail-empty">
+            <div class="tw-detail-hint">
+                <div class="tw-detail-hint-ico">🗺️</div>
+                <p>Hududni tanlang — ishtirokchilar soni va o'rtacha tezlik ko'rinadi.</p>
             </div>
+        </aside>
+    </div>
 
-            @if (Model.IsAuthenticated)
-            {
-                <div class="tw-room-card mt-3">
-                    <h6>Hududingizga hissa</h6>
-                    <p class="text-secondary small mb-2">Quyidagi matnni yozing — natijangiz hududingiz o'rtachasiga qo'shiladi.</p>
-                    <div id="tw-map-words" class="tw-words tw-words-sm" tabindex="0"></div>
-                    <div class="small text-secondary mt-1"><span id="tw-map-live">0</span> wpm</div>
-                </div>
-            }
-            else
-            {
-                <p class="text-secondary small mt-3">Hissa qo'shish uchun <a asp-page="/Login" class="tw-accent">tizimga kiring</a>.</p>
-            }
+    <div class="tw-map-rank">
+        <div class="tw-rank-head">
+            <h3>Hududlar reytingi</h3>
+            <span class="text-muted small">30s rejimi · eng tez WPM bo'yicha</span>
         </div>
+        <div id="tw-rank-list" class="tw-rank-list"></div>
     </div>
 </div>
 

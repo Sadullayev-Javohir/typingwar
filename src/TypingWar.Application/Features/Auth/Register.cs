@@ -17,7 +17,8 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
         RuleFor(x => x.Email).NotEmpty().EmailAddress();
         RuleFor(x => x.Password).NotEmpty().MinimumLength(8);
         RuleFor(x => x.RegionCode)
-            .Must(c => string.IsNullOrEmpty(c) || UzbekistanRegions.IsValid(c))
+            .NotEmpty().WithMessage("Hududni tanlang.")
+            .Must(c => UzbekistanRegions.IsValid(c))
             .WithMessage("Noto'g'ri hudud kodi.");
     }
 }

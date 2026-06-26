@@ -57,6 +57,7 @@ public static class DependencyInjection
 
         // Hudud profili (xarita statistikasi uchun)
         services.AddScoped<IUserProfileReader, Identity.UserProfileReader>();
+        services.AddScoped<IRegionStatsReader, Identity.RegionStatsReader>();
 
         // Admin statistika
         services.AddScoped<IAdminStatsReader, Identity.AdminStatsReader>();
