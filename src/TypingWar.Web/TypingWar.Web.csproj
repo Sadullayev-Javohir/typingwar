@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
     <ProjectReference Include="..\TypingWar.Domain\TypingWar.Domain.csproj" />
@@ -23,6 +23,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>ab37e5bd-bc34-4bd1-a0e5-1f657dfd081a</UserSecretsId>
   </PropertyGroup>
 
 </Project>

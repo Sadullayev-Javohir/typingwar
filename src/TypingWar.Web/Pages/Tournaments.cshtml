@@ -20,6 +20,16 @@
             <h2>Turnir yaratish</h2>
             <p>Nomi, ishtirokchilar sonini va poyga matnini tanlang. Siz turnir egasi (boshqaruvchi) bo'lasiz.</p>
 
+            @if (!Model.IsAuthenticated)
+            {
+                <div class="tw-auth-gate">
+                    <i class="bi bi-lock-fill"></i>
+                    <p>Turnir yaratish va turnirlarda qatnashish uchun tizimga kirgan bo'lishingiz kerak.</p>
+                    <a asp-page="/Login" class="tw-rbtn"><i class="bi bi-box-arrow-in-right"></i><span>Kirish</span></a>
+                </div>
+            }
+            else
+            {
             <div class="tw-tcreate">
                 <label class="tw-tlabel"><i class="bi bi-pencil"></i> Nomi</label>
                 <input id="tw-t-name" class="tw-tinput" maxlength="80" placeholder="Hafta chempionati" autocomplete="off">
@@ -71,6 +81,7 @@
                 </button>
                 <div id="tw-t-createerr" class="tw-rcard-err"></div>
             </div>
+            }
         </section>
 
         <!-- Mavjud turnirlar -->

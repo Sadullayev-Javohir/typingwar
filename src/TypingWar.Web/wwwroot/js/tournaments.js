@@ -78,6 +78,7 @@
         const full = t.playerCount >= t.capacity;
         if (t.status === 0) {   // statusKey orqali normallashtirilgan
             if (full) return `<a class="tw-titem-btn tw-titem-btn--watch" href="/Tournament?id=${t.id}"><i class="bi bi-eye"></i> To'lgan — ko'rish</a>`;
+            if (!isAuth) return `<a class="tw-titem-btn tw-titem-btn--login" href="/Login"><i class="bi bi-lock-fill"></i> Kirish kerak</a>`;
             return `<button type="button" class="tw-titem-btn tw-titem-btn--join" data-join="${t.id}"><i class="bi bi-person-plus-fill"></i> Qatnashish</button>`;
         }
         if (t.status === 1) return `<a class="tw-titem-btn tw-titem-btn--live" href="/Tournament?id=${t.id}"><i class="bi bi-broadcast"></i> Jonli kuzatish</a>`;

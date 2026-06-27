@@ -1716,6 +1716,18 @@ a.tw-author-link:hover { border-color: rgba(0,112,243,.5); color: var(--tw-gold)
 .tw-titem-btn--live { background: color-mix(in srgb, #ff5566 16%, transparent); color: #ff7788; border-color: color-mix(in srgb, #ff5566 40%, transparent); }
 .tw-titem-btn--watch { background: transparent; color: var(--tw-muted); border-color: var(--tw-border-strong); }
 .tw-titem-btn--watch:hover { border-color: var(--tw-gold); color: var(--tw-gold); }
+.tw-titem-btn--login { background: transparent; color: var(--tw-muted); border-color: var(--tw-border-strong); }
+.tw-titem-btn--login:hover { border-color: var(--tw-gold); color: var(--tw-gold); }
+
+/* Kirish talab qiluvchi blok (turnir yaratish, mehmon) */
+.tw-auth-gate {
+    display: flex; flex-direction: column; align-items: center; text-align: center; gap: .9rem;
+    padding: 2.2rem 1.4rem; border: 1px dashed var(--tw-border-strong); border-radius: 14px;
+    background: color-mix(in srgb, var(--tw-gold) 5%, transparent);
+}
+.tw-auth-gate > i { font-size: 2rem; color: var(--tw-gold); }
+.tw-auth-gate p { margin: 0; color: var(--tw-muted); max-width: 32ch; }
+.tw-auth-gate .tw-rbtn { width: auto; padding-inline: 1.6rem; }
 
 /* Turnir sahifasi */
 .tw-tourn { max-width: 1150px; margin: 1.5rem auto; padding: 0 1rem; }
