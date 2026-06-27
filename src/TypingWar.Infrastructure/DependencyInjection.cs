@@ -38,6 +38,8 @@ public static class DependencyInjection
 
         // Parol xeshlash — BCrypt (Identity default PBKDF2 emas)
         services.AddScoped<IPasswordHasher<ApplicationUser>, BCryptPasswordHasher>();
+        // Obyekt parollari (turnir paroli kabi) uchun umumiy xeshlash xizmati
+        services.AddScoped<IPasswordHashService, BCryptPasswordHashService>();
 
         // JWT + Auth
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));

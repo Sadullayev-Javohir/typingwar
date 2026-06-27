@@ -339,6 +339,32 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-17] /Tournaments — SHAXSIY (parolli) turnir + qulflangan ko'rinish + 1 soatlik
+    avtomatik tozalash:
+    (1) Yaratuvchi turnirni "Shaxsiy" qilib parol qo'yadi (4–64 belgi). Domain/Tournament:
+    IsPrivate + PasswordHash (BCrypt, ochiq matn saqlanmaydi) + FinishedAt. Yangi
+    IPasswordHashService (Application) + BCryptPasswordHashService (Infrastructure, DI).
+    CreateTournamentCommand IsPrivate+Password oladi (private→parol majburiy, xeshlanadi).
+    (2) XAVFSIZLIK — parol darvozasi SERVERDA majburlanadi (frontendni chetlab bo'lmaydi):
+    RegisterTournamentCommand parolni Verify qiladi (host parolsiz), noto'g'ri→
+    InvalidTournamentPasswordException→403. GetTournamentQuery: shaxsiy + ko'ruvchi ruxsatsiz
+    (host emas, qatnashmagan)→IsLocked=true, players/matches/standings BO'SH qaytadi.
+    TournamentHub.JoinTournament: ruxsatsizni guruhga QO'SHMAYDI ("Locked"), RoundSnapshot/
+    live progress uzatilmaydi (SignalR ham himoyalangan). TournamentInfoDto+IsPrivate,
+    TournamentDetailDto+IsLocked, ListTournaments IsPrivate qaytaradi.
+    (3) Frontend: /Tournaments yaratishda Maxfiylik(Ochiq/Shaxsiy)+parol; ro'yxatda qulf
+    belgisi; "Parol bilan kirish"→parol modali (input+OK+Bekor, Enter/Esc, 403→qayta so'rash).
+    /Tournament IsLocked→qulf bo'limi (input+OK), to'g'ri parol→register→qayta yuklaydi+ulanadi;
+    connectIfAllowed() qulfda hubga ulanmaydi. site.css tw-pw-modal/tw-locked/tw-tpw-wrap,
+    sw.js cache v34.
+    (4) AVTOMATIK TOZALASH: turnir tugaganda FinishedAt o'rnatiladi (RecordMatchOutcome+
+    PrepareRound 2 joy). CleanupExpiredTournamentsCommand (Status=Finished && FinishedAt<=now-1soat
+    →o'yinlar+ishtirokchilar bilan o'chiradi) + Hangfire RecurringJob "tournament-cleanup" har
+    10 daqiqada. Migration AddTournamentPrivacyAndFinishedAt (eski worktree phantom migration
+    20260617150837 ustunlari/yozuvi tozalanib master migration toza qo'llandi).
+    Build OK, 97 test, JS sintaksis OK. Ishlaydigan app+bazadagi shaxsiy turnir bilan:
+    GET list isPrivate=true; GET anonim isLocked=true+bracket BO'SH (server himoyasi tasdiqlandi);
+    create/register 401; sahifalar 200. Tozalash predikati SQL bilan aniq 1 qatorga mos tasdiqlandi.
   - [2026-06-17] FAQAT GOOGLE AUTH + /Profile 2.0 + /share/{username} + birinchi rekord toji:
     (1) AUTH endi faqat Google OAuth — email/parol BUTUNLAY olib tashlandi. RegisterCommand/
     LoginCommand/AuthService parol metodlari o'chirildi. IIdentityService qayta yozildi:
@@ -618,7 +644,7 @@ Hal qilinmagan muammolar:
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
   - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
-Oxirgi git commit: Faqat Google auth + /Profile 2.0 + /share/{username} + birinchi rekord toji
+Oxirgi git commit: /Tournaments — shaxsiy (parolli) turnir + qulflangan ko'rinish + 1 soatlik avtomatik tozalash
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.

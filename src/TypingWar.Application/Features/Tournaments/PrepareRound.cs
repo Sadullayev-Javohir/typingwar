@@ -61,7 +61,7 @@ public class PrepareRoundCommandHandler : IRequestHandler<PrepareRoundCommand, P
                 if (solo is Guid w)
                 {
                     m.WinnerId = w;
-                    if (r >= finalRound) { t.ChampionId = w; t.Status = TournamentStatus.Finished; }
+                    if (r >= finalRound) { t.ChampionId = w; t.Status = TournamentStatus.Finished; t.FinishedAt = DateTime.UtcNow; }
                     else StartTournamentCommandHandler.Advance(byKey, t.Capacity, m.Round, m.Slot, w);
                 }
             }
@@ -93,6 +93,7 @@ public class PrepareRoundCommandHandler : IRequestHandler<PrepareRoundCommand, P
         {
             t.ChampionId = c;
             t.Status = TournamentStatus.Finished;
+            t.FinishedAt = DateTime.UtcNow;
         }
         await _db.SaveChangesAsync(cancellationToken);
         return new PrepareRoundResult(true, champ, champ is Guid g ? Name(g) : null,

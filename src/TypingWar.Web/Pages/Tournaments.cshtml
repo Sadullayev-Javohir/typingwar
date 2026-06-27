@@ -46,6 +46,17 @@
                 <input id="tw-t-start" class="tw-tinput" type="datetime-local">
                 <small class="tw-thint">Bo'sh qoldirilsa — boshlashni o'zingiz qo'lda boshqarasiz.</small>
 
+                <label class="tw-tlabel"><i class="bi bi-shield-lock"></i> Maxfiylik</label>
+                <div class="tw-config-group" data-group="privacy">
+                    <button type="button" class="tw-opt tw-active" data-private="false"><i class="bi bi-globe2"></i> Ochiq</button>
+                    <button type="button" class="tw-opt" data-private="true"><i class="bi bi-lock-fill"></i> Shaxsiy (parol bilan)</button>
+                </div>
+                <div id="tw-t-pwwrap" class="tw-tpw-wrap" style="display:none">
+                    <input id="tw-t-password" class="tw-tinput" type="password" maxlength="64"
+                           placeholder="Turnir paroli (kamida 4 belgi)" autocomplete="new-password">
+                    <small class="tw-thint"><i class="bi bi-info-circle"></i> Parolni faqat siz bilasiz — qatnashmoqchi bo'lganlarga o'zingiz uzatasiz. Shaxsiy turnir ro'yxatda qulf bilan ko'rinadi.</small>
+                </div>
+
                 <label class="tw-tlabel"><i class="bi bi-type"></i> Poyga matni</label>
                 <div class="tw-config tw-room-config" id="tw-t-config">
                     <div class="tw-config-group" data-group="language">

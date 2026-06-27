@@ -21,14 +21,14 @@ public class ListTournamentsQueryHandler : IRequestHandler<ListTournamentsQuery,
             .Select(t => new
             {
                 t.Id, t.Name, t.Status, t.StartAt, t.Capacity,
-                t.ChampionId,
+                t.ChampionId, t.IsPrivate,
                 Count = t.Players.Count
             })
             .ToListAsync(cancellationToken);
 
         return tournaments
             .Select(t => new TournamentInfoDto(
-                t.Id, t.Name, t.Status, t.StartAt, t.Capacity, t.Count, t.ChampionId, null, "{}"))
+                t.Id, t.Name, t.Status, t.StartAt, t.Capacity, t.Count, t.ChampionId, null, "{}", t.IsPrivate))
             .ToList();
     }
 }

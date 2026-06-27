@@ -24,7 +24,9 @@ public class TournamentsController : ApiControllerBase
         return t is null ? NotFound(new { error = "Turnir topilmadi." }) : Ok(t);
     }
 
-    public record CreateTournamentRequest(string Name, int Capacity, DateTime StartAt, RoomRaceSettings? Settings);
+    public record CreateTournamentRequest(
+        string Name, int Capacity, DateTime StartAt, RoomRaceSettings? Settings,
+        bool IsPrivate, string? Password);
 
     [Authorize]
     [HttpPost]
@@ -33,16 +35,27 @@ public class TournamentsController : ApiControllerBase
         // Typed bilan bog'laymiz (Rooms kabi) — keyin PascalCase JSON saqlanadi,
         // shu sababli BuildTextRequest matn turini (so'z/iqtibos) to'g'ri o'qiydi.
         var settingsJson = req.Settings is null ? null : JsonSerializer.Serialize(req.Settings);
-        var id = await Mediator.Send(new CreateTournamentCommand(req.Name, req.Capacity, req.StartAt, settingsJson));
+        var id = await Mediator.Send(new CreateTournamentCommand(
+            req.Name, req.Capacity, req.StartAt, settingsJson, req.IsPrivate, req.Password));
         return Ok(new { id });
     }
 
+    public record RegisterRequest(string? Password);
+
     [Authorize]
     [HttpPost("{id:guid}/register")]
-    public async Task<IActionResult> Register(Guid id)
+    public async Task<IActionResult> Register(Guid id, [FromBody] RegisterRequest? req = null)
     {
-        await Mediator.Send(new RegisterTournamentCommand(id));
-        return Ok();
+        try
+        {
+            await Mediator.Send(new RegisterTournamentCommand(id, req?.Password));
+            return Ok();
+        }
+        catch (InvalidTournamentPasswordException ex)
+        {
+            // Parol noto'g'ri — 403 (frontend qayta so'raydi)
+            return StatusCode(StatusCodes.Status403Forbidden, new { error = ex.Message });
+        }
     }
 
     public record SeedOrderRequest(List<Guid> OrderedUserIds);

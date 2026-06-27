@@ -68,6 +68,7 @@
             isHost = !!detail.isHost;
             isRegistered = !!detail.isRegistered;
             render();
+            connectIfAllowed();
         } catch { $("tw-terr").textContent = "Tarmoq xatosi."; }
     }
 
@@ -75,6 +76,11 @@
         if (!detail) return;
         const info = detail.info;
         info.status = statusKey(info.status);   // string → raqam (barcha taqqoslashlar uchun)
+
+        // ── Qulflangan ko'rinish: shaxsiy turnir, ruxsatsiz foydalanuvchi ──
+        // Server bracket/o'yinchilarni bermaydi; faqat parol so'raymiz.
+        if (detail.isLocked) { renderLocked(info); return; }
+        $("tw-locked").classList.add("d-none");
 
         // Sarlavha
         $("tw-tname").textContent = info.name;
@@ -100,6 +106,44 @@
         renderHostBar(info);
         renderBracket(info);
         renderStandings();
+    }
+
+    // ── Qulflangan (shaxsiy) turnir ko'rinishi — parol so'raladi ──
+    function renderLocked(info) {
+        // Boshqa barcha bo'limlarni yashiramiz
+        ["tw-champion", "tw-reg", "tw-host-bar", "tw-stage", "tw-bracket-wrap", "tw-standings", "tw-tdelete"]
+            .forEach(x => $(x).classList.add("d-none"));
+        $("tw-tname").textContent = info.name || "Shaxsiy turnir";
+        const st = $("tw-tstatus");
+        st.textContent = "Qulflangan";
+        st.className = "tw-tbadge tw-st-reg";
+        $("tw-tmeta").innerHTML = `<i class="bi bi-shield-lock-fill"></i> Shaxsiy turnir`;
+        $("tw-locked").classList.remove("d-none");
+    }
+
+    async function submitLockedPassword() {
+        const inp = $("tw-locked-input");
+        const err = $("tw-locked-err");
+        const pw = inp.value;
+        err.textContent = "";
+        if (!isAuth) { window.location.href = "/Login"; return; }
+        if (!pw) { err.textContent = "Parolni kiriting."; return; }
+        const okBtn = $("tw-locked-ok");
+        okBtn.disabled = true;
+        try {
+            const r = await fetch(`/api/tournaments/${id}/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify({ password: pw })
+            });
+            if (r.status === 401) { window.location.href = "/Login"; return; }
+            if (r.status === 403) { err.textContent = "Parol noto'g'ri. Qaytadan urinib ko'ring."; inp.select(); okBtn.disabled = false; return; }
+            if (!r.ok) { err.textContent = "Xatolik yuz berdi."; okBtn.disabled = false; return; }
+            // Parol to'g'ri — endi ruxsatimiz bor: qayta yuklaymiz va hubga ulanamiz
+            await loadDetail();
+            connectIfAllowed();
+        } catch { err.textContent = "Tarmoq xatosi."; okBtn.disabled = false; }
     }
 
     // ── Ro'yxat bosqichi ──
@@ -462,10 +506,19 @@
     function updateOppLane(prog, wpm, fin) { updateLane($("tw-lane-opp"), prog, wpm, fin); }
 
     // ═══════════════ SignalR ═══════════════
+    // Faqat ruxsat bo'lsa (qulflanmagan) hubga ulanamiz — shaxsiy turnir live ma'lumoti himoyalangan.
+    function connectIfAllowed() {
+        if (conn) return;
+        if (detail && detail.isLocked) return;
+        setupConn();
+    }
+
     function setupConn() {
         conn = new signalR.HubConnectionBuilder().withUrl("/hubs/tournament").withAutomaticReconnect().build();
 
         conn.on("Error", m => { $("tw-terr").textContent = m; });
+        // Server hubda qulfni majburladi (shaxsiy, ruxsatsiz) — qayta yuklab parol so'raymiz
+        conn.on("Locked", () => loadDetail());
         conn.on("StateChanged", () => loadDetail());
         conn.on("TournamentStarted", () => loadDetail());
 
@@ -670,6 +723,9 @@
     if (S && S.onChange) S.onChange(() => { applyStatVisibility(); moveCaret(); });
     window.addEventListener("resize", () => moveCaret());
 
-    loadDetail();
-    setupConn();
+    // Qulflangan turnir parol darvozasi
+    $("tw-locked-ok").addEventListener("click", submitLockedPassword);
+    $("tw-locked-input").addEventListener("keydown", e => { if (e.key === "Enter") submitLockedPassword(); });
+
+    loadDetail();   // ruxsat bo'lsa connectIfAllowed() ichkarida chaqiriladi
 })();

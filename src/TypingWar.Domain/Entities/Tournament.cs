@@ -19,6 +19,14 @@ public class Tournament : BaseEntity
     /// <summary>Turnir sozlamalari (JSON).</summary>
     public string Settings { get; set; } = "{}";
 
+    /// <summary>Shaxsiy turnir — faqat parolni biluvchilar ko'rib/qatnasha oladi.</summary>
+    public bool IsPrivate { get; set; }
+    /// <summary>Parol xeshi (BCrypt). Faqat <see cref="IsPrivate"/>=true bo'lganda to'ldiriladi.
+    /// Ochiq matn HECH QACHON saqlanmaydi.</summary>
+    public string? PasswordHash { get; set; }
+    /// <summary>Turnir tugagan (Finished bo'lgan) vaqt — 1 soatdan keyin avtomatik tozalash uchun.</summary>
+    public DateTime? FinishedAt { get; set; }
+
     public ICollection<TournamentMatch> Matches { get; set; } = new List<TournamentMatch>();
     public ICollection<TournamentPlayer> Players { get; set; } = new List<TournamentPlayer>();
 }

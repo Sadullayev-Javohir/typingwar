@@ -70,6 +70,7 @@ public class RecordMatchOutcomeCommandHandler : IRequestHandler<RecordMatchOutco
         {
             tournament.ChampionId = winnerId;
             tournament.Status = TournamentStatus.Finished;
+            tournament.FinishedAt = DateTime.UtcNow;
         }
         else
         {

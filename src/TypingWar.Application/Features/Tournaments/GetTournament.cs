@@ -26,6 +26,29 @@ public class GetTournamentQueryHandler : IRequestHandler<GetTournamentQuery, Tou
         var t = await _db.Tournaments.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
         if (t is null) return null;
 
+        var uidEarly = _currentUser.UserId;
+        bool isHostEarly = uidEarly.HasValue && uidEarly.Value == t.HostId;
+        bool isRegisteredEarly = uidEarly.HasValue && await _db.TournamentPlayers
+            .AnyAsync(p => p.TournamentId == t.Id && p.UserId == uidEarly.Value, cancellationToken);
+
+        // ── XAVFSIZLIK: shaxsiy turnir + ko'ruvchi ruxsatsiz (host emas, qatnashmagan) ──
+        // Bracket/o'yinchilar/natijalar SERVERDA bo'sh qaytariladi — ruxsatsiz hech qanday
+        // ma'lumot uzatilmaydi (frontendni chetlab o'tib bo'lmaydi). Faqat qulf ko'rinishi.
+        if (t.IsPrivate && !isHostEarly && !isRegisteredEarly)
+        {
+            int playerCount = await _db.TournamentPlayers
+                .CountAsync(p => p.TournamentId == t.Id, cancellationToken);
+            var lockedInfo = new TournamentInfoDto(
+                t.Id, t.Name, t.Status, t.StartAt, t.Capacity, playerCount,
+                null, null, "{}", t.IsPrivate);
+            return new TournamentDetailDto(
+                lockedInfo,
+                Array.Empty<TournamentPlayerDto>(),
+                Array.Empty<TournamentMatchDto>(),
+                Array.Empty<TournamentStandingDto>(),
+                IsRegistered: false, IsHost: false, MyUserId: uidEarly, IsLocked: true);
+        }
+
         var players = await _db.TournamentPlayers
             .Where(p => p.TournamentId == t.Id)
             .OrderBy(p => p.Seed)
@@ -54,14 +77,14 @@ public class GetTournamentQueryHandler : IRequestHandler<GetTournamentQuery, Tou
 
         var info = new TournamentInfoDto(
             t.Id, t.Name, t.Status, t.StartAt, t.Capacity, players.Count,
-            t.ChampionId, Name(t.ChampionId), t.Settings);
+            t.ChampionId, Name(t.ChampionId), t.Settings, t.IsPrivate);
 
         var standings = BuildStandings(t, players);
 
         return new TournamentDetailDto(
             info,
             players.Select(p => new TournamentPlayerDto(p.UserId, p.Username, p.Seed)).ToList(),
-            matchDtos, standings, isRegistered, isHost, uid);
+            matchDtos, standings, isRegistered, isHost, uid, IsLocked: false);
     }
 
     /// <summary>Yakuniy joylar: chempion 1-o'rin, keyin kechroq tushib qolganlar yuqorida, so'ng eng yaxshi WPM bo'yicha.</summary>

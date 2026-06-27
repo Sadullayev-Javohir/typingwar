@@ -179,6 +179,8 @@ RecurringJob.AddOrUpdate<ScheduledJobs>("daily-contest",
     x => x.EnsureDailyContestAsync(), "0 20 * * *");          // har kuni 20:00
 RecurringJob.AddOrUpdate<ScheduledJobs>("tournament-starter",
     x => x.StartDueTournamentsAsync(), "* * * * *");          // har daqiqa
+RecurringJob.AddOrUpdate<ScheduledJobs>("tournament-cleanup",
+    x => x.CleanupExpiredTournamentsAsync(), "*/10 * * * *"); // har 10 daqiqada (tugaganidan 1 soat keyin o'chiradi)
 BackgroundJob.Enqueue<ScheduledJobs>(x => x.EnsureDailyContestAsync()); // bugungisi darhol
 
 app.Run();

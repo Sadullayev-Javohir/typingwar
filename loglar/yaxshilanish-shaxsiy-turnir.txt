@@ -1,0 +1,70 @@
+YAXSHILANISH — /Tournaments: shaxsiy (parolli) turnir + qulflangan ko'rinish + avtomatik tozalash
+Sana: 2026-06-17
+
+MAQSAD
+  1. Turnir yaratuvchi turnirni "shaxsiy" qilib, o'zi parol qo'yishi mumkin.
+  2. Shaxsiy turnir ko'rinishi qulf ichida — boshqa foydalanuvchilar parolni
+     yaratuvchidan oladi, "Parol bilan kirish" bosganda input + OK chiqadi,
+     parolni yozib OK bosgach qatnashadi.
+  3. XAVFSIZLIK: parol kiritish bo'limini (frontend) chetlab o'tib turnirga
+     kirib bo'lmaydi — server tomonida majburlanadi.
+  4. Muddati tugagan (Finished) turnirlar tugaganidan 1 soat keyin avtomatik
+     o'chiriladi.
+
+BACKEND
+  - Domain/Tournament: IsPrivate (bool), PasswordHash (string?, BCrypt — ochiq
+    matn HECH QACHON saqlanmaydi), FinishedAt (DateTime?, avtomatik tozalash uchun).
+  - Yangi IPasswordHashService (Application) + BCryptPasswordHashService
+    (Infrastructure, BCrypt.Net-Next, WorkFactor 12) — DI ga ro'yxatdan o'tdi.
+    Identity ning IPasswordHasher<ApplicationUser> dan mustaqil, obyekt parollari uchun.
+  - CreateTournamentCommand: IsPrivate + Password qabul qiladi. Private bo'lsa parol
+    majburiy (4–64 belgi), xeshlanadi va saqlanadi.
+  - RegisterTournamentCommand: Password qabul qiladi. Turnir private va foydalanuvchi
+    host emas bo'lsa — parol SERVER tomonida tekshiriladi (Verify). Noto'g'ri/bo'sh
+    bo'lsa InvalidTournamentPasswordException → kontroller 403 qaytaradi.
+    Host (egasi) o'z turniriga parolsiz qatnashadi.
+  - GetTournamentQuery: shaxsiy turnir + ko'ruvchi ruxsatsiz (host emas, qatnashmagan)
+    bo'lsa — bracket/o'yinchilar/natijalar BO'SH qaytariladi, IsLocked=true. Server
+    hech qanday maxfiy ma'lumot uzatmaydi → frontendni chetlab o'tib bo'lmaydi.
+  - TournamentInfoDto: +IsPrivate. TournamentDetailDto: +IsLocked. ListTournaments
+    IsPrivate ni ham qaytaradi (ro'yxatda qulf belgisi uchun).
+  - TournamentHub.JoinTournament: shaxsiy turnirga faqat host yoki ro'yxatdan o'tgan
+    o'yinchi guruhga qo'shiladi — aks holda "Locked" yuboriladi va RoundSnapshot/live
+    progress UZATILMAYDI (SignalR orqali ham himoyalangan, REST qulfini chetlab bo'lmaydi).
+  - FinishedAt turnir tugagan 3 joyda o'rnatiladi: RecordMatchOutcome + PrepareRound (2).
+  - CleanupExpiredTournamentsCommand: Status=Finished && FinishedAt <= now-1soat
+    turnirlarni o'yinlar+ishtirokchilar bilan o'chiradi (DeleteTournament bilan bir xil naqsh).
+  - ScheduledJobs.CleanupExpiredTournamentsAsync + Hangfire RecurringJob
+    "tournament-cleanup" har 10 daqiqada.
+  - Migration: AddTournamentPrivacyAndFinishedAt (IsPrivate/PasswordHash/FinishedAt).
+    Eslatma: bazada eski worktree migration'i (20260617150837) IsPrivate+FinishedAt
+    qo'shib ketgan edi — phantom yozuv va ustunlar olib tashlanib, master migration toza
+    qo'llandi (uchala ustun mavjud).
+
+FRONTEND
+  - /Tournaments yaratish kartasi: "Maxfiylik" (Ochiq / Shaxsiy) tugmalari +
+    yashirin parol maydoni (kamida 4 belgi). create POST body: isPrivate + password.
+  - tournaments.js: ro'yxatda shaxsiy turnir qulf belgisi (shield-lock) bilan;
+    private turnirda "Qatnashish"/"Parol bilan kirish" tugmasi → parol modali
+    (tw-pw-modal: input + OK + Bekor, Enter/Escape, xato xabari). Noto'g'ri parol →
+    403 → modal qayta so'raydi. To'g'ri → /Tournament ga o'tadi.
+  - /Tournament (detal): IsLocked bo'lsa qulflangan bo'lim (tw-locked) — parol input
+    + OK; boshqa hamma bo'lim yashiriladi. To'g'ri parol → register → qayta yuklaydi
+    + hubga ulanadi. Hub "Locked" eventi ham qulf darvozasini ko'rsatadi.
+    connectIfAllowed() — qulflangan turnirda SignalR ga ulanmaydi.
+  - site.css: tw-tpw-wrap, tw-titem-lock/--private, tw-pw-modal/tw-pwm-*, tw-locked/
+    tw-locked-* bloklari. sw.js cache v34.
+
+TEKSHIRUV
+  - dotnet build OK (0 warning/error), 97 unit test o'tadi.
+  - JS sintaksis (node --check) — tournaments.js + tournament.js OK.
+  - Ishlaydigan app + bazaga qo'lda kiritilgan shaxsiy turnir bilan:
+    * GET /api/tournaments → isPrivate=true ko'rinadi.
+    * GET /api/tournaments/{id} ANONIM → isLocked=true, players/matches/standings BO'SH
+      (server tomonida himoya tasdiqlandi — input o'chirilsa ham ma'lumot yo'q).
+    * POST create → 401 (auth talab). POST register → 401 (auth talab).
+    * /Tournaments va /Tournament?id=... sahifalari 200.
+  - Avtomatik tozalash: Finished + FinishedAt 2 soat oldin bo'lgan turnir kiritildi;
+    WHERE Status=Finished AND FinishedAt<=now-1soat predikati aniq 1 qatorga mos keldi
+    (SQL bilan tasdiqlandi). O'chirish kodi DeleteTournament bilan bir xil ishonchli naqsh.
+    (Hangfire dashboard local-only auth bilan 403 — qo'lda triggerlash UI dan himoyalangan.)

@@ -40,4 +40,7 @@ public class ScheduledJobs
             catch (InvalidOperationException) { /* yetarli o'yinchi yo'q — keyingi safar */ }
         }
     }
+
+    /// <summary>Tugaganidan 1 soat o'tgan turnirlarni avtomatik o'chiradi.</summary>
+    public Task CleanupExpiredTournamentsAsync() => _mediator.Send(new CleanupExpiredTournamentsCommand());
 }

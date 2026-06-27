@@ -5,7 +5,8 @@ namespace TypingWar.Application.Features.Tournaments;
 /// <summary>Turnir asosiy ma'lumoti (ro'yxat + sarlavha uchun).</summary>
 public record TournamentInfoDto(
     Guid Id, string Name, TournamentStatus Status, DateTime StartAt,
-    int Capacity, int PlayerCount, Guid? ChampionId, string? Champion, string Settings);
+    int Capacity, int PlayerCount, Guid? ChampionId, string? Champion, string Settings,
+    bool IsPrivate);
 
 /// <summary>Bracketdagi bitta o'yin (ko'rinish uchun).</summary>
 public record TournamentMatchDto(
@@ -22,7 +23,8 @@ public record TournamentStandingDto(
     int Rank, Guid UserId, string Username, double BestWpm, double BestAccuracy,
     int EliminatedRound, string EliminatedRoundName, bool IsChampion);
 
-/// <summary>Turnir to'liq ko'rinishi (bracket sahifasi uchun).</summary>
+/// <summary>Turnir to'liq ko'rinishi (bracket sahifasi uchun).
+/// IsLocked=true bo'lsa — shaxsiy turnir, ko'ruvchi ruxsatsiz: bracket/o'yinchilar bo'sh qaytariladi.</summary>
 public record TournamentDetailDto(
     TournamentInfoDto Info,
     IReadOnlyList<TournamentPlayerDto> Players,
@@ -30,4 +32,5 @@ public record TournamentDetailDto(
     IReadOnlyList<TournamentStandingDto> Standings,
     bool IsRegistered,
     bool IsHost,
-    Guid? MyUserId);
+    Guid? MyUserId,
+    bool IsLocked);

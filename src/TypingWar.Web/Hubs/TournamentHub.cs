@@ -3,6 +3,7 @@ using System.Text.Json;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TypingWar.Application.Common.Interfaces;
 using TypingWar.Application.Features.Rooms;
@@ -67,6 +68,20 @@ public class TournamentHub : Hub
     public async Task JoinTournament(string tournamentId)
     {
         if (!Guid.TryParse(tournamentId, out var id)) return;
+
+        // XAVFSIZLIK: shaxsiy turnir — faqat host yoki ro'yxatdan o'tgan o'yinchi
+        // guruhga qo'shiladi (jonli bracket/snapshot ruxsatsizga uzatilmaydi).
+        var t = await _db.Tournaments.FindAsync(id);
+        if (t is null) { await Clients.Caller.SendAsync("Error", "Turnir topilmadi."); return; }
+        if (t.IsPrivate)
+        {
+            var uid = UserId;
+            bool allowed = uid is Guid au &&
+                (au == t.HostId ||
+                 await _db.TournamentPlayers.AnyAsync(p => p.TournamentId == id && p.UserId == au));
+            if (!allowed) { await Clients.Caller.SendAsync("Locked"); return; }
+        }
+
         await Groups.AddToGroupAsync(Context.ConnectionId, Group(id));
 
         var live = await EnsureLive(id);
