@@ -23,4 +23,11 @@ public class UserProfileReader : IUserProfileReader
             .Select(u => new UserProfileInfo(
                 u.UserName!, u.EloRating, u.RegionCode, u.AvatarUrl, u.CreatedAt))
             .FirstOrDefaultAsync(ct);
+
+    public async Task<UserPublicProfile?> GetByUsernameAsync(string username, CancellationToken ct = default)
+        => await _db.Users
+            .Where(u => u.NormalizedUserName == username.ToUpperInvariant())
+            .Select(u => new UserPublicProfile(
+                u.Id, u.UserName!, u.EloRating, u.RegionCode, u.AvatarUrl, u.CreatedAt))
+            .FirstOrDefaultAsync(ct);
 }

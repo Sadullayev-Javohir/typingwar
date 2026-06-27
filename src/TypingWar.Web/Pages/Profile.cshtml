@@ -4,39 +4,20 @@
     ViewData["Title"] = "Profil";
 }
 
-<div id="tw-profile" class="tw-profile" data-authenticated="@Model.IsAuthenticated.ToString().ToLower()">
-    @if (!Model.IsAuthenticated)
-    {
-        <p class="text-center text-secondary mt-4">Profil uchun <a asp-page="/Login" class="tw-accent">tizimga kiring</a>.</p>
-    }
-    else
-    {
-        <div class="tw-profile-head text-center">
-            <h2 id="tw-p-name" class="tw-accent mb-0">…</h2>
-            <p class="text-secondary mb-0">
-                <span id="tw-p-region"></span> · ELO <span id="tw-p-elo" class="tw-accent"></span>
-                · <span id="tw-p-joined"></span>
-            </p>
-        </div>
-        <div id="tw-p-err" class="text-danger text-center"></div>
-
-        <div class="row g-4 mt-1">
-            <div class="col-md-6">
-                <h6 class="text-secondary">Shaxsiy rekordlar</h6>
-                <ul id="tw-p-pbs" class="tw-ranks"></ul>
-            </div>
-            <div class="col-md-6">
-                <h6 class="text-secondary">So'nggi natijalar</h6>
-                <ul id="tw-p-recent" class="tw-ranks"></ul>
-            </div>
-        </div>
-
-        <p class="text-center mt-3">
-            <a asp-page="/Fingerprint" class="btn btn-outline-warning btn-sm">Yozish Pasporti</a>
-            <a asp-page="/Review" class="btn btn-outline-warning btn-sm">Takroriy mashq</a>
+@if (!Model.IsAuthenticated)
+{
+    <div class="tw-profile2">
+        <p class="text-center text-secondary mt-5">
+            Profilingizni ko'rish uchun <a asp-page="/Login" class="tw-accent">tizimga kiring</a>.
         </p>
-    }
-</div>
+    </div>
+}
+else
+{
+    <div id="tw-profile-root" class="tw-profile2" data-endpoint="/api/profile" data-own="true">
+        <div class="tw-profile-loading">Profil yuklanmoqda…</div>
+    </div>
+}
 
 @section Scripts {
     <script src="~/js/profile.js" asp-append-version="true"></script>

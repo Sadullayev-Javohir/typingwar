@@ -1,0 +1,14 @@
+@page "/share/{username}"
+@model ShareModel
+@{
+    ViewData["Title"] = Model.Username + " — profil";
+}
+
+<div id="tw-profile-root" class="tw-profile2"
+     data-endpoint="/api/profile/@Uri.EscapeDataString(Model.Username)" data-own="false">
+    <div class="tw-profile-loading">@Model.Username profili yuklanmoqda…</div>
+</div>
+
+@section Scripts {
+    <script src="~/js/profile.js" asp-append-version="true"></script>
+}

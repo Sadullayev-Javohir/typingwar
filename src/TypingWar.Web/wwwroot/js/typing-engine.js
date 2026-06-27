@@ -442,12 +442,18 @@
         requestAnimationFrame(() => drawChart(data)); // layoutdan keyin (clientWidth to'g'ri bo'lsin)
     }
 
-    // Avvalgi eng yaxshi WPM bilan solishtiradi (brauzerda saqlanadi); rekord bo'lsa true
+    // Avvalgi eng yaxshi WPM bilan solishtiradi (brauzerda saqlanadi); rekord bo'lsa true.
+    // BIRINCHI natija (avvalgi rekord yo'q) ham rekord hisoblanadi — yangi foydalanuvchi
+    // 1 wpm bilan yozsa ham bu uning birinchi darajasi, shuning uchun toj chiqadi.
     function checkRecord(wpm) {
-        let prev = 0;
-        try { prev = parseFloat(localStorage.getItem("tw_best_wpm") || "0") || 0; } catch (e) { }
-        const isRecord = prev > 0 && wpm > prev;
-        if (wpm > prev) { try { localStorage.setItem("tw_best_wpm", String(wpm)); } catch (e) { } }
+        let prev = 0, hasPrev = false;
+        try {
+            const raw = localStorage.getItem("tw_best_wpm");
+            hasPrev = raw !== null;
+            prev = parseFloat(raw || "0") || 0;
+        } catch (e) { }
+        const isRecord = !hasPrev || wpm > prev;
+        if (!hasPrev || wpm > prev) { try { localStorage.setItem("tw_best_wpm", String(wpm)); } catch (e) { } }
         return isRecord;
     }
 
@@ -631,6 +637,12 @@
             } else if (r.ok) {
                 const dto = await r.json();
                 msgEl.textContent = dto.isNewPersonalBest ? "🏆 Yangi shaxsiy rekord!" : "Natija saqlandi.";
+                // Server (rejim bo'yicha) shaxsiy rekordni tasdiqlasa — tojni ko'rsatamiz
+                if (dto.isNewPersonalBest) {
+                    const crownEl = document.getElementById("tw-r-crown");
+                    if (crownEl) crownEl.classList.remove("d-none");
+                    document.body.classList.add("tw-record");
+                }
             } else {
                 const err = await r.json().catch(() => ({}));
                 msgEl.textContent = err.error || "Saqlashda xatolik.";

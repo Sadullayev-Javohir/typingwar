@@ -339,6 +339,37 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-17] FAQAT GOOGLE AUTH + /Profile 2.0 + /share/{username} + birinchi rekord toji:
+    (1) AUTH endi faqat Google OAuth — email/parol BUTUNLAY olib tashlandi. RegisterCommand/
+    LoginCommand/AuthService parol metodlari o'chirildi. IIdentityService qayta yozildi:
+    FindOrCreateGoogleUserAsync (Google sub yoki email bo'yicha topadi/parolsiz yaratadi,
+    rollarni qaytaradi), CompleteProfileAsync (username unique + hudud validatsiya),
+    IsUsernameAvailableAsync. ApplicationUser'ga GoogleId + ProfileCompleted qo'shildi
+    (migration AddGoogleAuthAndProfileCompletion; mavjud, hududi bor userlar ProfileCompleted=true).
+    AuthController: GET /api/auth/google (Challenge; sozlanmagan bo'lsa /Login?error=...),
+    GET /api/auth/google/callback (External cookie'dan o'qiydi→topadi/yaratadi→JWT cookie[rollar bilan]
+    →ProfileCompleted false bo'lsa /CompleteProfile), POST /api/auth/complete-profile,
+    GET /api/auth/username-available. JWT endi rollarni ham o'z ichiga oladi (admin nav ishlaydi).
+    (2) /Login — Google bilan davom etish kartasi (tw-gauth/tw-google-btn dizayni); /Register →
+    /Login ga redirect; nav'da yagona "Kirish" (Google). Yangi /CompleteProfile sahifasi:
+    username (jonli unique tekshiruv, @ prefiks, regex) + hudud select (tw-cp-* dizayn,
+    complete-profile.js). Google sozlanmagan bo'lsa /Login'da do'stona xabar.
+    (3) /Profile butunlay qayta dizayn (tw-profile2): banner+gradient, rangli initial avatar,
+    ELO/hudud/qo'shilgan sana, 6 STATISTIKA kartasi (eng yuqori WPM, o'rtacha WPM/aniqlik,
+    jami poyga, jami vaqt, rekordlar soni), 5 rejim PB jadvali (eng kuchli PB'da TOJ),
+    so'nggi 12 natija. "Profilni ulashish" tugmasi → havola nusxalanadi (toast).
+    GetProfileQuery kengaytirildi (ProfileStatsDto), yangi GetPublicProfileQuery + ProfileBuilder.
+    (4) /share/{username} — anonim ko'riladigan ommaviy profil (bir xil tw-profile2 render,
+    profile.js data-own=false, "Sen ham sinab ko'r" CTA). GET /api/profile/{username}
+    (AllowAnonymous, NormalizedUserName bo'yicha case-insensitive). Username Identity'da unique.
+    (5) BIRINCHI REKORD TOJI: typing-engine.js checkRecord endi birinchi natijani (avvalgi
+    rekord yo'q) ham rekord deb biladi — yangi user 1 wpm yozsa ham toj chiqadi; sekin oshsa
+    yana rekord. Server PB (rejim bo'yicha) tasdiqlasa submit() ham tojni ko'rsatadi.
+    site.css tw-gauth/tw-cp/tw-profile2/tw-stat/tw-pb/tw-recent/tw-toast bloklari; sw.js cache v31;
+    dead auth.js o'chirildi. Build OK, 97 test, headless Chrome /share render (avatar/6 stat/
+    5 PB+toj/CTA) + /api/profile own&public + complete-profile rename/validatsiya tasdiqlandi.
+    ⚠️ Ishlashi uchun appsettings Authentication:Google ClientId/ClientSecret kerak
+    (Google Console redirect URI: https://typingwar.uz/signin-google + dev uchun localhost).
   - [2026-06-17] /Map butunlay qayta loyihalashtirildi — faqat O'zbekiston xaritasi
     (heat map + jonli reyting), yozish maydonisiz:
     (1) /Map endi faqat xarita: hero + kuchli SVG O'zbekiston xaritasi (14 hudud,
@@ -587,7 +618,7 @@ Hal qilinmagan muammolar:
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
   - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
-Oxirgi git commit: /Map qayta loyihalashtirildi — faqat O'zbekiston xaritasi (heat map + jonli reyting), yozish maydonisiz, hudud bosilganda ishtirokchi+o'rtacha WPM, signup'da hudud majburiy
+Oxirgi git commit: Faqat Google auth + /Profile 2.0 + /share/{username} + birinchi rekord toji
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.

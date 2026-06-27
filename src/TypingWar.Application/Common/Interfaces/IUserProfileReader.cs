@@ -11,7 +11,13 @@ public interface IUserProfileReader
 
     /// <summary>Foydalanuvchi profili (Identity) — yo'q bo'lsa null.</summary>
     Task<UserProfileInfo?> GetProfileAsync(Guid userId, CancellationToken ct = default);
+
+    /// <summary>Username bo'yicha ommaviy profil (Identity) — yo'q bo'lsa null. Username katta-kichik harfga sezgir emas.</summary>
+    Task<UserPublicProfile?> GetByUsernameAsync(string username, CancellationToken ct = default);
 }
 
 /// <summary>Identity dan o'qilgan profil ma'lumoti.</summary>
 public record UserProfileInfo(string Username, int EloRating, string? RegionCode, string? AvatarUrl, DateTime CreatedAt);
+
+/// <summary>Username bo'yicha ommaviy profil (UserId bilan — natijalarni o'qish uchun).</summary>
+public record UserPublicProfile(Guid UserId, string Username, int EloRating, string? RegionCode, string? AvatarUrl, DateTime CreatedAt);

@@ -1,28 +1,38 @@
 namespace TypingWar.Application.Common.Interfaces;
 
-/// <summary>Auth amali natijasi.</summary>
-public record AuthUserResult(
-    bool Succeeded,
+/// <summary>Google bilan kirish/ro'yxatdan o'tish natijasi.</summary>
+public record GoogleAuthResult(
     Guid UserId,
     string Username,
     string Email,
-    IReadOnlyList<string> Errors,
-    bool IsLockedOut = false)
+    bool ProfileCompleted,
+    IReadOnlyList<string> Roles);
+
+/// <summary>Profilni to'ldirish (username + hudud) natijasi.</summary>
+public record ProfileSetupResult(
+    bool Succeeded,
+    string Username,
+    IReadOnlyList<string> Errors)
 {
-    public static AuthUserResult Fail(params string[] errors) =>
-        new(false, Guid.Empty, string.Empty, string.Empty, errors);
+    public static ProfileSetupResult Fail(params string[] errors) =>
+        new(false, string.Empty, errors);
 
-    public static AuthUserResult LockedOut() =>
-        new(false, Guid.Empty, string.Empty, string.Empty,
-            new[] { "Hisob vaqtincha bloklangan. 15 daqiqadan keyin urinib ko'ring." }, true);
-
-    public static AuthUserResult Ok(Guid id, string username, string email) =>
-        new(true, id, username, email, Array.Empty<string>());
+    public static ProfileSetupResult Ok(string username) =>
+        new(true, username, Array.Empty<string>());
 }
 
-/// <summary>ASP.NET Identity ustida ishlovchi auth xizmati (UserManager — Infrastructure da).</summary>
+/// <summary>
+/// ASP.NET Identity ustida ishlovchi auth xizmati (UserManager — Infrastructure da).
+/// Faqat Google OAuth — email/parol yo'q.
+/// </summary>
 public interface IIdentityService
 {
-    Task<AuthUserResult> RegisterAsync(string username, string email, string password, string? regionCode, CancellationToken ct = default);
-    Task<AuthUserResult> LoginAsync(string usernameOrEmail, string password, CancellationToken ct = default);
+    /// <summary>Google subject bo'yicha foydalanuvchini topadi yoki yangisini yaratadi (parolsiz).</summary>
+    Task<GoogleAuthResult> FindOrCreateGoogleUserAsync(string googleId, string email, CancellationToken ct = default);
+
+    /// <summary>Google'dan keyin profilni to'ldiradi: username (unikal) + hudud.</summary>
+    Task<ProfileSetupResult> CompleteProfileAsync(Guid userId, string username, string regionCode, CancellationToken ct = default);
+
+    /// <summary>Username bo'sh (band emas)mi — joriy foydalanuvchini hisobga olmagan holda.</summary>
+    Task<bool> IsUsernameAvailableAsync(string username, Guid excludeUserId, CancellationToken ct = default);
 }

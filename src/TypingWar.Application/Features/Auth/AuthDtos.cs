@@ -1,4 +1,4 @@
 namespace TypingWar.Application.Features.Auth;
 
-/// <summary>Muvaffaqiyatli auth javobi (controller cookie o'rnatadi).</summary>
-public record AuthResultDto(Guid UserId, string Username, string Email);
+/// <summary>Profilni to'ldirish so'rovi (Google'dan keyin): username + hudud.</summary>
+public record CompleteProfileRequest(string Username, string RegionCode);

@@ -1,0 +1,47 @@
+@page
+@model CompleteProfileModel
+@{
+    ViewData["Title"] = "Profilni to'ldirish";
+}
+
+<div class="tw-gauth">
+    <div class="tw-gauth-card tw-gauth-card--wide" id="tw-cp" data-suggested="@Model.SuggestedUsername">
+        <div class="tw-cp-step">1 qadam qoldi</div>
+        <h1 class="tw-gauth-title">Deyarli tayyor! 🎉</h1>
+        <p class="tw-gauth-sub">Reytingda ko'rinishingiz uchun nom va hududni tanlang</p>
+
+        <form id="tw-cp-form" class="tw-cp-form" autocomplete="off">
+            <div class="tw-cp-field">
+                <label class="tw-cp-label">Foydalanuvchi nomi</label>
+                <div class="tw-cp-input-wrap">
+                    <span class="tw-cp-at">@@</span>
+                    <input id="tw-cp-username" name="username" class="tw-cp-input" required
+                           minlength="3" maxlength="32" autofocus
+                           value="@Model.SuggestedUsername"
+                           placeholder="masalan: tezbarmoq" />
+                    <span id="tw-cp-status" class="tw-cp-status"></span>
+                </div>
+                <div class="tw-cp-help" id="tw-cp-help">Faqat harf, raqam va _ . Nom takrorlanmas (unique) bo'lishi kerak.</div>
+            </div>
+
+            <div class="tw-cp-field">
+                <label class="tw-cp-label">Yashash hududingiz</label>
+                <select id="tw-cp-region" name="regionCode" class="tw-cp-select" required>
+                    <option value="" disabled selected>— hududingizni tanlang —</option>
+                    @foreach (var r in Model.Regions)
+                    {
+                        <option value="@r.Key">@r.Value</option>
+                    }
+                </select>
+                <div class="tw-cp-help">Natijangiz O'zbekiston xaritasida shu hududga qo'shiladi.</div>
+            </div>
+
+            <div class="tw-cp-err" id="tw-cp-err"></div>
+            <button type="submit" id="tw-cp-submit" class="tw-rbtn tw-rbtn--gold">Profilni saqlash va boshlash</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/complete-profile.js" asp-append-version="true"></script>
+}
