@@ -339,6 +339,26 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-17] /Map butunlay qayta loyihalashtirildi — faqat O'zbekiston xaritasi
+    (heat map + jonli reyting), yozish maydonisiz:
+    (1) /Map endi faqat xarita: hero + kuchli SVG O'zbekiston xaritasi (14 hudud,
+    haqiqiy geografiyaga yaqin path shakllar, gradient/glow/grid pattern), jonli
+    yorug'lik chizig'i (twSweepMove), lider hudud pulslanadi (twLeaderPulse), hover
+    glow, jonli yangilanishda flash. Input (yozish) butunlay olib tashlandi.
+    (2) Xaritada har hududda 30s ENG TEZ WPM; rang issiqlik shkalasi (hsl ko'k→qizil).
+    Hudud/yorliq bosilganda detal kartasi: eng tez WPM + ishtirokchilar soni +
+    o'rtacha WPM. Pastida 14 hudud reyting jadvali (rangli bar, o'rin, o'rtacha, kishi).
+    (3) Ro'yxatdan o'tishda HUDUD MAJBURIY: RegisterCommandValidator NotEmpty +
+    Register.cshtml select required (placeholder disabled).
+    (4) Backend: statistika endi Users(RegionCode)+PersonalBests(30s) dan hisoblanadi
+    (IRegionStatsReader→RegionStatsReader, Infrastructure). RegionStatDto+BestWpm,
+    RegionMapDto.MaxBestWpm. GetRegionStatsQuery qayta yozildi + GetRegionStatQuery(code).
+    SubmitRegionResult o'chirildi, UzMapHub soddalashtirildi (faqat JoinMap). Jonli:
+    30s yangi PB o'rnatilganda PracticeController IHubContext<UzMapHub> orqali
+    "RegionUpdated" uzatadi. site.css yangi tw-map/region/detail/rank bloklari, sw v30.
+    Build OK, 97 test, headless Chrome: konsol toza, 14 hudud/yorliq/reyting render,
+    hudud bosilganda detal (eng tez/ishtirokchi/o'rtacha) to'g'ri, bo'sh hudud holati,
+    /api/regions yangi shakl (bestWpm/avgWpm/playerCount) tasdiqlandi.
   - [2026-06-17] /Tournament — gepard kubogi qayta quruldi + matn turi tuzatildi:
     (1) MATN TURI BUG: turnir yaratishda "So'z" (10 ta) tanlansa ham doim Iqtibos matni chiqardi.
     Sabab: TournamentsController.Create Settings'ni `object?` (JsonElement) sifatida bog'lab,
@@ -567,7 +587,7 @@ Hal qilinmagan muammolar:
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
   - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
-Oxirgi git commit: /Tournament — host o'chirish + avtomatik bracket (ishtirokchilarga moslash, byelar o'ng/chap teng) + playoff markazida 3D oltin gepard kubogi (aylanadi, nur taratadi, chempion oladi)
+Oxirgi git commit: /Map qayta loyihalashtirildi — faqat O'zbekiston xaritasi (heat map + jonli reyting), yozish maydonisiz, hudud bosilganda ishtirokchi+o'rtacha WPM, signup'da hudud majburiy
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.
