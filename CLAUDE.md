@@ -644,7 +644,20 @@ Hal qilinmagan muammolar:
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
   - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
-Oxirgi git commit: /Tournaments — shaxsiy (parolli) turnir + qulflangan ko'rinish + 1 soatlik avtomatik tozalash
+DEPLOY (jonli):
+  - [2026-06-18] PRODUCTION'ga deploy qilindi — Hetzner cx23 (89.167.74.156), Docker Compose.
+    Fayllar: Dockerfile (multi-stage .NET 8), docker-compose.prod.yml (postgres+redis+app+nginx,
+    secretlar .env dan), nginx/conf.d/default.conf (HTTP-first + SignalR WS proxy), nginx/ssl.conf
+    (HTTPS shabloni), deploy/ (.env.example, init-ssl.sh Let's Encrypt, DEPLOY.md qo'llanma),
+    certbot/ volume. Server: Ubuntu 24.04, deploy key bilan /opt/typingwar ga klon, .env
+    (avtomatik generatsiya PW/JWT), `docker compose -f docker-compose.prod.yml up -d --build`.
+    Migration startupda avtomatik. HOLAT: http://89.167.74.156 JONLI ishlayapti.
+    Tuzatish: Program.cs Hangfire RecurringJob/BackgroundJob statik API toza konteyner startida
+    JobStorage.Current yo'qligidan yiqilardi -> DI (IRecurringJobManager/IBackgroundJobClient) ga
+    o'tkazildi; HTTPS redirect sozlanadigan (Hosting:UseHttpsRedirection, prod=false, nginx redirect).
+    QOLDI: (1) DNS typingwar.uz -> 89.167.74.156, (2) bash deploy/init-ssl.sh (SSL), (3) Google OAuth
+    (.env GOOGLE_CLIENT_ID/SECRET + redirect URI https://typingwar.uz/signin-google).
+Oxirgi git commit: Deploy: ADMIN_EMAIL va Let's Encrypt emailini to'g'ri emailga o'zgartirish
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.
