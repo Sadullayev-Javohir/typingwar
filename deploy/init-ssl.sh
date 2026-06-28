@@ -6,7 +6,7 @@ set -euo pipefail
 
 DOMAIN="typingwar.uz"
 WWW="www.typingwar.uz"          # www DNS yo'q bo'lsa pastdagi -d "$WWW" ni o'chiring
-EMAIL="abdukarimqarshiyev1@gmail.com"
+EMAIL="javohirsadullayev836@gmail.com"
 COMPOSE="docker compose -f docker-compose.prod.yml"
 
 echo ">> 1) certbot sertifikat so'rayapti (webroot orqali)..."
