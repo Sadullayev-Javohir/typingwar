@@ -1,0 +1,77 @@
+# TypingWar.uz — PRODUCTION stack (server uchun)
+# Ishga tushirish:  docker compose -f docker-compose.prod.yml up -d --build
+# Sozlamalar .env faylidan o'qiladi (deploy/.env.example dan nusxa oling)
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: typingwar-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: typingwar
+      POSTGRES_USER: typingwar
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Diqqat: portlar tashqariga OCHILMAYDI (xavfsizlik). Faqat ichki tarmoq.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U typingwar -d typingwar"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    container_name: typingwar-redis
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: typingwar-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      # .NET config: "__" = bo'lim ajratkichi (Jwt:Key -> Jwt__Key)
+      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=typingwar;Username=typingwar;Password=${POSTGRES_PASSWORD}"
+      ConnectionStrings__Redis: "redis:6379"
+      Jwt__Key: ${JWT_KEY}
+      # HTTP-first bosqichda false; SSL ulangach nginx redirect qiladi (true shart emas)
+      Hosting__UseHttpsRedirection: "${USE_HTTPS_REDIRECTION:-false}"
+      Authentication__Google__ClientId: "${GOOGLE_CLIENT_ID:-}"
+      Authentication__Google__ClientSecret: "${GOOGLE_CLIENT_SECRET:-}"
+      Admin__Email: "${ADMIN_EMAIL:-}"
+    expose:
+      - "8080"
+
+  nginx:
+    image: nginx:1.27
+    container_name: typingwar-nginx
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certbot/www:/var/www/certbot:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+
+volumes:
+  pgdata:
+  redisdata:

@@ -134,16 +134,22 @@ using (var scope = app.Services.CreateScope())
 app.UseForwardedHeaders();
 app.UseSerilogRequestLogging();   // tashqarida — API exception handler 400 ni toza loglaydi
 
+// Reverse proxy (nginx) orqasida HTTP→HTTPS redirect'ni nginx bajaradi.
+// Local/dev da true (appsettings), prod konteynerda Hosting__UseHttpsRedirection=false.
+var useHttpsRedirection = builder.Configuration.GetValue("Hosting:UseHttpsRedirection", true);
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    app.UseHsts();
+    if (useHttpsRedirection)
+        app.UseHsts();
 }
 
 // API xatolarini (ValidationException→400, Unauthorized→401) JSON ko'rinishida
 app.UseMiddleware<ApiExceptionMiddleware>();
 
-app.UseHttpsRedirection();
+if (useHttpsRedirection)
+    app.UseHttpsRedirection();
 
 // PWA manifest MIME (.webmanifest static files default da noma'lum)
 var contentTypes = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
@@ -175,13 +181,21 @@ app.MapHub<TypingWar.Web.Hubs.UzMapHub>("/hubs/uzmap");
 if (app.Environment.IsDevelopment())
     app.UseHangfireDashboard("/jobs");
 
-RecurringJob.AddOrUpdate<ScheduledJobs>("daily-contest",
-    x => x.EnsureDailyContestAsync(), "0 20 * * *");          // har kuni 20:00
-RecurringJob.AddOrUpdate<ScheduledJobs>("tournament-starter",
-    x => x.StartDueTournamentsAsync(), "* * * * *");          // har daqiqa
-RecurringJob.AddOrUpdate<ScheduledJobs>("tournament-cleanup",
-    x => x.CleanupExpiredTournamentsAsync(), "*/10 * * * *"); // har 10 daqiqada (tugaganidan 1 soat keyin o'chiradi)
-BackgroundJob.Enqueue<ScheduledJobs>(x => x.EnsureDailyContestAsync()); // bugungisi darhol
+// Statik RecurringJob/BackgroundJob API JobStorage.Current ga tayanadi va toza startda
+// (konteyner) hali o'rnatilmagan bo'lishi mumkin → DI orqali ishlatamiz (tavsiya etilgan usul).
+using (var jobScope = app.Services.CreateScope())
+{
+    var recurring = jobScope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
+    recurring.AddOrUpdate<ScheduledJobs>("daily-contest",
+        x => x.EnsureDailyContestAsync(), "0 20 * * *");          // har kuni 20:00
+    recurring.AddOrUpdate<ScheduledJobs>("tournament-starter",
+        x => x.StartDueTournamentsAsync(), "* * * * *");          // har daqiqa
+    recurring.AddOrUpdate<ScheduledJobs>("tournament-cleanup",
+        x => x.CleanupExpiredTournamentsAsync(), "*/10 * * * *"); // har 10 daqiqada (tugaganidan 1 soat keyin o'chiradi)
+
+    var background = jobScope.ServiceProvider.GetRequiredService<IBackgroundJobClient>();
+    background.Enqueue<ScheduledJobs>(x => x.EnsureDailyContestAsync()); // bugungisi darhol
+}
 
 app.Run();
 

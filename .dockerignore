@@ -1,0 +1,29 @@
+# Build artefaktlari
+**/bin/
+**/obj/
+**/out/
+
+# Git va IDE
+.git/
+.github/
+.idea/
+.vs/
+.vscode/
+.claude/
+
+# Hujjat va loglar
+loglar/
+*.log
+*.md
+*.docx
+
+# Maxfiy fayllar
+.env
+*.pfx
+appsettings.*.Local.json
+
+# Deploy infratuzilmasi (image ichida kerak emas)
+docker-compose*.yml
+nginx/
+certbot/
+deploy/
