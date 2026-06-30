@@ -650,6 +650,7 @@ body.tw-record {
 
 .tw-rooms-grid {
     display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-bottom: 2.25rem;
+    align-items: start;
 }
 @@media (max-width: 720px) { .tw-rooms-grid { grid-template-columns: 1fr; } }
 

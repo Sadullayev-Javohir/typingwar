@@ -11,10 +11,14 @@ const ACCENT = 0xff9900;
     const mount = document.getElementById("tw-cheetah-3d");
     if (!mount) return;
 
+    // Loader — gepard sahnasi tayyor bo'lguncha ko'rsatiladi (faqat /home da bor)
+    const loaderEl = document.getElementById("tw-cheetah-loader");
+    function hideLoader() { loaderEl && loaderEl.classList.add("tw-hide"); }
+
     try {
         const test = document.createElement("canvas");
-        if (!(test.getContext("webgl") || test.getContext("experimental-webgl"))) return;
-    } catch (e) { return; }
+        if (!(test.getContext("webgl") || test.getContext("experimental-webgl"))) { hideLoader(); return; }
+    } catch (e) { hideLoader(); return; }
 
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const W = () => mount.clientWidth || 480;
@@ -291,6 +295,7 @@ const ACCENT = 0xff9900;
     let t = 0;
     const clock = new THREE.Clock();
     const pawWorld = new THREE.Vector3();
+    let firstFrame = true;
 
     function frame() {
         const dt = Math.min(clock.getDelta(), 0.05);
@@ -353,6 +358,9 @@ const ACCENT = 0xff9900;
         camera.lookAt(0, 1.15, 0.9);
 
         renderer.render(scene, camera);
+
+        // birinchi kadr chizilgach loader yashiriladi (gepard endi ko'rinadi)
+        if (firstFrame) { firstFrame = false; hideLoader(); }
     }
 
     let raf;
