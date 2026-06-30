@@ -1,0 +1,42 @@
+name: Deploy
+
+# CI (build + test) master'da muvaffaqiyatli tugagandan SO'NG ishga tushadi.
+# Server: Hetzner (Docker Compose). git pull + qayta build qiladi.
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Serverga deploy (Hetzner)
+    runs-on: ubuntu-latest
+    # Faqat CI muvaffaqiyatli bo'lsa (qo'lda ishga tushirishda ham o'tadi)
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Serverda yangilash (SSH)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT }}
+          script_stop: true
+          script: |
+            set -e
+            cd /opt/typingwar
+            git fetch --all
+            git reset --hard origin/master
+            docker compose -f docker-compose.prod.yml up -d --build
+            docker image prune -f
+            docker compose -f docker-compose.prod.yml ps

@@ -644,6 +644,15 @@ Hal qilinmagan muammolar:
   - SignalR client CDN dan (PWA bosqichida local ga)
   - Google OAuth UI tugmasi yo'q; SoundOnClick ovozi ulanmagan; Theme=Custom=Dark
   - Real-time oqimlar brauzerda qo'lda sinalishi kerak (negotiate+bo'laklar OK)
+CI/CD (GitHub Actions):
+  - [2026-06-18] CI/CD sozlandi (.github/workflows/): (1) ci.yml — har push/PR(master)da
+    dotnet restore+build(Release)+test (97 test), NuGet kesh. (2) deploy.yml — CI master'da
+    muvaffaqiyatli tugagach (workflow_run, conclusion==success) yoki qo'lda (workflow_dispatch)
+    Hetzner serverga appleboy/ssh-action orqali ulanadi: cd /opt/typingwar && git fetch +
+    reset --hard origin/master && docker compose -f docker-compose.prod.yml up -d --build +
+    image prune. concurrency guard (bir vaqtda 1 deploy). KERAK: repo secrets DEPLOY_HOST,
+    DEPLOY_USER, DEPLOY_PORT, DEPLOY_SSH_KEY (qo'llanma: deploy/CICD.md). Lokal CI tasdiqlandi
+    (build+97 test OK).
 DEPLOY (jonli):
   - [2026-06-18] PRODUCTION'ga deploy qilindi — Hetzner cx23 (89.167.74.156), Docker Compose.
     Fayllar: Dockerfile (multi-stage .NET 8), docker-compose.prod.yml (postgres+redis+app+nginx,
