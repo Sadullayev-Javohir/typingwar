@@ -12,7 +12,7 @@ public record UserSettingsDto
     public Difficulty Difficulty { get; init; } = Difficulty.Normal;
     public Language Language { get; init; } = Language.Uzbek;
 
-    public Theme Theme { get; init; } = Theme.Dark;
+    public Theme Theme { get; init; } = Theme.Monokai;
     public string FontFamily { get; init; } = "JetBrains Mono";
     public int FontSize { get; init; } = 18;
     public CaretStyle CaretStyle { get; init; } = CaretStyle.Line;

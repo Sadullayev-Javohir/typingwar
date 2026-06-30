@@ -7,7 +7,7 @@
         textMode: "Words", wordCount: 25, timedMode: false, timeLimitSeconds: 30,
         quoteLength: "all",
         difficulty: "Normal", language: "Uzbek",
-        theme: "Dark", fontFamily: "JetBrains Mono", fontSize: 18,
+        theme: "Monokai", fontFamily: "JetBrains Mono", fontSize: 18,
         caretStyle: "Line", smoothCaret: true,
         background: "nextjs",
         showLiveWpm: true, showLiveAcc: true, showLiveTimer: true,
@@ -83,7 +83,7 @@
         apply() {
             const s = this.current;
             const root = document.documentElement;
-            const theme = THEME_MAP[s.theme] || THEME_MAP.Dark;
+            const theme = THEME_MAP[s.theme] || THEME_MAP.Monokai;
 
             // Tema CSS o'zgaruvchilari (:root ga o'rnatiladi)
             root.style.setProperty('--tw-bg',          theme.bg);

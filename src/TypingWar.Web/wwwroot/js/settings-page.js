@@ -316,7 +316,10 @@
         }
         if (fLabel) fLabel.textContent = S.get('fontFamily');
         if (sLabel) sLabel.textContent = S.get('fontSize') + 'px';
-        if (tLabel) tLabel.textContent = S.get('theme');
+        if (tLabel) {
+            const t = THEMES.find(x => x.id === S.get('theme'));
+            tLabel.textContent = t ? t.name : S.get('theme');
+        }
     }
 
     S.onChange(refresh);

@@ -16,7 +16,7 @@ public class UserSettings
     public Language Language { get; set; } = Language.Uzbek;
 
     // Ko'rinish
-    public Theme Theme { get; set; } = Theme.Dark;
+    public Theme Theme { get; set; } = Theme.Monokai;
     public string FontFamily { get; set; } = "JetBrains Mono";
     public int FontSize { get; set; } = 18;             // 14–60 px
     public CaretStyle CaretStyle { get; set; } = CaretStyle.Line;
