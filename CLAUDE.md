@@ -339,6 +339,27 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-18] /Admin paneli to'liq qayta qurildi + SuperAdmin roli:
+    (1) ROLLAR: yangi "SuperAdmin" roli + mavjud "Admin". Config Admin:SuperEmail
+    (standart javohirsadullayev836@gmail.com) → bu email Admin+SuperAdmin oladi; Admin:Email →
+    faqat Admin. Program.cs startupda 2 rol seed qilinadi + email bo'yicha tayinlanadi.
+    AuthService.FindOrCreateGoogleUser kirishda ham IConfiguration orqali admin rollarini
+    ta'minlaydi (birinchi loginda darhol ishlaydi, restart kutilmaydi). JWT'da ClaimTypes.Role.
+    docker-compose.prod.yml: Admin__SuperEmail env (ADMIN_SUPER_EMAIL), deploy/.env.example yangilandi.
+    (2) BACKEND: IAdminService (Infrastructure/Identity/AdminService — UserManager+AppDbContext):
+    ListUsersAsync (qidiruv, poyga soni+eng yaxshi WPM bilan), DeleteUserAsync (SuperAdmin himoyalangan;
+    bog'liq domen ma'lumotlari ExecuteDeleteAsync bilan tozalanadi: RaceResults/PersonalBests/
+    UserSettings/Fingerprints/ContestEntries/RoomPlayers/TeamMembers/TournamentPlayers/Friendships),
+    SetAdminRoleAsync (Admin rolini ber/ol; SuperAdmin himoyalangan), GetUsernamesAsync. CQRS:
+    ListUsers/DeleteUser(o'zini o'chirib bo'lmaydi)/SetUserRole/AdminListTournaments/AdminDeleteTournament
+    (host tekshiruvisiz). Endpointlar: GET /api/admin/users?search=, GET /tournaments (Admin);
+    DELETE /users/{id}, POST /users/{id}/role (faqat SuperAdmin); DELETE /tournaments/{id} (Admin).
+    (3) FRONTEND: /Admin zamonaviy dizayn (default fon, mavjud tokenlar) — hero+badge (SuperAdmin/Admin),
+    6 statistika kartasi, 3 tab (Foydalanuvchilar/Turnirlar/Matn). Foydalanuvchilar jadvali: avatar+ism+
+    email, hudud, ELO, poyga, eng yaxshi WPM, rol belgilar, sana; SuperAdmin uchun admin qil/ol + o'chirish
+    tugmalari (confirm bilan). Turnirlar jadvali: nom/host/holat/o'yinchi/turi/sana + o'chirish. Matn qo'shish
+    (mavjud). site.css tw-admin-stats/tabs/table/role/tstatus/mini-btn; sw.js cache v39. admin.js qayta
+    yozildi. Build OK, 97 test, anon endpointlar 401 (himoya tasdiqlandi).
   - [2026-06-18] /Profile — shaxsiy rekordlar VAQT va SO'Z bo'limlari bo'yicha ALOHIDA
     (avval PB faqat TimeMode bo'yicha edi; so'z rejimidagi natijalar eng yaqin vaqt rejimiga
     "yopishtirilardi" — endi har bir bo'lim mustaqil rekord):

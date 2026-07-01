@@ -1244,7 +1244,91 @@ body.tw-record {
 .tw-profile { max-width: 800px; margin: 1.5rem auto; }
 .tw-profile-head { background: var(--tw-surface); border-radius: 12px; padding: 1.25rem;
     border-top: 3px solid var(--tw-gold); }
-.tw-admin-num { font-size: 2rem; font-weight: 800; color: var(--tw-gold); font-family: var(--tw-font); }
+.tw-admin-num { font-size: 1.9rem; font-weight: 800; color: var(--tw-gold); line-height: 1; font-family: var(--tw-ui-font); }
+
+/* ───── Admin paneli ───── */
+.tw-admin-stats {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: .9rem; margin-bottom: 2rem;
+}
+@media (max-width: 860px) { .tw-admin-stats { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 480px) { .tw-admin-stats { grid-template-columns: repeat(2, 1fr); } }
+.tw-admin-stat {
+    background: var(--tw-surface); border: 1px solid var(--tw-border); border-radius: 14px;
+    padding: 1.1rem .75rem; text-align: center; display: flex; flex-direction: column;
+    align-items: center; gap: .35rem; transition: border-color .2s, transform .2s;
+}
+.tw-admin-stat:hover { border-color: var(--tw-border-strong); transform: translateY(-2px); }
+.tw-admin-stat > i { color: var(--tw-muted); font-size: 1.1rem; }
+.tw-admin-stat-label { color: var(--tw-muted); font-size: .78rem; }
+
+.tw-admin-tabs { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--tw-border); }
+.tw-admin-tab {
+    display: inline-flex; align-items: center; gap: .45rem;
+    background: transparent; border: 0; border-bottom: 2px solid transparent;
+    color: var(--tw-muted); font-family: var(--tw-ui-font); font-weight: 600; font-size: .92rem;
+    padding: .6rem .9rem; cursor: pointer; transition: color .15s, border-color .15s; margin-bottom: -1px;
+}
+.tw-admin-tab:hover { color: var(--tw-text); }
+.tw-admin-tab.is-active { color: var(--tw-gold); border-bottom-color: var(--tw-gold); }
+
+.tw-admin-panel { display: none; }
+.tw-admin-panel.is-active { display: block; animation: twFadeIn .25s ease; }
+@keyframes twFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+.tw-admin-toolbar { display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.tw-admin-search { flex: 1; min-width: 220px; max-width: 420px; }
+.tw-admin-search input { font-family: var(--tw-ui-font); font-size: .95rem; font-weight: 400;
+    letter-spacing: normal; text-transform: none; }
+.tw-admin-search input::placeholder { letter-spacing: normal; }
+
+.tw-admin-table-wrap { overflow-x: auto; border: 1px solid var(--tw-border); border-radius: 14px;
+    background: var(--tw-surface); }
+.tw-admin-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.tw-admin-table thead th {
+    text-align: left; color: var(--tw-muted); font-weight: 600; font-size: .78rem;
+    text-transform: uppercase; letter-spacing: .03em; padding: .8rem 1rem;
+    border-bottom: 1px solid var(--tw-border); white-space: nowrap;
+}
+.tw-admin-table td { padding: .7rem 1rem; border-bottom: 1px solid var(--tw-border); vertical-align: middle; }
+.tw-admin-table tbody tr:last-child td { border-bottom: 0; }
+.tw-admin-table tbody tr:hover { background: color-mix(in srgb, var(--tw-text) 3%, transparent); }
+.tw-admin-table .tw-num { text-align: right; font-variant-numeric: tabular-nums; }
+.tw-admin-empty { text-align: center; color: var(--tw-muted); padding: 1.8rem; }
+.tw-admin-date { color: var(--tw-muted); white-space: nowrap; }
+
+.tw-admin-user { display: flex; align-items: center; gap: .65rem; }
+.tw-admin-ava { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid;
+    place-items: center; font-weight: 700; color: #fff;
+    background: linear-gradient(135deg, var(--tw-gold), var(--tw-accent)); }
+.tw-admin-uname { color: var(--tw-text); font-weight: 600; }
+.tw-admin-uemail { color: var(--tw-muted); font-size: .8rem; }
+
+.tw-role { display: inline-block; font-size: .72rem; font-weight: 700; padding: .12rem .5rem;
+    border-radius: 999px; border: 1px solid transparent; }
+.tw-role--super { color: var(--tw-gold); background: color-mix(in srgb, var(--tw-gold) 14%, transparent);
+    border-color: color-mix(in srgb, var(--tw-gold) 35%, transparent); }
+.tw-role--admin { color: var(--tw-accent); background: color-mix(in srgb, var(--tw-accent) 12%, transparent);
+    border-color: color-mix(in srgb, var(--tw-accent) 30%, transparent); }
+.tw-role--user { color: var(--tw-muted); background: color-mix(in srgb, var(--tw-text) 6%, transparent);
+    border-color: var(--tw-border-strong); }
+
+.tw-tstatus { display: inline-block; font-size: .75rem; font-weight: 600; padding: .15rem .55rem;
+    border-radius: 999px; }
+.tw-tstatus--reg { color: var(--tw-accent); background: color-mix(in srgb, var(--tw-accent) 12%, transparent); }
+.tw-tstatus--live { color: #4ade80; background: rgba(74,222,128,.12); }
+.tw-tstatus--done { color: var(--tw-muted); background: color-mix(in srgb, var(--tw-text) 6%, transparent); }
+
+.tw-admin-actions { white-space: nowrap; text-align: right; }
+.tw-mini-btn {
+    display: inline-grid; place-items: center; width: 32px; height: 32px; margin-left: .3rem;
+    background: transparent; border: 1px solid var(--tw-border-strong); border-radius: 8px;
+    color: var(--tw-muted); cursor: pointer; transition: all .15s;
+}
+.tw-mini-btn:hover { color: var(--tw-text); border-color: var(--tw-text); }
+.tw-mini-btn--gold:hover { color: var(--tw-gold); border-color: var(--tw-gold); }
+.tw-mini-btn--danger:hover { color: #ff6b6b; border-color: #ff6b6b; background: rgba(255,107,107,.08); }
 
 /* ═══════════════════════════════════════════
    SOZLAMALAR SAHIFASI — Settings Page

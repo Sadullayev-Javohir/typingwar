@@ -6,5 +6,8 @@ namespace TypingWar.Web.Pages;
 [Authorize(Roles = "Admin")]
 public class AdminModel : PageModel
 {
-    public void OnGet() { }
+    /// <summary>SuperAdmin huquqlari (foydalanuvchi/rol boshqaruvi) UI da ko'rsatiladimi.</summary>
+    public bool IsSuperAdmin { get; private set; }
+
+    public void OnGet() => IsSuperAdmin = User.IsInRole("SuperAdmin");
 }

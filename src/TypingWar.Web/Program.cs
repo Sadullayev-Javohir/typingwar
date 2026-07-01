@@ -113,21 +113,30 @@ using (var scope = app.Services.CreateScope())
     await db.Database.MigrateAsync();
     await DataSeeder.SeedAsync(db);
 
-    // Admin roli + (sozlangan email bo'yicha) tayinlash
+    // Admin + SuperAdmin rollari + (sozlangan email bo'yicha) tayinlash
     var roleManager = scope.ServiceProvider
         .GetRequiredService<Microsoft.AspNetCore.Identity.RoleManager<Microsoft.AspNetCore.Identity.IdentityRole<Guid>>>();
-    if (!await roleManager.RoleExistsAsync("Admin"))
-        await roleManager.CreateAsync(new Microsoft.AspNetCore.Identity.IdentityRole<Guid>("Admin"));
+    foreach (var role in new[] { "Admin", "SuperAdmin" })
+        if (!await roleManager.RoleExistsAsync(role))
+            await roleManager.CreateAsync(new Microsoft.AspNetCore.Identity.IdentityRole<Guid>(role));
 
-    var adminEmail = builder.Configuration["Admin:Email"];
-    if (!string.IsNullOrWhiteSpace(adminEmail))
+    var userManager = scope.ServiceProvider
+        .GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<TypingWar.Infrastructure.Identity.ApplicationUser>>();
+
+    async Task EnsureRoleByEmailAsync(string? email, params string[] roles)
     {
-        var userManager = scope.ServiceProvider
-            .GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<TypingWar.Infrastructure.Identity.ApplicationUser>>();
-        var adminUser = await userManager.FindByEmailAsync(adminEmail);
-        if (adminUser is not null && !await userManager.IsInRoleAsync(adminUser, "Admin"))
-            await userManager.AddToRoleAsync(adminUser, "Admin");
+        if (string.IsNullOrWhiteSpace(email)) return;
+        var u = await userManager.FindByEmailAsync(email);
+        if (u is null) return;
+        foreach (var r in roles)
+            if (!await userManager.IsInRoleAsync(u, r))
+                await userManager.AddToRoleAsync(u, r);
     }
+
+    // SuperAdmin email — Admin + SuperAdmin rollari
+    await EnsureRoleByEmailAsync(builder.Configuration["Admin:SuperEmail"], "Admin", "SuperAdmin");
+    // Oddiy admin email — faqat Admin roli
+    await EnsureRoleByEmailAsync(builder.Configuration["Admin:Email"], "Admin");
 }
 
 // ── Middleware pipeline ───────────────────────────────────────

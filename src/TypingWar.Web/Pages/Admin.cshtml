@@ -4,37 +4,105 @@
     ViewData["Title"] = "Admin";
 }
 
-<div id="tw-admin" class="tw-rooms">
-    <h2 class="tw-accent text-center mb-4">Admin paneli</h2>
-    <div id="tw-admin-err" class="text-danger text-center"></div>
-
-    <div id="tw-admin-stats" class="row g-3 text-center"></div>
-
-    <div class="tw-room-card mt-4">
-        <h6>Yangi iqtibos qo'shish</h6>
-        <p class="text-secondary small mb-2">Musobaqa va practice (Iqtiboslar) uchun.</p>
-        <form id="tw-admin-addtext" class="d-flex flex-column gap-2">
-            <textarea class="form-control" name="content" rows="2" maxlength="2000"
-                      placeholder="Iqtibos matni…" required></textarea>
-            <input class="form-control" name="source" maxlength="256"
-                   placeholder="Manba (masalan: Abdulla Qodiriy, &quot;O'tkan kunlar&quot;)" />
-            <div class="d-flex gap-2 align-items-center flex-wrap">
-                <select class="form-select" name="language" style="max-width:140px">
-                    <option value="Uzbek" selected>O'zbekcha</option>
-                    <option value="English">Inglizcha</option>
-                    <option value="Russian">Ruscha</option>
-                </select>
-                <select class="form-select" name="difficulty" style="max-width:160px">
-                    <option value="Easy">Oson</option>
-                    <option value="Normal" selected>O'rta</option>
-                    <option value="Hard">Qiyin</option>
-                    <option value="Expert">Ekspert</option>
-                </select>
-                <button class="btn btn-tw" type="submit">Qo'shish</button>
-                <span id="tw-admin-msg" class="text-secondary small"></span>
-            </div>
-        </form>
+<div id="tw-admin" class="tw-rooms" data-super="@(Model.IsSuperAdmin ? "1" : "0")">
+    <div class="tw-rooms-hero">
+        <span class="tw-rooms-badge">
+            <i class="bi bi-shield-lock-fill"></i>@(Model.IsSuperAdmin ? "SuperAdmin" : "Admin") paneli
+        </span>
+        <h1>Boshqaruv markazi</h1>
+        <p>Foydalanuvchilar, turnirlar va kontentni boshqaring.</p>
     </div>
+
+    <div id="tw-admin-err" class="tw-rcard-err text-center mb-3"></div>
+
+    <div id="tw-admin-stats" class="tw-admin-stats"></div>
+
+    <div class="tw-admin-tabs" role="tablist">
+        <button class="tw-admin-tab is-active" data-tab="users"><i class="bi bi-people-fill"></i> Foydalanuvchilar</button>
+        <button class="tw-admin-tab" data-tab="tournaments"><i class="bi bi-trophy-fill"></i> Turnirlar</button>
+        <button class="tw-admin-tab" data-tab="texts"><i class="bi bi-card-text"></i> Matn qo'shish</button>
+    </div>
+
+    <!-- ── Foydalanuvchilar ── -->
+    <section class="tw-admin-panel is-active" data-panel="users">
+        <div class="tw-admin-toolbar">
+            <div class="tw-join-input tw-admin-search">
+                <i class="bi bi-search"></i>
+                <input id="tw-admin-usearch" type="text" placeholder="Ism yoki email bo'yicha qidirish…" autocomplete="off" />
+            </div>
+            <span id="tw-admin-ucount" class="text-secondary small"></span>
+        </div>
+        <div class="tw-admin-table-wrap">
+            <table class="tw-admin-table">
+                <thead>
+                    <tr>
+                        <th>Foydalanuvchi</th>
+                        <th>Hudud</th>
+                        <th class="tw-num">ELO</th>
+                        <th class="tw-num">Poyga</th>
+                        <th class="tw-num">Eng yaxshi</th>
+                        <th>Rol</th>
+                        <th>Sana</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="tw-admin-users"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ── Turnirlar ── -->
+    <section class="tw-admin-panel" data-panel="tournaments">
+        <div class="tw-admin-toolbar">
+            <span id="tw-admin-tcount" class="text-secondary small"></span>
+        </div>
+        <div class="tw-admin-table-wrap">
+            <table class="tw-admin-table">
+                <thead>
+                    <tr>
+                        <th>Nomi</th>
+                        <th>Host</th>
+                        <th>Holat</th>
+                        <th class="tw-num">O'yinchi</th>
+                        <th>Turi</th>
+                        <th>Sana</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="tw-admin-tours"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ── Matn qo'shish ── -->
+    <section class="tw-admin-panel" data-panel="texts">
+        <div class="tw-rcard" style="max-width:640px">
+            <div class="tw-rcard-icon tw-rcard--create"><i class="bi bi-card-text"></i></div>
+            <h2>Yangi iqtibos qo'shish</h2>
+            <p>Musobaqa va practice (Iqtiboslar) uchun yangi matn.</p>
+            <form id="tw-admin-addtext" class="d-flex flex-column gap-2 mt-1">
+                <textarea class="form-control" name="content" rows="3" maxlength="2000"
+                          placeholder="Iqtibos matni…" required></textarea>
+                <input class="form-control" name="source" maxlength="256"
+                       placeholder="Manba (masalan: Abdulla Qodiriy, &quot;O'tkan kunlar&quot;)" />
+                <div class="d-flex gap-2 align-items-center flex-wrap">
+                    <select class="form-select" name="language" style="max-width:140px">
+                        <option value="Uzbek" selected>O'zbekcha</option>
+                        <option value="English">Inglizcha</option>
+                        <option value="Russian">Ruscha</option>
+                    </select>
+                    <select class="form-select" name="difficulty" style="max-width:160px">
+                        <option value="Easy">Oson</option>
+                        <option value="Normal" selected>O'rta</option>
+                        <option value="Hard">Qiyin</option>
+                        <option value="Expert">Ekspert</option>
+                    </select>
+                    <button class="tw-rbtn tw-rbtn--sm" type="submit"><i class="bi bi-plus-lg"></i> Qo'shish</button>
+                    <span id="tw-admin-msg" class="text-secondary small"></span>
+                </div>
+            </form>
+        </div>
+    </section>
 </div>
 
 @section Scripts {

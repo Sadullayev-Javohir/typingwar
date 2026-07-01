@@ -55,6 +55,7 @@ services:
       Authentication__Google__ClientId: "${GOOGLE_CLIENT_ID:-}"
       Authentication__Google__ClientSecret: "${GOOGLE_CLIENT_SECRET:-}"
       Admin__Email: "${ADMIN_EMAIL:-}"
+      Admin__SuperEmail: "${ADMIN_SUPER_EMAIL:-javohirsadullayev836@gmail.com}"
     expose:
       - "8080"
 

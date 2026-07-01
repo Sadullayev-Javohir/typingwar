@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using TypingWar.Application.Common.Interfaces;
 using TypingWar.Domain.Constants;
 using TypingWar.Infrastructure.Identity;
@@ -12,8 +13,13 @@ namespace TypingWar.Infrastructure.Auth;
 public class AuthService : IIdentityService
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IConfiguration _config;
 
-    public AuthService(UserManager<ApplicationUser> userManager) => _userManager = userManager;
+    public AuthService(UserManager<ApplicationUser> userManager, IConfiguration config)
+    {
+        _userManager = userManager;
+        _config = config;
+    }
 
     public async Task<GoogleAuthResult> FindOrCreateGoogleUserAsync(string googleId, string email, CancellationToken ct = default)
     {
@@ -46,8 +52,40 @@ public class AuthService : IIdentityService
             await _userManager.CreateAsync(user);   // parolsiz
         }
 
+        // Sozlangan email bo'yicha admin rollarini ta'minlash (birinchi kirishda ham)
+        await EnsureConfiguredAdminRolesAsync(user);
+
         var roles = await _userManager.GetRolesAsync(user);
         return new GoogleAuthResult(user.Id, user.UserName!, user.Email ?? string.Empty, user.ProfileCompleted, roles.ToList());
+    }
+
+    /// <summary>
+    /// appsettings (Admin:SuperEmail / Admin:Email) ga mos kelsa, foydalanuvchiga tegishli rollarni beradi.
+    /// Rollar startupda yaratilgan bo'ladi; bu yerda faqat tayinlaymiz.
+    /// </summary>
+    private async Task EnsureConfiguredAdminRolesAsync(ApplicationUser user)
+    {
+        var email = user.Email;
+        if (string.IsNullOrWhiteSpace(email)) return;
+
+        var superEmail = _config["Admin:SuperEmail"];
+        var adminEmail = _config["Admin:Email"];
+
+        async Task AddIfMissing(string role)
+        {
+            if (!await _userManager.IsInRoleAsync(user, role))
+                await _userManager.AddToRoleAsync(user, role);
+        }
+
+        if (!string.IsNullOrWhiteSpace(superEmail) && string.Equals(email, superEmail, StringComparison.OrdinalIgnoreCase))
+        {
+            await AddIfMissing("Admin");
+            await AddIfMissing("SuperAdmin");
+        }
+        else if (!string.IsNullOrWhiteSpace(adminEmail) && string.Equals(email, adminEmail, StringComparison.OrdinalIgnoreCase))
+        {
+            await AddIfMissing("Admin");
+        }
     }
 
     public async Task<ProfileSetupResult> CompleteProfileAsync(Guid userId, string username, string regionCode, CancellationToken ct = default)
