@@ -114,27 +114,41 @@
 
     <!-- Bracket (hamma ko'radi) — ikki tomonlama playoff, MARKAZDA 3D oltin gepard kubogi -->
     <section id="tw-bracket-wrap" class="tw-bracket-wrap d-none">
-        <h3 class="tw-bracket-title"><i class="bi bi-diagram-3"></i> Playoff bracket</h3>
-
-        <div class="tw-bk2">
-            <!-- Chap yarm -->
-            <div id="tw-bracket-left" class="tw-bk2-side"></div>
-
-            <!-- Markaz: 3D OLTIN GEPARD KUBOGI + final o'yini -->
-            <div class="tw-bk2-center">
-                <div class="tw-trophy-stage">
-                    <div id="tw-trophy-3d" class="tw-trophy-3d">
-                        <div class="tw-trophy-fallback"><i class="bi bi-trophy-fill"></i></div>
-                    </div>
-                    <div id="tw-trophy-caption" class="tw-trophy-caption">
-                        <i class="bi bi-hourglass-split"></i> Chempionni kutmoqda…
-                    </div>
-                </div>
-                <div id="tw-bracket-final" class="tw-bk2-final"></div>
+        <div class="tw-bk-head">
+            <h3 class="tw-bracket-title"><i class="bi bi-diagram-3"></i> Playoff bracket</h3>
+            <div id="tw-bracket-tools" class="tw-bkz-tools">
+                <button type="button" class="tw-bkz-btn" data-bkz="out" title="Kichraytirish"><i class="bi bi-dash-lg"></i></button>
+                <button type="button" class="tw-bkz-btn" data-bkz="fit" title="Ekranga sig'dirish"><i class="bi bi-arrows-fullscreen"></i></button>
+                <button type="button" class="tw-bkz-btn" data-bkz="in" title="Kattalashtirish"><i class="bi bi-plus-lg"></i></button>
             </div>
+        </div>
 
-            <!-- O'ng yarm (ko'zguda) -->
-            <div id="tw-bracket-right" class="tw-bk2-side tw-bk2-side--right"></div>
+        <div id="tw-bracket-viewport" class="tw-bk-viewport">
+            <div id="tw-bracket-canvas" class="tw-bk2">
+                <!-- Chap yarm -->
+                <div id="tw-bracket-left" class="tw-bk2-side"></div>
+
+                <!-- Markaz: 3D OLTIN GEPARD KUBOGI + final o'yini -->
+                <div class="tw-bk2-center">
+                    <div class="tw-trophy-stage">
+                        <div id="tw-trophy-3d" class="tw-trophy-3d">
+                            <div class="tw-trophy-fallback"><i class="bi bi-trophy-fill"></i></div>
+                        </div>
+                        <div id="tw-trophy-caption" class="tw-trophy-caption">
+                            <i class="bi bi-hourglass-split"></i> Chempionni kutmoqda…
+                        </div>
+                    </div>
+                    <div id="tw-bracket-final" class="tw-bk2-final"></div>
+                </div>
+
+                <!-- O'ng yarm (ko'zguda) -->
+                <div id="tw-bracket-right" class="tw-bk2-side tw-bk2-side--right"></div>
+            </div>
+        </div>
+        <div class="tw-bkz-hint">
+            <i class="bi bi-mouse"></i> G'ildirak — zoom &nbsp;·&nbsp;
+            <i class="bi bi-arrows-move"></i> sudrab surish &nbsp;·&nbsp;
+            <i class="bi bi-arrows-fullscreen"></i> butun bracket
         </div>
     </section>
 
@@ -168,6 +182,7 @@
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
     <script src="~/js/tw-bracket-layout.js" asp-append-version="true"></script>
+    <script src="~/js/tw-bracket-zoom.js" asp-append-version="true"></script>
     <script src="~/js/tournament.js" asp-append-version="true"></script>
     <script type="module" src="~/js/tournament-trophy.js" asp-append-version="true"></script>
 }

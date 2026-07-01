@@ -1961,7 +1961,36 @@ a.tw-author-link:hover { border-color: rgba(0,112,243,.5); color: var(--tw-gold)
         var(--tw-surface);
     border: 1px solid var(--tw-border); border-radius: 16px; padding: 1.2rem; margin-bottom: 1rem;
 }
-.tw-bracket-title { font-size: 1.05rem; display: flex; align-items: center; gap: .45rem; margin: 0 0 .8rem; }
+.tw-bracket-title { font-size: 1.05rem; display: flex; align-items: center; gap: .45rem; margin: 0; }
+
+/* ──── Bracket "xarita" boshqaruvi (zoom/pan) ──── */
+.tw-bk-head { display: flex; align-items: center; justify-content: space-between; gap: .6rem; margin: 0 0 .7rem; flex-wrap: wrap; }
+.tw-bkz-tools { display: inline-flex; gap: .35rem; }
+.tw-bkz-btn {
+    width: 36px; height: 36px; display: grid; place-items: center; cursor: pointer;
+    border-radius: 9px; border: 1px solid var(--tw-border); background: var(--tw-surface);
+    color: var(--tw-text); font-size: 1rem; transition: border-color .2s, background .2s, color .2s;
+}
+.tw-bkz-btn:hover { border-color: var(--tw-gold); color: var(--tw-gold); background: color-mix(in srgb, var(--tw-gold) 8%, var(--tw-surface)); }
+.tw-bkz-btn:active { transform: translateY(1px); }
+
+/* Viewport = "deraza": butun bracket shu ichida zoom/pan qilinadi */
+.tw-bk-viewport {
+    position: relative; overflow: hidden; cursor: grab; touch-action: none;
+    height: clamp(380px, 72vh, 760px); border-radius: 14px;
+    border: 1px solid var(--tw-border);
+    background:
+        radial-gradient(120% 120% at 0% 0%, color-mix(in srgb, var(--tw-gold) 6%, transparent), transparent 55%),
+        repeating-linear-gradient(0deg, color-mix(in srgb, var(--tw-border) 50%, transparent) 0 1px, transparent 1px 26px),
+        repeating-linear-gradient(90deg, color-mix(in srgb, var(--tw-border) 50%, transparent) 0 1px, transparent 1px 26px),
+        var(--tw-bg);
+}
+.tw-bk-viewport.tw-bkz-grab { cursor: grabbing; }
+.tw-bkz-hint {
+    margin-top: .55rem; text-align: center; color: var(--tw-muted); font-size: .78rem;
+    display: flex; align-items: center; justify-content: center; gap: .2rem; flex-wrap: wrap;
+}
+.tw-bkz-hint i { color: var(--tw-gold); }
 
 /* ════════ Playoff markazidagi 3D oltin gepard kubogi ════════ */
 .tw-trophy-stage {
@@ -1999,9 +2028,10 @@ a.tw-author-link:hover { border-color: rgba(0,112,243,.5); color: var(--tw-gold)
 .tw-tbracket { display: flex; gap: 2.4rem; overflow-x: auto; padding: .3rem .3rem 1rem; }
 
 /* ════════ Ikki tomonlama (chap/o'ng) playoff bracket — markazda kubok ════════ */
+/* Viewport ichida "canvas": kontentga moslab kichrayadi (inline-flex), JS transform qiladi. */
 .tw-bk2 {
-    display: flex; align-items: center; justify-content: center;
-    gap: 2.2rem; overflow-x: auto; padding: .4rem .3rem 1.2rem;
+    display: inline-flex; align-items: center; width: max-content;
+    gap: 2.2rem; padding: 1.4rem;
 }
 .tw-bk2-side { display: flex; align-items: stretch; gap: 2.2rem; flex: none; }
 .tw-bk2-center {

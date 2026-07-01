@@ -18,6 +18,15 @@
 
     const STATUS = { 0: "Ro'yxat ochiq", 1: "Davom etmoqda", 2: "Tugagan" };
     const STATUS_CLASS = { 0: "tw-st-reg", 1: "tw-st-live", 2: "tw-st-done" };
+
+    // Bracket zoom/pan (Google Maps uslubi) — bir marta ulanadi, render orasida saqlanadi
+    let bracketZoom = null;
+    function ensureBracketZoom() {
+        if (bracketZoom || !window.TWBracketZoom) return;
+        const vp = $("tw-bracket-viewport"), cv = $("tw-bracket-canvas");
+        if (!vp || !cv) return;
+        bracketZoom = window.TWBracketZoom.attach(vp, cv, { tools: $("tw-bracket-tools") });
+    }
     // Backend enumni STRING ("Registration"/"InProgress"/"Finished") qaytaradi — raqamga normallashtiramiz
     const statusKey = s => typeof s === "number" ? s
         : ({ Registration: 0, InProgress: 1, Finished: 2 }[s] ?? -1);
@@ -257,6 +266,10 @@
         $("tw-bracket-left").innerHTML = r.left;
         $("tw-bracket-right").innerHTML = r.right;
         $("tw-bracket-final").innerHTML = r.final;
+
+        // Zoom/pan — birinchi marta ekranga sig'diradi, keyin foydalanuvchi holatini saqlaydi
+        ensureBracketZoom();
+        if (bracketZoom) bracketZoom.refresh();
 
         // Host force-winner tugmalari (faol round, hal qilinmagan o'yinlar)
         if (isHost && info.status === 1) {

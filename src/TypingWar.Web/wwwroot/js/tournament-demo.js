@@ -1,4 +1,4 @@
-// Turnir simulyatsiyasi — 32 soxta o'yinchi bilan bracket jarayonini boshqarish/kuzatish.
+// Turnir simulyatsiyasi — 64 soxta o'yinchi bilan bracket jarayonini boshqarish/kuzatish.
 // Barcha o'yinlar server tomonida simulyatsiya qilinadi (TournamentDemoController).
 (function () {
     "use strict";
@@ -6,9 +6,19 @@
     const root = $("tw-demo");
     if (!root) return;
 
+    const DEMO_PLAYERS = 64;
     let tid = null;        // joriy turnir id
     let busy = false;      // bir vaqtda bitta amal
     let finished = false;
+
+    // Bracket zoom/pan (Google Maps uslubi) — bir marta ulanadi, render orasida saqlanadi
+    let bracketZoom = null;
+    function ensureBracketZoom() {
+        if (bracketZoom || !window.TWBracketZoom) return;
+        const vp = $("tw-d-bracket-viewport"), cv = $("tw-d-bracket-canvas");
+        if (!vp || !cv) return;
+        bracketZoom = window.TWBracketZoom.attach(vp, cv, { tools: $("tw-d-bracket-tools") });
+    }
 
     const elCreate = $("tw-d-create"), elStart = $("tw-d-start"),
           elRound = $("tw-d-round"), elAuto = $("tw-d-auto"), elReset = $("tw-d-reset");
@@ -126,6 +136,10 @@
         $("tw-d-bracket-left").innerHTML = r.left;
         $("tw-d-bracket-right").innerHTML = r.right;
         $("tw-d-bracket-final").innerHTML = r.final;
+
+        // Zoom/pan — birinchi marta ekranga sig'diradi, keyin foydalanuvchi holatini saqlaydi
+        ensureBracketZoom();
+        if (bracketZoom) bracketZoom.refresh();
     }
 
     // ── Render: yakuniy joylar ──
@@ -179,10 +193,10 @@
             $("tw-d-log").innerHTML = "";
             $("tw-d-standings").classList.add("d-none");
 
-            const r = await api("POST", "/api/tournamentdemo", { playerCount: 32 });
+            const r = await api("POST", "/api/tournamentdemo", { playerCount: DEMO_PLAYERS });
             tid = r.id;
             const d = await refresh();
-            log(`<b>Turnir yaratildi</b> — ${d.players.length} ta soxta o'yinchi ro'yxatga olindi (sig'im 32).`, "ok");
+            log(`<b>Turnir yaratildi</b> — ${d.players.length} ta soxta o'yinchi ro'yxatga olindi (sig'im ${DEMO_PLAYERS}).`, "ok");
             status("Turnir yaratildi. Endi «Turnirni boshlash»ni bosing — bracket quriladi.");
         } catch (e) { showErr(e.message); }
         finally { setBusy(false); }

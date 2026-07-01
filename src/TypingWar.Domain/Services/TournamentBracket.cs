@@ -1,15 +1,15 @@
 namespace TypingWar.Domain.Services;
 
 /// <summary>
-/// Single-elimination bracket qurish (sof, holatsiz). Sig'im 2 darajasi bo'lishi shart (4/8/16/32).
+/// Single-elimination bracket qurish (sof, holatsiz). Sig'im 2 darajasi bo'lishi shart (4/8/16/32/64).
 /// Birinchi round o'yinchilar bilan to'ldiriladi, qolgan roundlar bo'sh yaratiladi (live to'ladi).
 /// </summary>
 public static class TournamentBracket
 {
     public const int MinCapacity = 2;
-    public const int MaxCapacity = 32;
+    public const int MaxCapacity = 64;
 
-    /// <summary>Sig'im to'g'rimi — 2 ning darajasi va [2..32] oralig'ida.</summary>
+    /// <summary>Sig'im to'g'rimi — 2 ning darajasi va [2..64] oralig'ida.</summary>
     public static bool IsValidCapacity(int capacity) =>
         capacity is >= MinCapacity and <= MaxCapacity && (capacity & (capacity - 1)) == 0;
 
@@ -34,7 +34,7 @@ public static class TournamentBracket
     public static int[] SeedOrder(int capacity)
     {
         if (!IsValidCapacity(capacity))
-            throw new ArgumentException($"Sig'im 2 darajasi bo'lishi kerak (2..32), berilgan: {capacity}.");
+            throw new ArgumentException($"Sig'im 2 darajasi bo'lishi kerak (2..64), berilgan: {capacity}.");
         var seeds = new List<int> { 1 };
         while (seeds.Count < capacity)
         {
@@ -70,7 +70,7 @@ public static class TournamentBracket
     public static IReadOnlyList<Slot> Build(int capacity, IReadOnlyList<Guid> players)
     {
         if (!IsValidCapacity(capacity))
-            throw new ArgumentException($"Sig'im 2 darajasi bo'lishi kerak (4/8/16/32), berilgan: {capacity}.");
+            throw new ArgumentException($"Sig'im 2 darajasi bo'lishi kerak (4/8/16/32/64), berilgan: {capacity}.");
 
         var slots = new List<Slot>();
         int rounds = Rounds(capacity);

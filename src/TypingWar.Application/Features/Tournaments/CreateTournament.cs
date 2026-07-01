@@ -35,7 +35,7 @@ public class CreateTournamentCommandHandler : IRequestHandler<CreateTournamentCo
             ?? throw new UnauthorizedAccessException("Turnir yaratish uchun tizimga kiring.");
 
         if (!TournamentBracket.IsValidCapacity(request.Capacity))
-            throw new InvalidOperationException("Sig'im 4, 8, 16 yoki 32 bo'lishi kerak.");
+            throw new InvalidOperationException("Sig'im 4, 8, 16, 32 yoki 64 bo'lishi kerak.");
 
         var name = string.IsNullOrWhiteSpace(request.Name) ? "Turnir" : request.Name.Trim();
         if (name.Length > 80) name = name[..80];

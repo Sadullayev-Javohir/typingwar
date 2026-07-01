@@ -5,7 +5,7 @@ using TypingWar.Application.Features.Tournaments;
 namespace TypingWar.Web.Controllers;
 
 /// <summary>
-/// DEMO/SIMULYATSIYA turniri — 32 ta soxta o'yinchi bilan bracket jarayonini ko'rsatish uchun.
+/// DEMO/SIMULYATSIYA turniri — 64 ta soxta o'yinchi bilan bracket jarayonini ko'rsatish uchun.
 /// Hammasi server tomonida simulyatsiya qilinadi (brauzerda yozuvchi haqiqiy o'yinchi kerak emas),
 /// shuning uchun login talab qilinmaydi. /TournamentDemo sahifasi shu endpointlardan foydalanadi.
 /// </summary>
@@ -15,11 +15,11 @@ public class TournamentDemoController : ApiControllerBase
 {
     public record CreateDemoRequest(int? PlayerCount, string? Name);
 
-    /// <summary>32 (yoki berilgan son) soxta o'yinchi bilan yangi demo turnir yaratadi.</summary>
+    /// <summary>64 (yoki berilgan son) soxta o'yinchi bilan yangi demo turnir yaratadi.</summary>
     [HttpPost]
     public async Task<ActionResult<object>> Create([FromBody] CreateDemoRequest? req = null)
     {
-        var id = await Mediator.Send(new CreateDemoTournamentCommand(req?.PlayerCount ?? 32, req?.Name));
+        var id = await Mediator.Send(new CreateDemoTournamentCommand(req?.PlayerCount ?? 64, req?.Name));
         return Ok(new { id });
     }
 

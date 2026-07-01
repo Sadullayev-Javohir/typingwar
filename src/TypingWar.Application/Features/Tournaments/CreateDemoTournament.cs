@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using TypingWar.Domain.Entities;
 using TypingWar.Domain.Enums;
+using TypingWar.Domain.Services;
 using TypingWar.Application.Common.Interfaces;
 
 namespace TypingWar.Application.Features.Tournaments;
@@ -11,7 +12,7 @@ namespace TypingWar.Application.Features.Tournaments;
 /// Maqsad — bracket jarayonini (raundlar, g'oliblar, chempion) ko'rsatish. Haqiqiy User talab qilinmaydi
 /// (TournamentPlayer.UserId Users jadvaliga FK emas — denormalizatsiya qilingan Username bilan).
 /// </summary>
-public record CreateDemoTournamentCommand(int PlayerCount = 32, string? Name = null) : IRequest<Guid>;
+public record CreateDemoTournamentCommand(int PlayerCount = 64, string? Name = null) : IRequest<Guid>;
 
 public class CreateDemoTournamentCommandHandler : IRequestHandler<CreateDemoTournamentCommand, Guid>
 {
@@ -19,7 +20,7 @@ public class CreateDemoTournamentCommandHandler : IRequestHandler<CreateDemoTour
 
     public CreateDemoTournamentCommandHandler(IApplicationDbContext db) => _db = db;
 
-    // Soxta o'yinchilar uchun o'zbekcha ism poydevori (32+ noyob kombinatsiya chiqadi).
+    // Soxta o'yinchilar uchun o'zbekcha ism poydevori (40 ism × ~90 raqam = 3600+ noyob kombinatsiya — 64 ga yetarli).
     private static readonly string[] FirstNames =
     {
         "Javohir", "Diyor", "Sardor", "Bekzod", "Aziz", "Jasur", "Otabek", "Doston",
@@ -31,13 +32,13 @@ public class CreateDemoTournamentCommandHandler : IRequestHandler<CreateDemoTour
 
     public async Task<Guid> Handle(CreateDemoTournamentCommand request, CancellationToken cancellationToken)
     {
-        int count = request.PlayerCount is >= 2 and <= 32 ? request.PlayerCount : 32;
+        int count = request.PlayerCount is >= 2 and <= TournamentBracket.MaxCapacity ? request.PlayerCount : 64;
 
         var tournament = new Tournament
         {
             Name = string.IsNullOrWhiteSpace(request.Name) ? $"Demo turnir ({count} o'yinchi)" : request.Name.Trim(),
             HostId = Guid.Empty,                 // simulyatsiya — egasi yo'q
-            Capacity = 32,
+            Capacity = TournamentBracket.EffectiveCapacity(count),
             StartAt = DateTime.UtcNow,
             // So'z rejimi, o'zbekcha, qisqa — simulyatsiyada matn ishlatilmaydi, lekin mosligi uchun
             Settings = "{\"Language\":\"Uzbek\",\"TextMode\":\"Words\",\"WordCount\":25}",

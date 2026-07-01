@@ -11,9 +11,10 @@ public class TournamentBracketTests
     [InlineData(8, true)]
     [InlineData(16, true)]
     [InlineData(32, true)]
+    [InlineData(64, true)]
     [InlineData(6, false)]
     [InlineData(0, false)]
-    [InlineData(64, false)]
+    [InlineData(128, false)]
     public void IsValidCapacity_Works(int capacity, bool expected)
         => Assert.Equal(expected, TournamentBracket.IsValidCapacity(capacity));
 
@@ -22,6 +23,7 @@ public class TournamentBracketTests
     [InlineData(8, 3)]
     [InlineData(16, 4)]
     [InlineData(32, 5)]
+    [InlineData(64, 6)]
     public void Rounds_IsLog2(int capacity, int expected)
         => Assert.Equal(expected, TournamentBracket.Rounds(capacity));
 
@@ -80,6 +82,8 @@ public class TournamentBracketTests
     [InlineData(9, 16)]
     [InlineData(16, 16)]
     [InlineData(31, 32)]
+    [InlineData(33, 64)]
+    [InlineData(64, 64)]
     [InlineData(1, 2)]
     public void EffectiveCapacity_RoundsUpToPowerOfTwo(int playerCount, int expected)
         => Assert.Equal(expected, TournamentBracket.EffectiveCapacity(playerCount));
@@ -103,6 +107,7 @@ public class TournamentBracketTests
     [InlineData(8)]
     [InlineData(16)]
     [InlineData(32)]
+    [InlineData(64)]
     public void SeedOrder_IsPermutationOfAllSeeds(int capacity)
     {
         var order = TournamentBracket.SeedOrder(capacity);
