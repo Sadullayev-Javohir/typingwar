@@ -2307,3 +2307,87 @@ a.tw-author-link:hover { border-color: rgba(0,112,243,.5); color: var(--tw-gold)
     .tw-stat-grid { grid-template-columns: repeat(2, 1fr); }
     .tw-profile-actions { width: 100%; }
 }
+
+/* ───── Turnir simulyatsiyasi (/TournamentDemo) ───── */
+.tw-demo { max-width: 1200px; margin: 1.5rem auto; padding: 0 1rem; }
+.tw-demo-hero { text-align: center; margin-bottom: 1.4rem; }
+.tw-demo-hero h1 { font-size: 2rem; margin: .5rem 0 .4rem; }
+.tw-demo-hero p { color: var(--tw-muted); max-width: 640px; margin: 0 auto; }
+.tw-demo-badge {
+    display: inline-flex; align-items: center; gap: .4rem; font-size: .8rem; font-weight: 700;
+    padding: .3rem .8rem; border-radius: 999px; letter-spacing: .04em;
+    color: var(--tw-gold); background: color-mix(in srgb, var(--tw-gold) 15%, transparent);
+    border: 1px solid color-mix(in srgb, var(--tw-gold) 35%, transparent);
+}
+.tw-demo-panel {
+    background: var(--tw-surface); border: 1px solid var(--tw-border);
+    border-radius: 14px; padding: 1.1rem; margin-bottom: 1.2rem;
+}
+.tw-demo-controls { display: flex; flex-wrap: wrap; gap: .6rem; }
+.tw-demo-status {
+    margin-top: .9rem; color: var(--tw-muted); font-size: .9rem;
+    border-top: 1px solid var(--tw-border); padding-top: .8rem;
+}
+.tw-demo-grid { display: grid; grid-template-columns: 1fr 340px; gap: 1.2rem; align-items: start; }
+.tw-demo-main, .tw-demo-side {
+    background: var(--tw-surface); border: 1px solid var(--tw-border);
+    border-radius: 14px; padding: 1.1rem;
+}
+.tw-demo-h2 { font-size: 1.1rem; display: flex; align-items: center; gap: .5rem; margin: 0 0 .9rem; }
+.tw-demo-h2 i, .tw-demo-h3 i { color: var(--tw-gold); }
+.tw-demo-h3 { font-size: .95rem; display: flex; align-items: center; gap: .45rem; margin: 1.2rem 0 .7rem; }
+
+/* O'yinchilar gridi */
+.tw-demo-seedgrid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .5rem;
+}
+.tw-demo-seed {
+    display: flex; align-items: center; gap: .5rem; padding: .4rem .55rem;
+    background: var(--tw-bg); border: 1px solid var(--tw-border); border-radius: 10px;
+}
+.tw-demo-seedno { font-size: .72rem; font-weight: 700; color: var(--tw-muted); min-width: 26px; }
+.tw-demo-seedname { font-weight: 600; font-size: .85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Yakuniy joylar */
+.tw-demo-stand-list { display: flex; flex-direction: column; gap: .4rem; }
+.tw-demo-stand {
+    display: flex; align-items: center; gap: .6rem; padding: .45rem .6rem;
+    background: var(--tw-bg); border: 1px solid var(--tw-border); border-radius: 10px;
+}
+.tw-demo-stand--champ {
+    border-color: color-mix(in srgb, var(--tw-gold) 50%, transparent);
+    background: color-mix(in srgb, var(--tw-gold) 10%, transparent);
+}
+.tw-demo-stand-rank { font-weight: 800; min-width: 28px; text-align: center; color: var(--tw-muted); }
+.tw-demo-stand-name { flex: 1; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tw-demo-stand-stage { font-size: .78rem; color: var(--tw-muted); }
+.tw-demo-stand-wpm { font-weight: 700; color: var(--tw-gold); font-size: .85rem; }
+
+/* Chempion banneri (inner) */
+.tw-champion-label { display: block; font-size: .7rem; letter-spacing: .15em; color: var(--tw-muted); }
+.tw-champion-name { display: block; font-size: 1.4rem; font-weight: 800; color: var(--tw-gold); }
+#tw-d-champion.tw-champion { display: flex; align-items: center; justify-content: center; gap: .8rem; }
+#tw-d-champion .bi-trophy-fill { font-size: 1.8rem; }
+
+/* Jarayon jurnali */
+.tw-demo-log { max-height: 620px; overflow-y: auto; display: flex; flex-direction: column; gap: .35rem; }
+.tw-demo-log-empty { color: var(--tw-muted); font-size: .85rem; text-align: center; padding: 1rem 0; }
+.tw-demo-log-item {
+    display: flex; gap: .5rem; font-size: .82rem; line-height: 1.45;
+    padding: .35rem .5rem; border-radius: 8px; background: var(--tw-bg);
+    border: 1px solid var(--tw-border); animation: twDemoIn .2s ease;
+}
+@keyframes twDemoIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.tw-demo-log-time { color: var(--tw-muted); font-variant-numeric: tabular-nums; font-size: .72rem; white-space: nowrap; }
+.tw-demo-log-text { flex: 1; }
+.tw-demo-log-ok { border-color: color-mix(in srgb, #40d870 40%, var(--tw-border)); }
+.tw-demo-log-round { border-color: color-mix(in srgb, var(--tw-accent) 45%, var(--tw-border)); font-weight: 600; }
+.tw-demo-log-champ { border-color: color-mix(in srgb, var(--tw-gold) 55%, var(--tw-border));
+    background: color-mix(in srgb, var(--tw-gold) 10%, transparent); }
+.tw-demo-log-match { opacity: .92; }
+.tw-demo-hl { color: var(--tw-gold); }
+.tw-demo-sc { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 900px) {
+    .tw-demo-grid { grid-template-columns: 1fr; }
+}
