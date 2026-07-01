@@ -1992,6 +1992,28 @@ a.tw-author-link:hover { border-color: rgba(0,112,243,.5); color: var(--tw-gold)
 }
 .tw-bkz-hint i { color: var(--tw-gold); }
 
+/* ──── Butun ekran (fullscreen) rejimi ──── */
+.tw-bracket-wrap { position: relative; }
+.tw-bk-full {
+    position: fixed; inset: 0; z-index: 4000; margin: 0; border-radius: 0;
+    padding: .75rem 1rem 1rem; display: flex; flex-direction: column;
+    background:
+        radial-gradient(120% 120% at 0% 0%, color-mix(in srgb, var(--tw-gold) 7%, transparent), transparent 55%),
+        var(--tw-bg);
+}
+.tw-bk-full .tw-bk-viewport { flex: 1 1 auto; height: auto; min-height: 0; }
+.tw-bk-full .tw-bkz-hint { margin-bottom: .15rem; }
+body.tw-bk-full-open { overflow: hidden; }
+/* Chiqish (×) tugmasi — faqat fullscreenda ko'rinadi */
+.tw-bkz-close {
+    position: absolute; top: 12px; right: 14px; z-index: 5; display: none;
+    width: 42px; height: 42px; place-items: center; cursor: pointer;
+    border-radius: 11px; border: 1px solid var(--tw-border); background: var(--tw-surface);
+    color: var(--tw-text); font-size: 1.15rem; transition: border-color .2s, color .2s, background .2s;
+}
+.tw-bkz-close:hover { border-color: #ff6b6b; color: #ff8a8a; background: #2a1414; }
+.tw-bk-full .tw-bkz-close { display: grid; }
+
 /* ════════ Playoff markazidagi 3D oltin gepard kubogi ════════ */
 .tw-trophy-stage {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -2031,14 +2053,14 @@ a.tw-author-link:hover { border-color: rgba(0,112,243,.5); color: var(--tw-gold)
 /* Viewport ichida "canvas": kontentga moslab kichrayadi (inline-flex), JS transform qiladi. */
 .tw-bk2 {
     display: inline-flex; align-items: center; width: max-content;
-    gap: 2.2rem; padding: 1.4rem;
+    gap: 1rem; padding: 1rem;
 }
-.tw-bk2-side { display: flex; align-items: stretch; gap: 2.2rem; flex: none; }
+.tw-bk2-side { display: flex; align-items: stretch; gap: .85rem; flex: none; }
 .tw-bk2-center {
     display: flex; flex-direction: column; align-items: center; gap: .4rem; flex: none;
     align-self: center;
 }
-.tw-bk2-final { width: 240px; max-width: 78vw; }
+.tw-bk2-final { width: 185px; max-width: 78vw; }
 .tw-bk2-final .tw-bk-rname {
     text-align: center; color: var(--tw-gold); font-size: .72rem; text-transform: uppercase;
     letter-spacing: .08em; font-weight: 800; margin-bottom: .55rem; padding: .3rem;
@@ -2047,7 +2069,7 @@ a.tw-author-link:hover { border-color: rgba(0,112,243,.5); color: var(--tw-gold)
 /* O'ng yarmda ulagich chiziq markazga (chapga) qaraydi */
 .tw-bk2-side--right .tw-bk-round:not(.tw-bk-round--final) .tw-bk-match::after { display: none; }
 .tw-bk2-side--right .tw-bk-round:not(.tw-bk-round--final) .tw-bk-match::before {
-    content: ""; position: absolute; top: 50%; left: -1.25rem; width: 1.25rem; height: 2px;
+    content: ""; position: absolute; top: 50%; left: -.85rem; width: .85rem; height: 2px;
     background: linear-gradient(270deg, var(--tw-border-strong), transparent); pointer-events: none;
 }
 /* O'ng yarm kartalarini ko'zguda aks ettiramiz (avatar o'ngda) — futbol bracket ko'rinishi */
@@ -2055,29 +2077,29 @@ a.tw-author-link:hover { border-color: rgba(0,112,243,.5); color: var(--tw-gold)
 .tw-bk2-side--right .tw-bk-pname { text-align: right; }
 /* Markazdagi kubok sahnasi bracket ichida ixcham bo'lsin */
 .tw-bk2-center .tw-trophy-stage { margin: 0 auto .2rem; }
-.tw-bk2-center .tw-trophy-3d { width: 240px; height: 280px; }
+.tw-bk2-center .tw-trophy-3d { width: 210px; height: 250px; }
 
 @media (max-width: 720px) {
-    .tw-bk2 { gap: 1.1rem; }
-    .tw-bk2-side { gap: 1.1rem; }
-    .tw-bk2-center .tw-trophy-3d { width: 180px; height: 210px; }
-    .tw-bk2-final { width: 200px; }
-    .tw-bk-round { min-width: 180px; }
+    .tw-bk2 { gap: .7rem; }
+    .tw-bk2-side { gap: .6rem; }
+    .tw-bk2-center .tw-trophy-3d { width: 170px; height: 200px; }
+    .tw-bk2-final { width: 165px; }
+    .tw-bk-round { min-width: 144px; }
 }
 
-.tw-bk-round { display: flex; flex-direction: column; min-width: 230px; }
+.tw-bk-round { display: flex; flex-direction: column; min-width: 158px; }
 .tw-bk-rname {
     text-align: center; color: var(--tw-gold); font-size: .72rem; text-transform: uppercase;
-    letter-spacing: .08em; font-weight: 800; margin-bottom: .7rem;
-    padding: .3rem; border-radius: 8px; background: color-mix(in srgb, var(--tw-gold) 9%, transparent);
+    letter-spacing: .08em; font-weight: 800; margin-bottom: .5rem;
+    padding: .26rem; border-radius: 8px; background: color-mix(in srgb, var(--tw-gold) 9%, transparent);
 }
 .tw-bk-round--final .tw-bk-rname { background: color-mix(in srgb, var(--tw-gold) 20%, transparent); color: var(--tw-gold); }
-.tw-bk-col { display: flex; flex-direction: column; justify-content: space-around; flex: 1; gap: 1rem; }
+.tw-bk-col { display: flex; flex-direction: column; justify-content: space-around; flex: 1; gap: .5rem; }
 
 /* O'yin kartasi */
 .tw-bk-match {
     position: relative; background: var(--tw-bg); border: 1px solid var(--tw-border);
-    border-radius: 12px; padding: .55rem; display: flex; flex-direction: column; gap: .4rem;
+    border-radius: 11px; padding: .42rem; display: flex; flex-direction: column; gap: .28rem;
     transition: border-color .25s, box-shadow .25s, transform .15s;
     animation: bkIn .35s ease both;
 }
@@ -2085,7 +2107,7 @@ a.tw-author-link:hover { border-color: rgba(0,112,243,.5); color: var(--tw-gold)
 .tw-bk-match:hover { transform: translateY(-2px); }
 /* Round'lararo ulagich chiziq */
 .tw-bk-round:not(.tw-bk-round--final) .tw-bk-match::after {
-    content: ""; position: absolute; top: 50%; right: -1.25rem; width: 1.25rem; height: 2px;
+    content: ""; position: absolute; top: 50%; right: -.85rem; width: .85rem; height: 2px;
     background: linear-gradient(90deg, var(--tw-border-strong), transparent); pointer-events: none;
 }
 .tw-bk-match.tw-bk-racing {

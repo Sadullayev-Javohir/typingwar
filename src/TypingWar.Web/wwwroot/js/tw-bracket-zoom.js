@@ -136,18 +136,38 @@
             if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; }
         }, true);
 
-        // ── Tugmalar ──
-        const tools = opts.tools;
-        if (tools) {
-            tools.addEventListener("click", (e) => {
-                const btn = e.target.closest("[data-bkz]");
-                if (!btn) return;
-                const a = btn.dataset.bkz;
-                if (a === "in") zoomCenter(1.3);
-                else if (a === "out") zoomCenter(1 / 1.3);
-                else if (a === "fit") fit();
+        // ── Butun ekran (fullscreen) ──
+        const wrap = opts.wrap || viewport.closest(".tw-bracket-wrap");
+        function toggleFull(force) {
+            if (!wrap) return;
+            const on = force === undefined ? !wrap.classList.contains("tw-bk-full") : force;
+            wrap.classList.toggle("tw-bk-full", on);
+            document.body.classList.toggle("tw-bk-full-open", on);
+            userInteracted = false;
+            // layout joylashgach qayta sig'diramiz (ikki rAF — o'lcham yangilanishi uchun)
+            requestAnimationFrame(() => requestAnimationFrame(() => fit()));
+        }
+        if (wrap) {
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape" && wrap.classList.contains("tw-bk-full")) toggleFull(false);
             });
         }
+
+        // ── Tugmalar (tools + fullscreen ichidagi × tugmasi, ikkalasida ham [data-bkz]) ──
+        function onToolClick(e) {
+            const btn = e.target.closest("[data-bkz]");
+            if (!btn) return;
+            const a = btn.dataset.bkz;
+            if (a === "in") zoomCenter(1.3);
+            else if (a === "out") zoomCenter(1 / 1.3);
+            else if (a === "fit") fit();
+            else if (a === "full") toggleFull();
+        }
+        if (opts.tools) opts.tools.addEventListener("click", onToolClick);
+        if (wrap) wrap.addEventListener("click", (e) => {
+            // × (close) tugmasi — fullscreendan chiqish
+            if (e.target.closest(".tw-bkz-close")) toggleFull(false);
+        });
 
         // Oyna o'lchami o'zgarsa — hali qo'lda zoom qilinmagan bo'lsa qayta sig'diramiz
         let userInteracted = false;
