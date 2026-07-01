@@ -12,7 +12,7 @@
         ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     // /Profile da ko'rsatiladigan rekord rejimlari — vaqt (s) va so'z sonlari alohida.
     const TIME_MODES = ["time:15", "time:30", "time:60", "time:120"];
-    const WORD_MODES = ["words:10", "words:30", "words:50", "words:100"];
+    const WORD_MODES = ["words:10", "words:25", "words:50", "words:100"];
     const ORDER = TIME_MODES.concat(WORD_MODES);
     // ModeKey -> insonbop yorliq ("time:30" -> "30s", "words:50" -> "50 so'z")
     function tm(k) {

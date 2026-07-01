@@ -14,7 +14,7 @@ public static class PracticeModes
     public static readonly int[] TimeSeconds = { 15, 30, 60, 120 };
 
     /// <summary>So'z sonlari — /Profile da ko'rsatiladigan rekordlar.</summary>
-    public static readonly int[] WordCounts = { 10, 30, 50, 100 };
+    public static readonly int[] WordCounts = { 10, 25, 50, 100 };
 
     public const string QuoteKey = "quote";
 

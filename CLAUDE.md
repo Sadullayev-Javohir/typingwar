@@ -343,7 +343,7 @@ Yaxshilanishlar:
     (avval PB faqat TimeMode bo'yicha edi; so'z rejimidagi natijalar eng yaqin vaqt rejimiga
     "yopishtirilardi" — endi har bir bo'lim mustaqil rekord):
     (1) Yangi diskriminator ModeKey ("time:{soniya}" / "words:{son}" / "quote") — Domain/
-    Constants/PracticeModes (TimeSeconds={15,30,60,120}, WordCounts={10,30,50,100}, DisplayOrder/
+    Constants/PracticeModes (TimeSeconds={15,30,60,120}, WordCounts={10,25,50,100}, DisplayOrder/
     IsTimed/IsValid/FromTimeMode). PersonalBest PK endi (UserId, ModeKey) [avval (UserId,TimeMode)];
     RaceResult'ga ham ModeKey qo'shildi. Migration AddPersonalBestModeKey — yangi PK qo'yilishidan
     OLDIN eski yozuvlar ModeKey='time:'||TimeMode bilan to'ldiriladi (bo'sh ModeKey to'qnashuvi
@@ -354,9 +354,9 @@ Yaxshilanishlar:
     so'rovlariga ModeKey.StartsWith("time:") filtri qo'shildi. RaceHub.FinishAiRace ModeKey beradi.
     GetPersonalBestQuery (Ghost) endi ModeKey oladi; /api/practice/personalbest?modeKey=time:30.
     (3) Frontend: typing-engine.js currentModeKey() (timed→time:N, iqtibos→quote, aks→words:N)
-    submit body+offline navbatga qo'shadi. Practice.cshtml: 120s vaqt tugmasi qo'shildi, so'z 25→30;
-    typing-settings.js default wordCount 30. profile.js PB jadvali endi "Vaqt" (15/30/60/120) va
-    "So'z" (10/30/50/100) guruhlari — har biri alohida qator, toj eng kuchli PB'da; modeKey yorliq
+    submit body+offline navbatga qo'shadi. Practice.cshtml: 120s vaqt tugmasi qo'shildi (so'z 10/25/50/100);
+    profile.js PB jadvali endi "Vaqt" (15/30/60/120) va
+    "So'z" (10/25/50/100) guruhlari — har biri alohida qator, toj eng kuchli PB'da; modeKey yorliq
     helperi (time:30→"30s", words:50→"50 so'z"). site.css .tw-pb-group; sw.js cache v37.
     Build OK, 97 test, headless Chrome render (2 guruh, 8 qator, 3 to'lgan/5 bo'sh, toj, recent) OK.
   - [2026-06-17] /Tournaments — SHAXSIY (parolli) turnir + qulflangan ko'rinish + 1 soatlik

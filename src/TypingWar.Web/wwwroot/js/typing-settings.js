@@ -4,7 +4,7 @@
 
     const KEY = "tw_settings";
     const DEFAULTS = {
-        textMode: "Words", wordCount: 30, timedMode: false, timeLimitSeconds: 30,
+        textMode: "Words", wordCount: 25, timedMode: false, timeLimitSeconds: 30,
         quoteLength: "all",
         difficulty: "Normal", language: "Uzbek",
         theme: "Monokai", fontFamily: "JetBrains Mono", fontSize: 18,
