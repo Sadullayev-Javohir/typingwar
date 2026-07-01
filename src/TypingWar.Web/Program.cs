@@ -186,9 +186,14 @@ app.MapHub<TypingWar.Web.Hubs.TeamRaceHub>("/hubs/teamrace");
 app.MapHub<TypingWar.Web.Hubs.TournamentHub>("/hubs/tournament");
 app.MapHub<TypingWar.Web.Hubs.UzMapHub>("/hubs/uzmap");
 
-// ── Hangfire dashboard (faqat development) + RecurringJob lar ──
-if (app.Environment.IsDevelopment())
-    app.UseHangfireDashboard("/jobs");
+// ── Hangfire dashboard (/hangfire) — faqat Admin roli (JWT cookie) ──
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new[] { new TypingWar.Web.Security.HangfireDashboardAuthFilter() },
+    DashboardTitle = "TypingWar — Fon vazifalari",
+    // Reverse proxy (nginx) orqasidagi HTTPS so'rovlar uchun lokal cheklov shart emas.
+    IgnoreAntiforgeryToken = true
+});
 
 // Statik RecurringJob/BackgroundJob API JobStorage.Current ga tayanadi va toza startda
 // (konteyner) hali o'rnatilmagan bo'lishi mumkin → DI orqali ishlatamiz (tavsiya etilgan usul).
