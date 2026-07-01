@@ -18,7 +18,8 @@ public record RecordResultCommand(
     int CorrectChars,
     int IncorrectChars,
     double ElapsedSeconds,
-    Guid? TextId) : IRequest<RaceResultDto>;
+    Guid? TextId,
+    string? ModeKey = null) : IRequest<RaceResultDto>;
 
 public class RecordResultCommandHandler : IRequestHandler<RecordResultCommand, RaceResultDto>
 {
@@ -45,10 +46,16 @@ public class RecordResultCommandHandler : IRequestHandler<RecordResultCommand, R
             throw new InvalidOperationException(
                 $"Natija haqiqiy emas (aniqlik={metrics.Accuracy}%). Kamida {GameConstants.MinValidAccuracy}% talab etiladi.");
 
+        // ModeKey berilmasa (eski chaqiruvlar) — vaqt rejimiga moslab quramiz.
+        var modeKey = PracticeModes.IsValid(request.ModeKey)
+            ? request.ModeKey!
+            : PracticeModes.FromTimeMode(request.TimeMode);
+
         var result = new RaceResult
         {
             UserId = request.UserId,
             TimeMode = request.TimeMode,
+            ModeKey = modeKey,
             Wpm = metrics.Wpm,
             RawWpm = metrics.RawWpm,
             Accuracy = metrics.Accuracy,
@@ -59,13 +66,14 @@ public class RecordResultCommandHandler : IRequestHandler<RecordResultCommand, R
 
         bool isNewPb = false;
         var pb = await _db.PersonalBests
-            .FirstOrDefaultAsync(p => p.UserId == request.UserId && p.TimeMode == request.TimeMode, cancellationToken);
+            .FirstOrDefaultAsync(p => p.UserId == request.UserId && p.ModeKey == modeKey, cancellationToken);
 
         if (pb is null)
         {
             _db.PersonalBests.Add(new PersonalBest
             {
                 UserId = request.UserId,
+                ModeKey = modeKey,
                 TimeMode = request.TimeMode,
                 BestWpm = metrics.Wpm,
                 Accuracy = metrics.Accuracy,
@@ -83,7 +91,8 @@ public class RecordResultCommandHandler : IRequestHandler<RecordResultCommand, R
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        if (isNewPb)
+        // Leaderboard faqat vaqt rejimlaridan iborat (so'z/iqtibos rekordlari kirmaydi).
+        if (isNewPb && PracticeModes.IsTimed(modeKey))
             await _leaderboard.UpdateAsync(request.UserId, request.TimeMode, metrics.Wpm, cancellationToken);
 
         return new RaceResultDto(result.Id, metrics.Wpm, metrics.RawWpm, metrics.Accuracy,

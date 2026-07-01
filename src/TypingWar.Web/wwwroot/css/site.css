@@ -2181,6 +2181,7 @@ a.tw-author-link:hover { border-color: rgba(0,112,243,.5); color: var(--tw-gold)
 }
 .tw-pb-row:last-child { border-bottom: none; }
 .tw-pb-head { color: var(--tw-muted); font-size: .74rem; text-transform: uppercase; letter-spacing: .05em; }
+.tw-pb-group { color: var(--tw-gold); font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; padding-top: .7rem; border-bottom: none; opacity: .85; }
 .tw-pb-row--empty { color: var(--tw-muted); opacity: .5; }
 .tw-pb-row--top { background: color-mix(in srgb, var(--tw-gold) 8%, transparent); border-radius: 8px; }
 .tw-pb-mode { font-weight: 600; }

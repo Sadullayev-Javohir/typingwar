@@ -6,8 +6,8 @@ using TypingWar.Domain.Enums;
 
 namespace TypingWar.Application.Features.Profile;
 
-public record PbDto(string TimeMode, double BestWpm, double Accuracy, DateTime AchievedAt);
-public record RecentResultDto(string TimeMode, double Wpm, double Accuracy, DateTime PlayedAt);
+public record PbDto(string ModeKey, double BestWpm, double Accuracy, DateTime AchievedAt);
+public record RecentResultDto(string ModeKey, double Wpm, double Accuracy, DateTime PlayedAt);
 
 /// <summary>Profil statistikasi (umumiy ko'rsatkichlar).</summary>
 public record ProfileStatsDto(
@@ -86,12 +86,12 @@ internal static class ProfileBuilder
         var pbs = await db.PersonalBests
             .Where(p => p.UserId == uid)
             .OrderBy(p => p.TimeMode)
-            .Select(p => new PbDto(p.TimeMode.ToString(), p.BestWpm, p.Accuracy, p.AchievedAt))
+            .Select(p => new PbDto(p.ModeKey, p.BestWpm, p.Accuracy, p.AchievedAt))
             .ToListAsync(ct);
 
         var results = await db.RaceResults
             .Where(r => r.UserId == uid)
-            .Select(r => new { r.Wpm, r.Accuracy, r.TimeMode, r.PlayedAt })
+            .Select(r => new { r.Wpm, r.Accuracy, r.TimeMode, r.ModeKey, r.PlayedAt })
             .ToListAsync(ct);
 
         var stats = new ProfileStatsDto(
@@ -105,7 +105,8 @@ internal static class ProfileBuilder
 
         var recent = includeRecent
             ? results.OrderByDescending(r => r.PlayedAt).Take(12)
-                .Select(r => new RecentResultDto(r.TimeMode.ToString(), r.Wpm, r.Accuracy, r.PlayedAt))
+                .Select(r => new RecentResultDto(
+                    r.ModeKey ?? PracticeModes.FromTimeMode(r.TimeMode), r.Wpm, r.Accuracy, r.PlayedAt))
                 .ToList()
             : new List<RecentResultDto>();
 

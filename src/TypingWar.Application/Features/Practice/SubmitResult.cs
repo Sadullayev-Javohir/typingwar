@@ -11,7 +11,8 @@ public record SubmitResultCommand(
     int CorrectChars,
     int IncorrectChars,
     double ElapsedSeconds,
-    Guid? TextId) : IRequest<RaceResultDto>;
+    Guid? TextId,
+    string? ModeKey = null) : IRequest<RaceResultDto>;
 
 public class SubmitResultCommandValidator : AbstractValidator<SubmitResultCommand>
 {
@@ -42,6 +43,6 @@ public class SubmitResultCommandHandler : IRequestHandler<SubmitResultCommand, R
 
         return _mediator.Send(new RecordResultCommand(
             userId, request.TimeMode, request.CorrectChars, request.IncorrectChars,
-            request.ElapsedSeconds, request.TextId), cancellationToken);
+            request.ElapsedSeconds, request.TextId, request.ModeKey), cancellationToken);
     }
 }

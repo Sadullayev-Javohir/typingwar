@@ -119,7 +119,7 @@
         try {
             let data;
             if (mode === "Ghost") {
-                const pbr = await fetch("/api/practice/personalbest?timeMode=Thirty", { credentials: "same-origin" });
+                const pbr = await fetch("/api/practice/personalbest?modeKey=time:30", { credentials: "same-origin" });
                 const pb = await pbr.json();
                 const wpm = pb.bestWpm > 0 ? pb.bestWpm : 40;
                 let url = `/api/practice/text?mode=${tMode}&language=${lang}&difficulty=Normal&wordCount=${wc}`;

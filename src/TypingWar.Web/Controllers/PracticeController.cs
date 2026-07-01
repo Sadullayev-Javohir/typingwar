@@ -38,8 +38,8 @@ public class PracticeController : ApiControllerBase
     {
         var dto = await Mediator.Send(command);
 
-        // 30s rejimida yangi shaxsiy rekord → foydalanuvchi hududini xaritada jonli yangilash.
-        if (dto.IsNewPersonalBest && command.TimeMode == TimeMode.Thirty && currentUser.UserId is Guid uid)
+        // 30s vaqt rejimida yangi shaxsiy rekord → foydalanuvchi hududini xaritada jonli yangilash.
+        if (dto.IsNewPersonalBest && command.ModeKey == "time:30" && currentUser.UserId is Guid uid)
         {
             var code = await profile.GetRegionCodeAsync(uid, ct);
             if (UzbekistanRegions.IsValid(code))
@@ -55,9 +55,9 @@ public class PracticeController : ApiControllerBase
 
     /// <summary>Ghost rejimi uchun shaxsiy rekord WPM (anonim — 0).</summary>
     [HttpGet("personalbest")]
-    public async Task<ActionResult<object>> PersonalBest([FromQuery] TimeMode timeMode = TimeMode.Thirty)
+    public async Task<ActionResult<object>> PersonalBest([FromQuery] string modeKey = "time:30")
     {
-        var wpm = await Mediator.Send(new GetPersonalBestQuery(timeMode));
+        var wpm = await Mediator.Send(new GetPersonalBestQuery(modeKey));
         return Ok(new { bestWpm = wpm });
     }
 }

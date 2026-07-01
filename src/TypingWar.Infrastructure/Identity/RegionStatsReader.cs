@@ -48,7 +48,7 @@ public class RegionStatsReader : IRegionStatsReader
     private IQueryable<RegionRow> BaseQuery() =>
         from u in _db.Users
         where u.RegionCode != null
-        join pb in _db.PersonalBests.Where(p => p.TimeMode == TimeMode.Thirty)
+        join pb in _db.PersonalBests.Where(p => p.TimeMode == TimeMode.Thirty && p.ModeKey.StartsWith("time:"))
             on u.Id equals pb.UserId
         select new RegionRow { RegionCode = u.RegionCode, BestWpm = pb.BestWpm };
 

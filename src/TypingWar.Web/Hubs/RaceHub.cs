@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using TypingWar.Application.Common.Interfaces;
 using TypingWar.Application.Features.Practice;
+using TypingWar.Domain.Constants;
 using TypingWar.Domain.Enums;
 using TypingWar.Domain.Services;
 
@@ -72,7 +73,8 @@ public class RaceHub : Hub
         try
         {
             await _mediator.Send(new RecordResultCommand(
-                uid.Value, ToTimeMode(timeMode), correctChars, incorrectChars, elapsedSeconds, textId));
+                uid.Value, ToTimeMode(timeMode), correctChars, incorrectChars, elapsedSeconds, textId,
+                PracticeModes.Time(timeMode)));
         }
         catch (InvalidOperationException)
         {

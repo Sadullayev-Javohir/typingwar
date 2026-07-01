@@ -32,8 +32,9 @@ public class PersonalBestConfiguration : IEntityTypeConfiguration<PersonalBest>
 {
     public void Configure(EntityTypeBuilder<PersonalBest> b)
     {
-        // Composite PK: UserId + TimeMode
-        b.HasKey(x => new { x.UserId, x.TimeMode });
+        b.Property(x => x.ModeKey).IsRequired().HasMaxLength(16);
+        // Composite PK: UserId + ModeKey (vaqt rejimlari va so'z sonlari alohida rekord)
+        b.HasKey(x => new { x.UserId, x.ModeKey });
     }
 }
 

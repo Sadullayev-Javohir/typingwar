@@ -45,7 +45,7 @@ public class LeaderboardService : ILeaderboardService
             .ToDictionaryAsync(u => u.Id, ct);
 
         var accuracies = await _db.PersonalBests.AsNoTracking()
-            .Where(p => p.TimeMode == timeMode && topIds.Contains(p.UserId))
+            .Where(p => p.TimeMode == timeMode && p.ModeKey.StartsWith("time:") && topIds.Contains(p.UserId))
             .ToDictionaryAsync(p => p.UserId, p => p.Accuracy, ct);
 
         var entries = new List<LeaderboardEntryDto>(top.Count);
@@ -71,7 +71,7 @@ public class LeaderboardService : ILeaderboardService
             if (cRank is long r)
             {
                 var pb = await _db.PersonalBests.AsNoTracking()
-                    .FirstOrDefaultAsync(p => p.UserId == cid && p.TimeMode == timeMode, ct);
+                    .FirstOrDefaultAsync(p => p.UserId == cid && p.TimeMode == timeMode && p.ModeKey.StartsWith("time:"), ct);
                 var u = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == cid, ct);
                 if (pb is not null && u is not null)
                     current = new LeaderboardEntryDto(
@@ -87,7 +87,7 @@ public class LeaderboardService : ILeaderboardService
     private async Task RebuildAsync(TimeMode timeMode, CancellationToken ct)
     {
         var pbs = await _db.PersonalBests.AsNoTracking()
-            .Where(p => p.TimeMode == timeMode)
+            .Where(p => p.TimeMode == timeMode && p.ModeKey.StartsWith("time:"))
             .ToListAsync(ct);
 
         foreach (var pb in pbs)

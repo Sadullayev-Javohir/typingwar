@@ -88,6 +88,13 @@
         return TIME_BUCKETS.reduce((a, b) => Math.abs(b - elapsed) < Math.abs(a - elapsed) ? b : a);
     }
 
+    // Rejim kaliti — shaxsiy rekord qaysi bo'lim (vaqt/so'z/iqtibos) bo'yicha saqlanishini aniqlaydi.
+    function currentModeKey() {
+        if (timedActive()) return "time:" + S.get("timeLimitSeconds");
+        if (isQuoteMode()) return "quote";
+        return "words:" + S.get("wordCount");
+    }
+
     async function loadText(count) {
         const mode = S.get("textMode");
         const lang = S.get("language");
@@ -399,7 +406,7 @@
         }
 
         const timeMode = timedActive() ? S.get("timeLimitSeconds") : nearestTimeMode(e);
-        await submit(timeMode, cc, incorrect, e);
+        await submit(timeMode, cc, incorrect, e, currentModeKey());
     }
 
     function showResult(wpm, rawWpm, acc, e, cc, raw) {
@@ -623,14 +630,14 @@
         if (lastGraphData) drawChart(lastGraphData);
     }
 
-    async function submit(timeMode, correctChars, incorrectChars, elapsedSeconds) {
+    async function submit(timeMode, correctChars, incorrectChars, elapsedSeconds, modeKey) {
         const msgEl = document.getElementById("tw-r-msg");
         try {
             const r = await fetch("/api/practice/result", {
                 method: "POST",
                 credentials: "same-origin",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ timeMode, correctChars, incorrectChars, elapsedSeconds, textId })
+                body: JSON.stringify({ timeMode, correctChars, incorrectChars, elapsedSeconds, textId, modeKey })
             });
             if (r.status === 401) {
                 msgEl.textContent = "Natijani saqlash uchun tizimga kiring.";
@@ -650,7 +657,7 @@
         } catch (e) {
             // Oflayn — natijani navbatga qo'yamiz, internet kelganda sinxron bo'ladi
             if (window.TWOffline)
-                window.TWOffline.enqueue({ timeMode, correctChars, incorrectChars, elapsedSeconds, textId });
+                window.TWOffline.enqueue({ timeMode, correctChars, incorrectChars, elapsedSeconds, textId, modeKey });
             msgEl.textContent = "Natija oflayn saqlandi — internet kelganda yuboriladi.";
         }
     }

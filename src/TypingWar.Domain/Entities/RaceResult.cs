@@ -8,6 +8,8 @@ public class RaceResult : BaseEntity
 {
     public Guid UserId { get; set; }
     public TimeMode TimeMode { get; set; }
+    /// <summary>Mashq rejimi kaliti ("time:30" / "words:50" / "quote"). Eski yozuvlar uchun null bo'lishi mumkin.</summary>
+    public string? ModeKey { get; set; }
     public double Wpm { get; set; }
     public double RawWpm { get; set; }
     public double Accuracy { get; set; }

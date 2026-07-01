@@ -10,9 +10,21 @@
 
     const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c =>
         ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const TIME = { Ten: "10s", Fifteen: "15s", Thirty: "30s", Sixty: "60s", OneTwenty: "120s" };
-    const ORDER = ["Ten", "Fifteen", "Thirty", "Sixty", "OneTwenty"];
-    const tm = k => TIME[k] || k;
+    // /Profile da ko'rsatiladigan rekord rejimlari — vaqt (s) va so'z sonlari alohida.
+    const TIME_MODES = ["time:15", "time:30", "time:60", "time:120"];
+    const WORD_MODES = ["words:10", "words:30", "words:50", "words:100"];
+    const ORDER = TIME_MODES.concat(WORD_MODES);
+    // ModeKey -> insonbop yorliq ("time:30" -> "30s", "words:50" -> "50 so'z")
+    function tm(k) {
+        if (k == null) return "—";
+        if (k === "quote") return "Iqtibos";
+        const i = k.indexOf(":");
+        if (i < 0) return k;
+        const kind = k.slice(0, i), val = k.slice(i + 1);
+        if (kind === "time") return val + "s";
+        if (kind === "words") return val + " so'z";
+        return k;
+    }
 
     function fmtDate(s) { try { return new Date(s).toLocaleDateString("uz-UZ"); } catch { return s; } }
     function fmtDur(sec) {
@@ -56,7 +68,7 @@
         const initial = name.charAt(0).toUpperCase();
 
         // eng kuchli PB (toj uchun)
-        const pbs = (p.personalBests || []).slice().sort((a, b) => ORDER.indexOf(a.timeMode) - ORDER.indexOf(b.timeMode));
+        const pbs = (p.personalBests || []).slice().sort((a, b) => ORDER.indexOf(a.modeKey) - ORDER.indexOf(b.modeKey));
         let bestPb = null;
         for (const b of pbs) if (!bestPb || b.bestWpm > bestPb.bestWpm) bestPb = b;
 
@@ -89,12 +101,12 @@
                 <div class="tw-stat-lbl">${c.label}</div>
             </div>`).join("");
 
-        // 5 rejim bo'yicha PB jadvali (yo'q rejim — bo'sh)
+        // Rejimlar bo'yicha PB jadvali — vaqt va so'z bo'limlari (yo'q rejim — bo'sh)
         const pbMap = {};
-        for (const b of pbs) pbMap[b.timeMode] = b;
-        const pbRows = ORDER.map(mode => {
+        for (const b of pbs) pbMap[b.modeKey] = b;
+        const pbRowHtml = mode => {
             const b = pbMap[mode];
-            const isTop = bestPb && b && b.timeMode === bestPb.timeMode && b.bestWpm === bestPb.bestWpm;
+            const isTop = bestPb && b && b.modeKey === bestPb.modeKey && b.bestWpm === bestPb.bestWpm;
             if (!b) return `
                 <div class="tw-pb-row tw-pb-row--empty">
                     <span class="tw-pb-mode">${tm(mode)}</span>
@@ -109,11 +121,15 @@
                     <span class="tw-pb-acc">${(b.accuracy || 0).toFixed(1)}%</span>
                     <span class="tw-pb-date">${fmtDate(b.achievedAt)}</span>
                 </div>`;
-        }).join("");
+        };
+        const groupHead = label => `
+            <div class="tw-pb-row tw-pb-group"><span>${label}</span><span></span><span></span><span></span></div>`;
+        const pbRows = groupHead("Vaqt") + TIME_MODES.map(pbRowHtml).join("")
+            + groupHead("So'z") + WORD_MODES.map(pbRowHtml).join("");
 
         const recent = (p.recent || []).map(r => `
             <li class="tw-recent-row">
-                <span class="tw-recent-mode">${tm(r.timeMode)}</span>
+                <span class="tw-recent-mode">${tm(r.modeKey)}</span>
                 <span class="tw-recent-wpm">${Math.round(r.wpm)} <small>wpm</small></span>
                 <span class="tw-recent-acc">${(r.accuracy || 0).toFixed(1)}%</span>
                 <span class="tw-recent-date">${fmtDate(r.playedAt)}</span>
