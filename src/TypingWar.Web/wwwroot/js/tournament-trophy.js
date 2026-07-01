@@ -245,8 +245,19 @@ const ACCENT = 0xff9900;
         }
         mount.classList.add("tw-trophy-celebrate");
     }
+    // Chempion rejimidan chiqish (demo "yangidan" tugmasi uchun)
+    function reset() {
+        champ = false; champPulse = 0;
+        for (const c of confetti) { c.visible = false; c.userData.life = 0; }
+        const cap = document.getElementById("tw-trophy-caption");
+        if (cap) {
+            cap.classList.remove("tw-trophy-won");
+            cap.innerHTML = `<i class="bi bi-hourglass-split"></i> Chempionni kutmoqda…`;
+        }
+        mount.classList.remove("tw-trophy-celebrate");
+    }
     // Tashqaridan boshqarish (tournament.js → CustomEvent)
-    window.TWTrophy = { celebrate };
+    window.TWTrophy = { celebrate, reset };
     window.addEventListener("tw-trophy-champion", (e) => celebrate(e.detail && e.detail.name));
 
     // ───── Animatsiya ─────

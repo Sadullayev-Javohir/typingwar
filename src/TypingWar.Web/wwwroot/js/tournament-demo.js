@@ -113,20 +113,19 @@
         </div>`;
     }
     function renderBracket(detail) {
-        const wrap = $("tw-d-bracket"), matches = detail.matches || [];
-        if (!matches.length) { wrap.innerHTML = ""; $("tw-d-bracket-wrap").classList.add("d-none"); return; }
+        const matches = detail.matches || [];
+        const r = window.TWBracketLayout.build(matches, (m, isFinal) => matchHtml(m, isFinal), esc);
+        if (!r.has) {
+            $("tw-d-bracket-left").innerHTML = "";
+            $("tw-d-bracket-right").innerHTML = "";
+            $("tw-d-bracket-final").innerHTML = "";
+            $("tw-d-bracket-wrap").classList.add("d-none");
+            return;
+        }
         $("tw-d-bracket-wrap").classList.remove("d-none");
-        const rounds = {};
-        matches.forEach(m => { (rounds[m.round] = rounds[m.round] || []).push(m); });
-        const keys = Object.keys(rounds).sort((a, b) => a - b);
-        wrap.innerHTML = keys.map(rk => {
-            const ms = rounds[rk].sort((a, b) => a.slot - b.slot);
-            const isFinal = ms.length === 1;
-            return `<div class="tw-bk-round${isFinal ? " tw-bk-round--final" : ""}">
-                <div class="tw-bk-rname">${esc(ms[0].roundName)}</div>
-                <div class="tw-bk-col">${ms.map(m => matchHtml(m, isFinal)).join("")}</div>
-            </div>`;
-        }).join("");
+        $("tw-d-bracket-left").innerHTML = r.left;
+        $("tw-d-bracket-right").innerHTML = r.right;
+        $("tw-d-bracket-final").innerHTML = r.final;
     }
 
     // ── Render: yakuniy joylar ──
@@ -153,6 +152,9 @@
         el.innerHTML = `<i class="bi bi-trophy-fill"></i>
             <div><span class="tw-champion-label">CHEMPION</span>
             <span class="tw-champion-name">${esc(name)}</span></div>`;
+        // Markazdagi 3D kubokni chempionga "topshirish" (portlash + konfetti + ism)
+        if (window.TWTrophy && window.TWTrophy.celebrate) window.TWTrophy.celebrate(name);
+        else window.dispatchEvent(new CustomEvent("tw-trophy-champion", { detail: { name } }));
     }
 
     // ── Holatni qayta yuklash ──
@@ -251,11 +253,14 @@
             await api("DELETE", `/api/tournamentdemo/${tid}`);
             log("Turnir o'chirildi.", "");
             tid = null; finished = false; lastDetail = null;
-            $("tw-d-bracket").innerHTML = "";
+            $("tw-d-bracket-left").innerHTML = "";
+            $("tw-d-bracket-right").innerHTML = "";
+            $("tw-d-bracket-final").innerHTML = "";
             $("tw-d-bracket-wrap").classList.add("d-none");
             $("tw-d-seeds").innerHTML = "";
             $("tw-d-standings").classList.add("d-none");
             $("tw-d-champion").classList.add("d-none");
+            if (window.TWTrophy && window.TWTrophy.reset) window.TWTrophy.reset();
             status("O'chirildi. Yangi turnir yaratish uchun tugmani bosing.");
         } catch (e) { showErr(e.message); }
         finally { setBusy(false); }

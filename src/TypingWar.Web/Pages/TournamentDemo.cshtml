@@ -41,13 +41,36 @@
     <!-- Chempion banneri -->
     <div id="tw-d-champion" class="tw-champion d-none"></div>
 
-    <div class="tw-demo-grid">
-        <!-- Chap: bracket / o'yinchilar -->
-        <section class="tw-demo-main">
-            <h2 class="tw-demo-h2"><i class="bi bi-diagram-3"></i> Bracket</h2>
-            <div id="tw-d-bracket-wrap" class="tw-bracket-wrap">
-                <div id="tw-d-bracket" class="tw-bracket"></div>
+    <!-- Ikki tomonlama playoff bracket — MARKAZDA 3D oltin gepard kubogi (to'liq kenglik) -->
+    <section id="tw-d-bracket-wrap" class="tw-bracket-wrap d-none">
+        <h3 class="tw-bracket-title"><i class="bi bi-diagram-3"></i> Playoff bracket</h3>
+
+        <div class="tw-bk2">
+            <!-- Chap yarm -->
+            <div id="tw-d-bracket-left" class="tw-bk2-side"></div>
+
+            <!-- Markaz: 3D OLTIN GEPARD KUBOGI + final o'yini -->
+            <div class="tw-bk2-center">
+                <div class="tw-trophy-stage">
+                    <div id="tw-trophy-3d" class="tw-trophy-3d">
+                        <div class="tw-trophy-fallback"><i class="bi bi-trophy-fill"></i></div>
+                    </div>
+                    <div id="tw-trophy-caption" class="tw-trophy-caption">
+                        <i class="bi bi-hourglass-split"></i> Chempionni kutmoqda…
+                    </div>
+                </div>
+                <div id="tw-d-bracket-final" class="tw-bk2-final"></div>
             </div>
+
+            <!-- O'ng yarm (ko'zguda) -->
+            <div id="tw-d-bracket-right" class="tw-bk2-side tw-bk2-side--right"></div>
+        </div>
+    </section>
+
+    <div class="tw-demo-grid">
+        <!-- Chap: o'yinchilar / yakuniy natijalar -->
+        <section class="tw-demo-main">
+            <h2 class="tw-demo-h2"><i class="bi bi-person-badge"></i> Ishtirokchilar</h2>
             <div id="tw-d-seeds" class="tw-demo-seeds"></div>
             <div id="tw-d-standings" class="tw-demo-standings d-none"></div>
         </section>
@@ -63,5 +86,7 @@
 </div>
 
 @section Scripts {
+    <script src="~/js/tw-bracket-layout.js" asp-append-version="true"></script>
     <script src="~/js/tournament-demo.js" asp-append-version="true"></script>
+    <script type="module" src="~/js/tournament-trophy.js" asp-append-version="true"></script>
 }

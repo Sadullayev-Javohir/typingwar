@@ -246,27 +246,21 @@
     function renderBracket(info) {
         const wrap = $("tw-bracket-wrap");
         const matches = detail.matches || [];
-        const has = matches.length > 0;
-        wrap.classList.toggle("d-none", !has);
-        if (!has) { $("tw-bracket").innerHTML = ""; return; }
-
-        const rounds = {};
-        matches.forEach(m => { (rounds[m.round] = rounds[m.round] || []).push(m); });
-        const keys = Object.keys(rounds).sort((a, b) => a - b);
-        const lastKey = keys[keys.length - 1];
-
-        $("tw-bracket").innerHTML = keys.map(rk => {
-            const ms = rounds[rk].sort((a, b) => a.slot - b.slot);
-            const isFinal = rk === lastKey;
-            return `<div class="tw-bk-round${isFinal ? " tw-bk-round--final" : ""}">
-                <div class="tw-bk-rname">${esc(ms[0].roundName)}</div>
-                <div class="tw-bk-col">${ms.map(m => matchHtml(m, isFinal)).join("")}</div>
-            </div>`;
-        }).join("");
+        const r = window.TWBracketLayout.build(matches, (m, isFinal) => matchHtml(m, isFinal), esc);
+        wrap.classList.toggle("d-none", !r.has);
+        if (!r.has) {
+            $("tw-bracket-left").innerHTML = "";
+            $("tw-bracket-right").innerHTML = "";
+            $("tw-bracket-final").innerHTML = "";
+            return;
+        }
+        $("tw-bracket-left").innerHTML = r.left;
+        $("tw-bracket-right").innerHTML = r.right;
+        $("tw-bracket-final").innerHTML = r.final;
 
         // Host force-winner tugmalari (faol round, hal qilinmagan o'yinlar)
         if (isHost && info.status === 1) {
-            $("tw-bracket").querySelectorAll(".tw-bk-force").forEach(b =>
+            $("tw-bracket-wrap").querySelectorAll(".tw-bk-force").forEach(b =>
                 b.addEventListener("click", () => forceWinner(b.dataset.match, b.dataset.uid)));
         }
     }

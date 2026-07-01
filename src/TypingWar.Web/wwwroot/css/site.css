@@ -1997,6 +1997,44 @@ a.tw-author-link:hover { border-color: rgba(0,112,243,.5); color: var(--tw-gold)
 .tw-rbtn--danger:hover { background: #3a1a1a; border-color: #ff6b6b; color: #ff8a8a; filter: none; }
 
 .tw-tbracket { display: flex; gap: 2.4rem; overflow-x: auto; padding: .3rem .3rem 1rem; }
+
+/* ════════ Ikki tomonlama (chap/o'ng) playoff bracket — markazda kubok ════════ */
+.tw-bk2 {
+    display: flex; align-items: center; justify-content: center;
+    gap: 2.2rem; overflow-x: auto; padding: .4rem .3rem 1.2rem;
+}
+.tw-bk2-side { display: flex; align-items: stretch; gap: 2.2rem; flex: none; }
+.tw-bk2-center {
+    display: flex; flex-direction: column; align-items: center; gap: .4rem; flex: none;
+    align-self: center;
+}
+.tw-bk2-final { width: 240px; max-width: 78vw; }
+.tw-bk2-final .tw-bk-rname {
+    text-align: center; color: var(--tw-gold); font-size: .72rem; text-transform: uppercase;
+    letter-spacing: .08em; font-weight: 800; margin-bottom: .55rem; padding: .3rem;
+    border-radius: 8px; background: color-mix(in srgb, var(--tw-gold) 20%, transparent);
+}
+/* O'ng yarmda ulagich chiziq markazga (chapga) qaraydi */
+.tw-bk2-side--right .tw-bk-round:not(.tw-bk-round--final) .tw-bk-match::after { display: none; }
+.tw-bk2-side--right .tw-bk-round:not(.tw-bk-round--final) .tw-bk-match::before {
+    content: ""; position: absolute; top: 50%; left: -1.25rem; width: 1.25rem; height: 2px;
+    background: linear-gradient(270deg, var(--tw-border-strong), transparent); pointer-events: none;
+}
+/* O'ng yarm kartalarini ko'zguda aks ettiramiz (avatar o'ngda) — futbol bracket ko'rinishi */
+.tw-bk2-side--right .tw-bk-side { flex-direction: row-reverse; text-align: right; }
+.tw-bk2-side--right .tw-bk-pname { text-align: right; }
+/* Markazdagi kubok sahnasi bracket ichida ixcham bo'lsin */
+.tw-bk2-center .tw-trophy-stage { margin: 0 auto .2rem; }
+.tw-bk2-center .tw-trophy-3d { width: 240px; height: 280px; }
+
+@media (max-width: 720px) {
+    .tw-bk2 { gap: 1.1rem; }
+    .tw-bk2-side { gap: 1.1rem; }
+    .tw-bk2-center .tw-trophy-3d { width: 180px; height: 210px; }
+    .tw-bk2-final { width: 200px; }
+    .tw-bk-round { min-width: 180px; }
+}
+
 .tw-bk-round { display: flex; flex-direction: column; min-width: 230px; }
 .tw-bk-rname {
     text-align: center; color: var(--tw-gold); font-size: .72rem; text-transform: uppercase;

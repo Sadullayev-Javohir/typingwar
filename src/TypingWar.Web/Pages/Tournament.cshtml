@@ -112,21 +112,30 @@
         </div>
     </section>
 
-    <!-- Bracket (hamma ko'radi) — markazda aylanuvchi oltin gepard kubogi -->
+    <!-- Bracket (hamma ko'radi) — ikki tomonlama playoff, MARKAZDA 3D oltin gepard kubogi -->
     <section id="tw-bracket-wrap" class="tw-bracket-wrap d-none">
         <h3 class="tw-bracket-title"><i class="bi bi-diagram-3"></i> Playoff bracket</h3>
 
-        <!-- Playoff markazidagi 3D OLTIN GEPARD KUBOGI -->
-        <div class="tw-trophy-stage">
-            <div id="tw-trophy-3d" class="tw-trophy-3d">
-                <div class="tw-trophy-fallback"><i class="bi bi-trophy-fill"></i></div>
-            </div>
-            <div id="tw-trophy-caption" class="tw-trophy-caption">
-                <i class="bi bi-hourglass-split"></i> Chempionni kutmoqda…
-            </div>
-        </div>
+        <div class="tw-bk2">
+            <!-- Chap yarm -->
+            <div id="tw-bracket-left" class="tw-bk2-side"></div>
 
-        <div id="tw-bracket" class="tw-tbracket"></div>
+            <!-- Markaz: 3D OLTIN GEPARD KUBOGI + final o'yini -->
+            <div class="tw-bk2-center">
+                <div class="tw-trophy-stage">
+                    <div id="tw-trophy-3d" class="tw-trophy-3d">
+                        <div class="tw-trophy-fallback"><i class="bi bi-trophy-fill"></i></div>
+                    </div>
+                    <div id="tw-trophy-caption" class="tw-trophy-caption">
+                        <i class="bi bi-hourglass-split"></i> Chempionni kutmoqda…
+                    </div>
+                </div>
+                <div id="tw-bracket-final" class="tw-bk2-final"></div>
+            </div>
+
+            <!-- O'ng yarm (ko'zguda) -->
+            <div id="tw-bracket-right" class="tw-bk2-side tw-bk2-side--right"></div>
+        </div>
     </section>
 
     <!-- Yakuniy joylar -->
@@ -158,6 +167,7 @@
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+    <script src="~/js/tw-bracket-layout.js" asp-append-version="true"></script>
     <script src="~/js/tournament.js" asp-append-version="true"></script>
     <script type="module" src="~/js/tournament-trophy.js" asp-append-version="true"></script>
 }
