@@ -1979,6 +1979,9 @@ a.tw-author-link:hover { border-color: rgba(0,112,243,.5); color: var(--tw-gold)
     position: relative; overflow: hidden; cursor: grab; touch-action: none;
     height: clamp(380px, 72vh, 760px); border-radius: 14px;
     border: 1px solid var(--tw-border);
+    /* Pan (sudrab surish) paytida matn belgilanib xalaqit bermasin */
+    user-select: none; -webkit-user-select: none; -moz-user-select: none;
+    -webkit-tap-highlight-color: transparent;
     background:
         radial-gradient(120% 120% at 0% 0%, color-mix(in srgb, var(--tw-gold) 6%, transparent), transparent 55%),
         repeating-linear-gradient(0deg, color-mix(in srgb, var(--tw-border) 50%, transparent) 0 1px, transparent 1px 26px),
