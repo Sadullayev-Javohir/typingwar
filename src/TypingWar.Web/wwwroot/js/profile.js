@@ -141,7 +141,9 @@
                 <div class="tw-profile-head2">
                     <div class="tw-profile-avatar" style="--h:${hue}">${esc(initial)}</div>
                     <div class="tw-profile-id">
-                        <h1 class="tw-profile-name">${esc(name)}${bestPb ? ` <span class="tw-crown-sm" title="Rekordchi">👑</span>` : ""}</h1>
+                        <h1 class="tw-profile-name">
+                            <span class="tw-profile-name-text">${esc(name)}</span>${bestPb ? ` <span class="tw-crown-sm" title="Rekordchi">👑</span>` : ""}${own ? ` <button class="tw-name-edit" id="tw-name-edit" title="Foydalanuvchi nomini o'zgartirish" data-name="${esc(name)}"><i class="bi bi-pencil-fill"></i></button>` : ""}
+                        </h1>
                         <div class="tw-profile-meta">
                             <span><i class="bi bi-geo-alt-fill"></i> ${esc(p.region || "—")}</span>
                             <span><i class="bi bi-graph-up-arrow"></i> ELO ${p.elo}</span>
@@ -171,6 +173,125 @@
             </div>`;
 
         bindShare();
+        if (own) bindRename();
+    }
+
+    const USERNAME_RE = /^[a-zA-Z0-9_]{3,32}$/;
+
+    // /Profile — foydalanuvchi nomini joyida (inline) o'zgartirish + jonli band tekshiruvi.
+    function bindRename() {
+        const editBtn = document.getElementById("tw-name-edit");
+        if (!editBtn) return;
+        const h1 = editBtn.closest(".tw-profile-name");
+        const currentName = editBtn.dataset.name;
+
+        editBtn.addEventListener("click", () => openEditor(h1, currentName));
+    }
+
+    function openEditor(h1, currentName) {
+        if (document.getElementById("tw-name-form")) return; // allaqachon ochiq
+        const original = h1.innerHTML;
+
+        h1.innerHTML = `
+            <form class="tw-name-form" id="tw-name-form" autocomplete="off">
+                <div class="tw-name-input-wrap">
+                    <span class="tw-name-at">@</span>
+                    <input type="text" id="tw-name-input" class="tw-name-input" maxlength="32"
+                        value="${esc(currentName)}" spellcheck="false" />
+                    <span class="tw-name-state" id="tw-name-state"></span>
+                </div>
+                <div class="tw-name-actions">
+                    <button type="submit" class="tw-rbtn tw-rbtn--sm tw-rbtn--gold" id="tw-name-save">Saqlash</button>
+                    <button type="button" class="tw-rbtn tw-rbtn--sm tw-rbtn--outline" id="tw-name-cancel">Bekor</button>
+                </div>
+                <div class="tw-name-help" id="tw-name-help">Faqat harf, raqam va _ (3–32 belgi).</div>
+            </form>`;
+
+        const form = document.getElementById("tw-name-form");
+        const input = document.getElementById("tw-name-input");
+        const stateEl = document.getElementById("tw-name-state");
+        const helpEl = document.getElementById("tw-name-help");
+        const saveBtn = document.getElementById("tw-name-save");
+
+        let checkTimer = null, lastChecked = "", available = true;
+
+        const setState = (cls, txt) => { stateEl.className = "tw-name-state tw-name-state--" + cls; stateEl.textContent = txt; };
+        const setHelp = (cls, txt) => { helpEl.className = "tw-name-help" + (cls ? " tw-name-help--" + cls : ""); helpEl.textContent = txt; };
+
+        function validateLocal() {
+            const v = input.value.trim();
+            if (v === currentName) { setState("none", ""); setHelp("", "Joriy nomingiz."); return true; }
+            if (!v) { setState("none", ""); setHelp("", "Faqat harf, raqam va _ (3–32 belgi)."); return false; }
+            if (!USERNAME_RE.test(v)) { setState("bad", "✗"); setHelp("bad", "Faqat harf, raqam va _ (3–32 belgi)."); return false; }
+            setHelp("", "Nom takrorlanmas (unique) bo'lishi kerak.");
+            return true;
+        }
+
+        async function checkAvailability() {
+            const v = input.value.trim();
+            if (v === currentName) { available = true; return; }
+            if (!validateLocal()) { available = false; return; }
+            if (v === lastChecked) return;
+            lastChecked = v;
+            setState("checking", "…");
+            try {
+                const r = await fetch("/api/auth/username-available?username=" + encodeURIComponent(v), { credentials: "same-origin" });
+                const data = await r.json();
+                if (input.value.trim() !== v) return; // input o'zgargan bo'lsa — e'tiborsiz
+                available = !!data.available;
+                if (available) { setState("ok", "✓"); setHelp("", "Bo'sh — ishlatish mumkin."); }
+                else { setState("bad", "band"); setHelp("bad", "Bu foydalanuvchi nomi band."); }
+            } catch {
+                setState("none", "");
+                available = true; // tarmoq xatosi — serverda baribir tekshiriladi
+            }
+        }
+
+        input.addEventListener("input", () => {
+            validateLocal();
+            clearTimeout(checkTimer);
+            checkTimer = setTimeout(checkAvailability, 350);
+        });
+
+        const close = () => { h1.innerHTML = original; bindRename(); };
+        document.getElementById("tw-name-cancel").addEventListener("click", close);
+        input.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+
+        form.addEventListener("submit", async e => {
+            e.preventDefault();
+            const username = input.value.trim();
+            if (username === currentName) { close(); return; }
+            if (!USERNAME_RE.test(username)) { setHelp("bad", "Foydalanuvchi nomi noto'g'ri (3–32 belgi, harf/raqam/_)."); return; }
+            if (!available) { setHelp("bad", "Bu foydalanuvchi nomi band."); return; }
+
+            saveBtn.disabled = true;
+            saveBtn.textContent = "…";
+            try {
+                const r = await fetch("/api/auth/rename-username", {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username })
+                });
+                if (r.ok) {
+                    toast("Foydalanuvchi nomi o'zgartirildi.");
+                    load(); // profilni qayta yuklab, nav cookie ham yangilangan holda ko'rsatamiz
+                } else {
+                    const body = await r.json().catch(() => ({}));
+                    setHelp("bad", body.error || "Saqlashda xatolik.");
+                    setState("bad", "✗");
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = "Saqlash";
+                }
+            } catch {
+                setHelp("bad", "Tarmoq xatosi.");
+                saveBtn.disabled = false;
+                saveBtn.textContent = "Saqlash";
+            }
+        });
+
+        input.focus();
+        input.select();
     }
 
     function bindShare() {

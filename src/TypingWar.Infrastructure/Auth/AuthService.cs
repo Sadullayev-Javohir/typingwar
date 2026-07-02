@@ -92,10 +92,9 @@ public class AuthService : IIdentityService
     {
         username = username.Trim();
 
-        if (string.IsNullOrWhiteSpace(username) || username.Length is < 3 or > 32)
-            return ProfileSetupResult.Fail("Foydalanuvchi nomi 3–32 belgidan iborat bo'lsin.");
-        if (!System.Text.RegularExpressions.Regex.IsMatch(username, "^[a-zA-Z0-9_]+$"))
-            return ProfileSetupResult.Fail("Foydalanuvchi nomi faqat harf, raqam va _ dan iborat bo'lsin.");
+        var nameError = ValidateUsername(username);
+        if (nameError is not null)
+            return ProfileSetupResult.Fail(nameError);
         if (!UzbekistanRegions.IsValid(regionCode))
             return ProfileSetupResult.Fail("Hududni tanlang.");
 
@@ -109,6 +108,45 @@ public class AuthService : IIdentityService
 
         user.RegionCode = regionCode;
         user.ProfileCompleted = true;
+        return await ApplyUsernameAsync(user, username);
+    }
+
+    public async Task<ProfileSetupResult> RenameUsernameAsync(Guid userId, string username, CancellationToken ct = default)
+    {
+        username = username.Trim();
+
+        var nameError = ValidateUsername(username);
+        if (nameError is not null)
+            return ProfileSetupResult.Fail(nameError);
+
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+            return ProfileSetupResult.Fail("Foydalanuvchi topilmadi.");
+
+        // Aynan o'sha nom (registri bilan) — ortiqcha yozuvga hojat yo'q
+        if (string.Equals(user.UserName, username, StringComparison.Ordinal))
+            return ProfileSetupResult.Ok(user.UserName!);
+
+        var existing = await _userManager.FindByNameAsync(username);
+        if (existing is not null && existing.Id != userId)
+            return ProfileSetupResult.Fail("Bu foydalanuvchi nomi band.");
+
+        return await ApplyUsernameAsync(user, username);
+    }
+
+    /// <summary>Username uchun umumiy validatsiya. Xato bo'lsa xabar, aks holda null.</summary>
+    private static string? ValidateUsername(string username)
+    {
+        if (string.IsNullOrWhiteSpace(username) || username.Length is < 3 or > 32)
+            return "Foydalanuvchi nomi 3–32 belgidan iborat bo'lsin.";
+        if (!System.Text.RegularExpressions.Regex.IsMatch(username, "^[a-zA-Z0-9_]+$"))
+            return "Foydalanuvchi nomi faqat harf, raqam va _ dan iborat bo'lsin.";
+        return null;
+    }
+
+    /// <summary>Username ni Identity'ga yozadi (NormalizedUserName ham yangilanadi).</summary>
+    private async Task<ProfileSetupResult> ApplyUsernameAsync(ApplicationUser user, string username)
+    {
         var setName = await _userManager.SetUserNameAsync(user, username);
         if (!setName.Succeeded)
             return ProfileSetupResult.Fail(setName.Errors.Select(e => e.Description).ToArray());

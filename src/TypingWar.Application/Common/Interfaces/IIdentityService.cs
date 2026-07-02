@@ -33,6 +33,9 @@ public interface IIdentityService
     /// <summary>Google'dan keyin profilni to'ldiradi: username (unikal) + hudud.</summary>
     Task<ProfileSetupResult> CompleteProfileAsync(Guid userId, string username, string regionCode, CancellationToken ct = default);
 
+    /// <summary>Mavjud foydalanuvchi nomini o'zgartiradi (unikal). Hudud tegmaydi.</summary>
+    Task<ProfileSetupResult> RenameUsernameAsync(Guid userId, string username, CancellationToken ct = default);
+
     /// <summary>Username bo'sh (band emas)mi — joriy foydalanuvchini hisobga olmagan holda.</summary>
     Task<bool> IsUsernameAvailableAsync(string username, Guid excludeUserId, CancellationToken ct = default);
 }

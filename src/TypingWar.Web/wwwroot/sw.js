@@ -1,5 +1,5 @@
 /* TypingWar — Service Worker (offline app shell) */
-const CACHE = "tw-cache-v45";
+const CACHE = "tw-cache-v46";
 const SHELL = [
     "/",
     "/Practice",

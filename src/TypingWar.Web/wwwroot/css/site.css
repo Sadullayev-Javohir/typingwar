@@ -2325,8 +2325,36 @@ body.tw-bk-full-open { overflow: hidden; }
     border: 3px solid var(--tw-surface); box-shadow: 0 10px 30px -10px rgba(0,0,0,.7);
 }
 .tw-profile-id { flex: 1; min-width: 200px; padding-bottom: .2rem; }
-.tw-profile-name { font-size: 1.7rem; font-weight: 800; letter-spacing: -.02em; margin: 0; }
+.tw-profile-name { font-size: 1.7rem; font-weight: 800; letter-spacing: -.02em; margin: 0; display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
 .tw-crown-sm { font-size: 1.1rem; }
+
+/* Foydalanuvchi nomini joyida o'zgartirish */
+.tw-name-edit {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.9rem; height: 1.9rem; padding: 0; border-radius: 50%;
+    border: 1px solid var(--border, #2a2a35); background: transparent;
+    color: var(--text-secondary, #9aa0aa); font-size: .85rem; cursor: pointer;
+    transition: all .15s ease;
+}
+.tw-name-edit:hover { color: var(--accent, #E8A020); border-color: var(--accent, #E8A020); background: rgba(232,160,32,.08); }
+.tw-name-form { width: 100%; font-size: 1rem; font-weight: 500; }
+.tw-name-input-wrap {
+    display: flex; align-items: center; gap: .25rem; max-width: 380px;
+    border: 1px solid var(--border, #2a2a35); border-radius: 10px;
+    background: var(--surface, #14141c); padding: .45rem .7rem;
+}
+.tw-name-at { color: var(--text-secondary, #9aa0aa); font-weight: 700; }
+.tw-name-input {
+    flex: 1; min-width: 0; border: none; background: transparent; outline: none;
+    color: var(--text, #f0f0f5); font-size: 1.05rem; font-weight: 700; letter-spacing: -.01em;
+}
+.tw-name-state { font-size: .85rem; font-weight: 700; white-space: nowrap; }
+.tw-name-state--checking { color: var(--text-secondary, #9aa0aa); }
+.tw-name-state--ok { color: #34d399; }
+.tw-name-state--bad { color: #f87171; }
+.tw-name-actions { display: flex; gap: .5rem; margin-top: .6rem; }
+.tw-name-help { margin-top: .4rem; font-size: .8rem; font-weight: 400; color: var(--text-secondary, #9aa0aa); }
+.tw-name-help--bad { color: #f87171; }
 .tw-profile-meta { display: flex; flex-wrap: wrap; gap: .3rem 1.1rem; color: var(--tw-muted); font-size: .9rem; margin-top: .3rem; }
 .tw-profile-meta i { color: var(--tw-gold); margin-right: .25rem; }
 .tw-profile-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; padding-bottom: .2rem; }

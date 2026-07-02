@@ -84,6 +84,26 @@ public class AuthController : ApiControllerBase
         return Ok(new { username = result.Username });
     }
 
+    /// <summary>Joriy foydalanuvchi nomini o'zgartiradi va JWT cookie ni yangilaydi (hamma joyga tarqaydi).</summary>
+    [Authorize]
+    [HttpPost("rename-username")]
+    public async Task<IActionResult> RenameUsername([FromBody] RenameUsernameRequest req)
+    {
+        if (User.FindFirstValue(ClaimTypes.NameIdentifier) is not string idStr || !Guid.TryParse(idStr, out var uid))
+            return Unauthorized();
+
+        var result = await _identity.RenameUsernameAsync(uid, req.Username);
+        if (!result.Succeeded)
+            return BadRequest(new { error = string.Join("; ", result.Errors) });
+
+        // Yangi username bilan cookie ni qayta beramiz (nav, JWT claim — barchasi yangilanadi)
+        var email = User.FindFirstValue(ClaimTypes.Email);
+        var roles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+        IssueCookie(uid, result.Username, email, roles);
+
+        return Ok(new { username = result.Username });
+    }
+
     /// <summary>Username band emasligini tekshiradi (CompleteProfile sahifasida jonli).</summary>
     [Authorize]
     [HttpGet("username-available")]
