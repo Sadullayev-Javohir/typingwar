@@ -2,6 +2,7 @@
 @model ProfileModel
 @{
     ViewData["Title"] = "Profil";
+    ViewData["Robots"] = "noindex, follow";
 }
 
 @if (!Model.IsAuthenticated)

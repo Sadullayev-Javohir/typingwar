@@ -1,10 +1,53 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    var baseUrl = (Configuration["Site:BaseUrl"] ?? "https://typingwar.uz").TrimEnd('/');
+    var pageTitle = ViewData["Title"] as string;
+    var fullTitle = ViewData["FullTitle"] as string
+        ?? (string.IsNullOrEmpty(pageTitle)
+            ? "TypingWar.uz — O'zbekistondagi #1 typing tezligi platformasi"
+            : $"{pageTitle} — TypingWar.uz");
+    var metaDescription = ViewData["Description"] as string
+        ?? "TypingWar.uz — O'zbekistondagi 1-raqamli typing musobaqa platformasi. O'zbek va ingliz tilida yozish tezligingizni (WPM) va aniqligingizni o'lchang: AI raqib, real-time poygalar, jamoaviy musobaqalar, turnirlar va O'zbekiston bo'ylab reyting.";
+    var metaKeywords = ViewData["Keywords"] as string
+        ?? "typing test, terish tezligi, klaviatura tezligi, o'zbek typing, tez yozish, wpm test, monkeytype o'zbek, ten barmoq, typing musobaqa, typingwar, o'zbekcha klaviatura mashqi, yozish tezligi";
+    var robots = ViewData["Robots"] as string ?? "index, follow";
+    var canonicalPath = ViewData["Canonical"] as string ?? Context.Request.Path.ToString();
+    var canonicalUrl = canonicalPath.StartsWith("http") ? canonicalPath : baseUrl + canonicalPath;
+    var ogImage = ViewData["OgImage"] as string ?? (baseUrl + "/img/typingwar-logo.png");
+    var ogType = ViewData["OgType"] as string ?? "website";
+}
 <!DOCTYPE html>
 <html lang="uz" data-bs-theme="dark">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TypingWar.uz</title>
+    <title>@fullTitle</title>
+    <meta name="description" content="@metaDescription" />
+    <meta name="keywords" content="@metaKeywords" />
+    <meta name="robots" content="@robots" />
+    <meta name="author" content="TypingWar.uz" />
+    <meta name="application-name" content="TypingWar.uz" />
+    <meta name="generator" content="TypingWar.uz" />
+    <link rel="canonical" href="@canonicalUrl" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="@ogType" />
+    <meta property="og:site_name" content="TypingWar.uz" />
+    <meta property="og:title" content="@fullTitle" />
+    <meta property="og:description" content="@metaDescription" />
+    <meta property="og:url" content="@canonicalUrl" />
+    <meta property="og:image" content="@ogImage" />
+    <meta property="og:locale" content="uz_UZ" />
+    <meta property="og:locale:alternate" content="en_US" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@fullTitle" />
+    <meta name="twitter:description" content="@metaDescription" />
+    <meta name="twitter:image" content="@ogImage" />
+
     <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="apple-touch-icon" href="~/img/typingwar-logo.png" />
     <link rel="manifest" href="~/manifest.webmanifest" />
     <meta name="theme-color" content="#000000" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -14,6 +57,43 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TypingWar.Web.styles.css" asp-append-version="true" />
+
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@graph": [
+            {
+                "@@type": "Organization",
+                "@@id": "@(baseUrl)/#organization",
+                "name": "TypingWar.uz",
+                "url": "@(baseUrl)/",
+                "logo": "@(baseUrl)/img/typingwar-logo.png",
+                "description": "O'zbekistondagi #1 typing tezligi va musobaqa platformasi.",
+                "slogan": "Eng tez barmoqlar g'alaba qozonadi"
+            },
+            {
+                "@@type": "WebSite",
+                "@@id": "@(baseUrl)/#website",
+                "url": "@(baseUrl)/",
+                "name": "TypingWar.uz",
+                "inLanguage": "uz",
+                "description": "O'zbek va ingliz tilida yozish tezligingizni o'lchovchi typing musobaqa platformasi.",
+                "publisher": { "@@id": "@(baseUrl)/#organization" }
+            },
+            {
+                "@@type": "WebApplication",
+                "name": "TypingWar.uz",
+                "url": "@(baseUrl)/",
+                "applicationCategory": "GameApplication",
+                "operatingSystem": "Web",
+                "browserRequirements": "Requires JavaScript. Requires HTML5.",
+                "inLanguage": ["uz", "en"],
+                "offers": { "@@type": "Offer", "price": "0", "priceCurrency": "UZS" }
+            }
+        ]
+    }
+    </script>
+    @await RenderSectionAsync("StructuredData", required: false)
 </head>
 <body>
     <header>

@@ -2,6 +2,7 @@
 @model FingerprintModel
 @{
     ViewData["Title"] = "Yozish Pasporti";
+    ViewData["Robots"] = "noindex, follow";
 }
 
 <div id="tw-fp" class="tw-fp" data-authenticated="@Model.IsAuthenticated.ToString().ToLower()">

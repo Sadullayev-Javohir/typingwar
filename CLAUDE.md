@@ -339,6 +339,26 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-18] SEO — Google'da yuqori chiqish uchun to'liq optimizatsiya:
+    (1) _Layout.cshtml <head> qayta yozildi (IConfiguration inject): har sahifa uchun ViewData
+    bilan boshqariladigan meta description/keywords/robots/canonical + Open Graph (og:type/title/
+    description/url/image/site_name/locale uz_UZ+en_US) + Twitter Card (summary_large_image) +
+    author/application-name + apple-touch-icon. Title endi to'liq sozlanadi (ViewData["FullTitle"]
+    yoki "{Title} — TypingWar.uz"). Standart tavsif+kalit so'zlar o'zbekcha (typing test, terish
+    tezligi, wpm, monkeytype o'zbek...). Bazaviy URL Site:BaseUrl konfiguratsiyadan (appsettings:
+    https://typingwar.uz).
+    (2) JSON-LD strukturali ma'lumotlar (@@context/@@graph): Organization + WebSite + WebApplication
+    (GameApplication, bepul, uz/en). Sahifaga qo'shimcha "StructuredData" seksiyasi.
+    (3) SeoController: dinamik /robots.txt (Allow / + /api,/hubs,/hangfire,/Admin,/Settings,/Profile,
+    /Room,/Team,/CompleteProfile,/TournamentDemo Disallow + Sitemap havolasi) va /sitemap.xml
+    (12 ommaviy sahifa, priority+changefreq+lastmod, System.Xml.Linq), 24soat ResponseCache.
+    (4) Sahifalarga meta: Index (FullTitle+boy tavsif), Practice/Race/Leaderboard/Tournaments/
+    Contest/Rooms/Teams/Map/Review/Login/Privacy — har biriga keyword-rich tavsif; /share/{username}
+    og:type=profile + dinamik tavsif (indekslanadi). Shaxsiy/dinamik sahifalar noindex: Admin/
+    CompleteProfile/Room/Team/TournamentDemo (noindex,nofollow), Settings/Profile/Tournament/
+    Fingerprint/Register (noindex,follow). Build OK, 102 test, ishlaydigan app: robots.txt+sitemap.xml
+    +home meta/JSON-LD+Practice canonical+share og:type+Admin 401 tasdiqlandi.
+    QOLDI (deploy keyin, qo'lda): Google Search Console'ga typingwar.uz qo'shib sitemap yuborish.
   - [2026-06-18] /Profile — o'sish grafiklari + yillik faollik kalendari (GitHub uslubi):
     (1) BACKEND: GetProfile.cs (ProfileBuilder) RaceResults'ni kun bo'yicha guruhlab
     DailyActivityDto(Date, Races, AvgWpm, BestWpm, Seconds) ro'yxatini quradi; ProfileDto'ga

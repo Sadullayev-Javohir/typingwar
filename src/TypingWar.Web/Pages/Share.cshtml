@@ -1,7 +1,9 @@
 @page "/share/{username}"
 @model ShareModel
 @{
-    ViewData["Title"] = Model.Username + " — profil";
+    ViewData["Title"] = Model.Username + " — typing profili";
+    ViewData["Description"] = $"{Model.Username} ning TypingWar.uz typing profili: WPM rekordlari, aniqlik, poyga statistikasi va yutuqlar. Sen ham yozish tezligingni sina!";
+    ViewData["OgType"] = "profile";
 }
 
 <div id="tw-profile-root" class="tw-profile2"
