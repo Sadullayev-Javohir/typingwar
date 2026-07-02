@@ -1,6 +1,7 @@
-// home-cheetah.js — Bosh sahifa: klaviaturada JUDA TEZ yozayotgan 3D gepard (Three.js)
-// Gepard klaviatura ortida o'tiradi, ikki panja klavishlarni gupillatib bosadi,
-// bosilgan klavish oltin rangda yonadi + uchqun chiqadi. Dizayn ranglariga mos.
+// home-cheetah.js — Bosh sahifa: JUDA TEZ chopayotgan (full gallop) 3D gepard (Three.js)
+// Gepard to'liq sprint tezlikda yuguradi: umurtqa egilib-cho'ziladi (gepard gallopi),
+// 4 oyoq navbatma-navbat zarba beradi, dum shamolda hilpiraydi, oyoq ostidan chang
+// ko'tariladi, orqa fonda oltin tezlik chiziqlari uchib o'tadi, yer tagidan surilib ketadi.
 // WebGL bo'lmasa — jim chiqib ketadi (fallback logo qoladi).
 import * as THREE from "/lib/three/three.module.min.js";
 
@@ -11,7 +12,6 @@ const ACCENT = 0xff9900;
     const mount = document.getElementById("tw-cheetah-3d");
     if (!mount) return;
 
-    // Loader — gepard sahnasi tayyor bo'lguncha ko'rsatiladi (faqat /home da bor)
     const loaderEl = document.getElementById("tw-cheetah-loader");
     function hideLoader() { loaderEl && loaderEl.classList.add("tw-hide"); }
 
@@ -25,9 +25,11 @@ const ACCENT = 0xff9900;
     const H = () => mount.clientHeight || 420;
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(36, W() / H(), 0.1, 100);
-    camera.position.set(1.9, 4.0, 4.6);
-    camera.lookAt(0, 1.15, 0.9);
+    scene.fog = new THREE.Fog(0x0f0f1a, 9, 26);
+
+    const camera = new THREE.PerspectiveCamera(42, W() / H(), 0.1, 100);
+    camera.position.set(5.6, 2.7, 6.8);
+    camera.lookAt(0.2, 1.45, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(W(), H());
@@ -35,40 +37,35 @@ const ACCENT = 0xff9900;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
+    renderer.toneMappingExposure = 1.18;
     mount.appendChild(renderer.domElement);
     mount.querySelector(".tw-cheetah-fallback")?.remove();
 
     // ───── Yorug'lik ─────
-    scene.add(new THREE.AmbientLight(0xb9c2ff, 0.55));
-    const key = new THREE.DirectionalLight(0xffffff, 1.45);
-    key.position.set(3, 7, 5); key.castShadow = true;
+    scene.add(new THREE.AmbientLight(0xaeb8ff, 0.55));
+    const key = new THREE.DirectionalLight(0xffffff, 1.55);
+    key.position.set(4, 8, 6); key.castShadow = true;
     key.shadow.mapSize.set(1024, 1024);
-    key.shadow.camera.near = 1; key.shadow.camera.far = 25;
-    key.shadow.camera.left = -6; key.shadow.camera.right = 6;
-    key.shadow.camera.top = 6; key.shadow.camera.bottom = -6;
+    key.shadow.camera.near = 1; key.shadow.camera.far = 30;
+    key.shadow.camera.left = -8; key.shadow.camera.right = 8;
+    key.shadow.camera.top = 8; key.shadow.camera.bottom = -8;
     scene.add(key);
-    const rim = new THREE.DirectionalLight(ACCENT, 1.0);
-    rim.position.set(-5, 3, -4); scene.add(rim);
-    const glow = new THREE.PointLight(GOLD, 0.8, 14);
-    glow.position.set(0, 1.4, 2.6); scene.add(glow);
-    // klaviaturaga fokus nuri (bosish aniq ko'rinishi uchun)
-    const kbSpot = new THREE.SpotLight(0xfff2d8, 2.4, 8, Math.PI / 5, 0.5, 1.2);
-    kbSpot.position.set(0.5, 3.6, 3.2);
-    kbSpot.target.position.set(0, 1.15, 0.95);
-    scene.add(kbSpot); scene.add(kbSpot.target);
+    const rim = new THREE.DirectionalLight(ACCENT, 1.25);   // orqadan oltin kontur nuri
+    rim.position.set(-6, 4, -5); scene.add(rim);
+    const glow = new THREE.PointLight(GOLD, 1.0, 18);
+    glow.position.set(2, 2.4, 3); scene.add(glow);
 
-    // ───── Gepard terisi teksturasi ─────
+    // ───── Gepard terisi teksturasi (xollar bilan) ─────
     function furTexture() {
         const c = document.createElement("canvas");
         c.width = c.height = 256;
         const g = c.getContext("2d");
         const grd = g.createLinearGradient(0, 0, 0, 256);
-        grd.addColorStop(0, "#f0b84a"); grd.addColorStop(0.6, "#e8a020"); grd.addColorStop(1, "#c47e12");
+        grd.addColorStop(0, "#f3bd52"); grd.addColorStop(0.55, "#e8a020"); grd.addColorStop(1, "#bf7a10");
         g.fillStyle = grd; g.fillRect(0, 0, 256, 256);
-        g.fillStyle = "rgba(20,14,6,0.82)";
-        for (let i = 0; i < 90; i++) {
-            const x = Math.random() * 256, y = Math.random() * 256, r = 4 + Math.random() * 7;
+        g.fillStyle = "rgba(22,14,6,0.85)";
+        for (let i = 0; i < 110; i++) {
+            const x = Math.random() * 256, y = Math.random() * 256, r = 3 + Math.random() * 6;
             g.beginPath();
             g.ellipse(x, y, r, r * (0.6 + Math.random() * 0.5), Math.random() * Math.PI, 0, Math.PI * 2);
             g.fill();
@@ -77,289 +74,253 @@ const ACCENT = 0xff9900;
         tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.anisotropy = 4;
         return tex;
     }
-    const furMat = new THREE.MeshStandardMaterial({ map: furTexture(), roughness: 0.75, metalness: 0.05 });
+    const furMat = new THREE.MeshStandardMaterial({ map: furTexture(), roughness: 0.72, metalness: 0.05 });
     const darkMat = new THREE.MeshStandardMaterial({ color: 0x1a120a, roughness: 0.6 });
     const creamMat = new THREE.MeshStandardMaterial({ color: 0xf6e3bf, roughness: 0.8 });
 
     function part(geo, mat) { const m = new THREE.Mesh(geo, mat); m.castShadow = true; return m; }
 
-    // ═════════ Gepard (o'tirgan, oldinga engashgan) ═════════
-    const cheetah = new THREE.Group();
-    cheetah.position.set(0, 0, -0.2);
-    scene.add(cheetah);
+    // ═════════ Gepard — yon profil, +X tomonga chopadi ═════════
+    // root → bob/surge;  spine → flex pivot (front + rear yarim);
+    const root = new THREE.Group();
+    root.position.set(0, 1.45, 0);
+    root.rotation.y = -0.32;                 // 3/4 ko'rinish (yuz + cho'zilish ko'rinsin)
+    scene.add(root);
 
-    // O'tirgan dumba
-    const haunch = part(new THREE.SphereGeometry(0.95, 18, 18), furMat);
-    haunch.position.set(0, 0.85, -0.9); haunch.scale.set(1.15, 0.9, 1.1);
-    cheetah.add(haunch);
+    const spine = new THREE.Group();
+    root.add(spine);
+    const front = new THREE.Group();         // ko'krak, bo'yin, bosh, old oyoqlar
+    const rear = new THREE.Group();          // dumba, orqa oyoqlar, dum
+    spine.add(front); spine.add(rear);
 
-    // Tana (vertikal, oldinga engashgan)
-    const torso = part(new THREE.CapsuleGeometry(0.62, 1.0, 8, 16), furMat);
-    torso.position.set(0, 1.65, -0.15); torso.rotation.x = 0.45; torso.scale.set(1, 1, 0.85);
-    cheetah.add(torso);
+    // ── Tana (oldinga +X) ──
+    const torsoF = part(new THREE.CapsuleGeometry(0.46, 0.95, 10, 18), furMat);
+    torsoF.rotation.z = Math.PI / 2; torsoF.position.set(0.55, 0, 0); torsoF.scale.set(1, 0.92, 0.92);
+    front.add(torsoF);
+    const torsoR = part(new THREE.CapsuleGeometry(0.52, 0.8, 10, 18), furMat);
+    torsoR.rotation.z = Math.PI / 2; torsoR.position.set(-0.5, 0.02, 0); torsoR.scale.set(1, 1.0, 1.0);
+    rear.add(torsoR);
+    // ingichka bel (gepard belgisi)
+    const waist = part(new THREE.SphereGeometry(0.4, 14, 14), furMat);
+    waist.position.set(0.02, -0.02, 0); waist.scale.set(0.9, 0.78, 0.86); spine.add(waist);
+    // ko'krak (oq tuk)
+    const chest = part(new THREE.SphereGeometry(0.42, 16, 16), creamMat);
+    chest.position.set(1.0, -0.12, 0); chest.scale.set(0.7, 0.9, 0.85); front.add(chest);
 
-    // Ko'krak (oq tukli)
-    const chest = part(new THREE.SphereGeometry(0.5, 16, 16), creamMat);
-    chest.position.set(0, 1.55, 0.42); chest.scale.set(0.85, 1.1, 0.7);
-    cheetah.add(chest);
+    // ── Bo'yin + bosh (oldinga cho'zilgan, ufqqa qaragan) ──
+    const neck = part(new THREE.CylinderGeometry(0.26, 0.36, 0.62, 14), furMat);
+    neck.position.set(1.18, 0.22, 0); neck.rotation.z = -1.15; front.add(neck);
 
-    // Bo'yin
-    const neck = part(new THREE.CylinderGeometry(0.3, 0.42, 0.7, 14), furMat);
-    neck.position.set(0, 2.3, 0.18); neck.rotation.x = 0.55;
-    cheetah.add(neck);
-
-    // ───── Bosh (klaviaturaga qarab pastga egilgan) ─────
     const head = new THREE.Group();
-    head.position.set(0, 2.62, 0.45); head.rotation.x = 0.62;
-    cheetah.add(head);
-    const skull = part(new THREE.SphereGeometry(0.42, 16, 16), furMat);
-    skull.scale.set(1, 0.96, 0.95); head.add(skull);
-    const snout = part(new THREE.CylinderGeometry(0.2, 0.3, 0.4, 12), furMat);
-    snout.rotation.x = Math.PI / 2; snout.position.set(0, -0.12, 0.42); head.add(snout);
-    const nose = part(new THREE.SphereGeometry(0.1, 10, 10), darkMat);
-    nose.position.set(0, -0.08, 0.64); head.add(nose);
+    head.position.set(1.55, 0.45, 0); front.add(head);
+    const skull = part(new THREE.SphereGeometry(0.34, 16, 16), furMat);
+    skull.scale.set(1.05, 0.95, 0.95); head.add(skull);
+    const snout = part(new THREE.CylinderGeometry(0.16, 0.24, 0.42, 12), furMat);
+    snout.rotation.z = -Math.PI / 2; snout.position.set(0.38, -0.08, 0); head.add(snout);
+    const nose = part(new THREE.SphereGeometry(0.09, 10, 10), darkMat);
+    nose.position.set(0.6, -0.06, 0); head.add(nose);
     [-1, 1].forEach((s) => {
-        const ear = part(new THREE.ConeGeometry(0.17, 0.28, 12), furMat);
-        ear.position.set(0.24 * s, 0.38, -0.05); ear.rotation.z = -0.2 * s; head.add(ear);
-        const inEar = part(new THREE.ConeGeometry(0.09, 0.18, 10), darkMat);
-        inEar.position.set(0.24 * s, 0.36, 0.0); inEar.rotation.z = -0.2 * s; head.add(inEar);
-    });
-    // Ko'zlar (diqqat bilan klaviaturaga qaragan) + ko'z yoshi chizig'i
-    const eyeMat = new THREE.MeshStandardMaterial({ color: 0x120a02, roughness: 0.2 });
-    [-1, 1].forEach((s) => {
-        const eye = part(new THREE.SphereGeometry(0.09, 12, 12), eyeMat);
-        eye.position.set(0.18 * s, 0.06, 0.34); head.add(eye);
-        const spark = part(new THREE.SphereGeometry(0.03, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-        spark.position.set(0.18 * s + 0.02, 0.1, 0.41); head.add(spark);
-        const tear = part(new THREE.BoxGeometry(0.05, 0.34, 0.04), darkMat);
-        tear.position.set(0.16 * s, -0.16, 0.36); tear.rotation.x = -0.5; head.add(tear);
+        const ear = part(new THREE.SphereGeometry(0.15, 12, 12), furMat);
+        ear.scale.set(0.5, 1, 0.85); ear.position.set(-0.1, 0.34, 0.18 * s); head.add(ear);
+        const inEar = part(new THREE.SphereGeometry(0.08, 10, 10), darkMat);
+        inEar.scale.set(0.5, 1, 0.85); inEar.position.set(-0.07, 0.34, 0.2 * s); head.add(inEar);
+        // ko'z (oldinga qaragan) + chaqnoq
+        const eye = part(new THREE.SphereGeometry(0.075, 12, 12), new THREE.MeshStandardMaterial({ color: 0x140a02, roughness: 0.2 }));
+        eye.position.set(0.18, 0.08, 0.18 * s); head.add(eye);
+        const spark = part(new THREE.SphereGeometry(0.025, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+        spark.position.set(0.24, 0.12, 0.19 * s); head.add(spark);
+        // gepard ko'z yoshi chizig'i
+        const tear = part(new THREE.BoxGeometry(0.3, 0.045, 0.035), darkMat);
+        tear.position.set(0.32, -0.06, 0.16 * s); tear.rotation.z = -0.7; head.add(tear);
     });
 
-    // ───── Dum (yon tomonga jingalak) ─────
-    let tp = cheetah, prevSegs = [];
-    let curve = [[0.0, 0.9, -1.7], [0.8, 0.7, -1.6], [1.3, 0.9, -1.0], [1.4, 1.2, -0.3], [1.1, 1.4, 0.2]];
-    for (let i = 0; i < curve.length; i++) {
-        const r = 0.18 - i * 0.025;
-        const seg = part(new THREE.SphereGeometry(r, 10, 10), i >= 3 ? darkMat : furMat);
-        seg.position.set(curve[i][0], curve[i][1], curve[i][2]);
-        cheetah.add(seg); prevSegs.push(seg);
+    // ── Oyoqlar (hip → knee → paw), gallop uchun ──
+    function makeLeg(parent, x, z, front_) {
+        const hip = new THREE.Group();
+        hip.position.set(x, -0.18, z);
+        parent.add(hip);
+        const upLen = front_ ? 0.6 : 0.66;
+        const upper = part(new THREE.CylinderGeometry(0.13, 0.1, upLen, 10), furMat);
+        upper.position.y = -upLen / 2; hip.add(upper);
+        const knee = new THREE.Group();
+        knee.position.y = -upLen; hip.add(knee);
+        const loLen = front_ ? 0.52 : 0.58;
+        const lower = part(new THREE.CylinderGeometry(0.09, 0.06, loLen, 10), furMat);
+        lower.position.y = -loLen / 2; knee.add(lower);
+        const paw = part(new THREE.SphereGeometry(0.11, 12, 12), creamMat);
+        paw.position.set(0.04, -loLen, 0); paw.scale.set(1.3, 0.7, 1.1); knee.add(paw);
+        return { hip, knee, paw, world: new THREE.Vector3() };
     }
-    const tailTip = prevSegs;
+    // front group lokalida old oyoqlar; rear group lokalida orqa oyoqlar
+    const legFL = makeLeg(front, 0.92, 0.26, true);
+    const legFR = makeLeg(front, 0.92, -0.26, true);
+    const legHL = makeLeg(rear, -0.7, 0.3, false);
+    const legHR = makeLeg(rear, -0.7, -0.3, false);
 
-    // ───── Qo'llar (yelka → tirsak → panja), tez bosish uchun ─────
-    function makeArm(side) {
-        const shoulder = new THREE.Group();
-        shoulder.position.set(0.5 * side, 2.05, 0.35);
-        cheetah.add(shoulder);
-        const upLen = 0.6;
-        const upper = part(new THREE.CylinderGeometry(0.16, 0.13, upLen, 10), furMat);
-        upper.position.y = -upLen / 2; shoulder.add(upper);
-        shoulder.rotation.x = -1.05;          // oldinga-pastga cho'zilgan
-        shoulder.rotation.z = 0.12 * side;
-        const elbow = new THREE.Group();
-        elbow.position.y = -upLen; shoulder.add(elbow);
-        const foLen = 0.55;
-        const fore = part(new THREE.CylinderGeometry(0.12, 0.09, foLen, 10), furMat);
-        fore.position.y = -foLen / 2; elbow.add(fore);
-        elbow.rotation.x = -1.1;              // tirsak bukilgan, panja klaviaturaga
-        const paw = part(new THREE.SphereGeometry(0.18, 14, 14), creamMat);
-        paw.position.set(0, -foLen, 0.04); paw.scale.set(1.35, 0.7, 1.5);
-        elbow.add(paw);
-        // barmoq yostiqchalari (bosayotgani aniq ko'rinishi uchun)
-        for (let i = -1; i <= 1; i++) {
-            const toe = part(new THREE.SphereGeometry(0.075, 8, 8), creamMat);
-            toe.position.set(i * 0.13, -foLen - 0.03, 0.2);
-            elbow.add(toe);
+    // ── Dum (uzun, orqaga oqib, hilpiraydi) ──
+    const tailSegs = [];
+    let tailPrev = rear;
+    const TAIL_N = 9;
+    for (let i = 0; i < TAIL_N; i++) {
+        const r = 0.16 - i * 0.013;
+        const seg = new THREE.Group();
+        seg.position.set(i === 0 ? -1.0 : -0.26, i === 0 ? 0.1 : 0, 0);
+        const m = part(new THREE.SphereGeometry(Math.max(0.04, r), 10, 10), i >= TAIL_N - 3 ? darkMat : furMat);
+        m.scale.set(1.4, 0.9, 0.9); seg.add(m);
+        tailPrev.add(seg); tailPrev = seg; tailSegs.push(seg);
+    }
+
+    // ═════════ Yer — tez surilib ketadigan tezlik teksturasi ═════════
+    function groundTexture() {
+        const c = document.createElement("canvas");
+        c.width = 512; c.height = 128;
+        const g = c.getContext("2d");
+        g.fillStyle = "#10101f"; g.fillRect(0, 0, 512, 128);
+        for (let i = 0; i < 70; i++) {
+            const y = Math.random() * 128, len = 60 + Math.random() * 200, x = Math.random() * 512;
+            g.strokeStyle = `rgba(232,160,32,${0.05 + Math.random() * 0.18})`;
+            g.lineWidth = 1 + Math.random() * 2;
+            g.beginPath(); g.moveTo(x, y); g.lineTo(x + len, y); g.stroke();
         }
-        return { shoulder, elbow, paw, side };
+        const tex = new THREE.CanvasTexture(c);
+        tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(6, 2);
+        return tex;
     }
-    const arms = [makeArm(-1), makeArm(1)];
+    const groundTex = groundTexture();
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(40, 10),
+        new THREE.MeshStandardMaterial({ map: groundTex, roughness: 0.95, metalness: 0.05 }));
+    ground.rotation.x = -Math.PI / 2; ground.position.set(0, -1.45, 0); ground.receiveShadow = true;
+    scene.add(ground);
 
-    // ═════════ Noutbuk (laptop) — klaviatura paneli ═════════
-    const kb = new THREE.Group();
-    kb.position.set(0, 1.05, 0.95); kb.rotation.x = -0.16;
-    scene.add(kb);
-    const COLS = 9, ROWS = 3, SP = 0.34, SPZ = 0.36, KW = 0.3;
-    const base = part(new THREE.BoxGeometry(COLS * SP + 0.34, 0.12, ROWS * SPZ + 0.5),
-        new THREE.MeshStandardMaterial({ color: 0x16162a, roughness: 0.5, metalness: 0.45 }));
-    base.position.set(0, 0, 0.1); base.receiveShadow = true; kb.add(base);
-    // oltin ramka chizig'i
-    const kbFrame = part(new THREE.BoxGeometry(COLS * SP + 0.36, 0.06, ROWS * SPZ + 0.36),
-        new THREE.MeshStandardMaterial({ color: GOLD, emissive: GOLD, emissiveIntensity: 0.25, roughness: 0.4 }));
-    kbFrame.position.y = -0.07; kb.add(kbFrame);
-
-    const keys = [], keyWorld = [];
-    const tmp = new THREE.Vector3();
-    for (let r = 0; r < ROWS; r++) {
-        for (let c = 0; c < COLS; c++) {
-            const km = new THREE.MeshStandardMaterial({ color: 0x3c3c60, emissive: GOLD, emissiveIntensity: 0, roughness: 0.35, metalness: 0.2 });
-            const k = part(new THREE.BoxGeometry(KW, 0.16, KW), km);
-            const x = (c - (COLS - 1) / 2) * SP;
-            const z = (r - (ROWS - 1) / 2) * SPZ;
-            k.position.set(x, 0.1, z);
-            k.userData = { restY: 0.1, press: 0 };
-            kb.add(k); keys.push(k);
-            k.getWorldPosition(tmp); keyWorld.push(tmp.clone());
-        }
+    // ═════════ Tezlik chiziqlari (orqaga uchadi) ═════════
+    const LINES = 46;
+    const speedLines = [];
+    const lineMat = new THREE.MeshBasicMaterial({ color: GOLD, transparent: true, opacity: 0.5 });
+    function resetLine(s, initial) {
+        s.position.set(4 + Math.random() * 9, -0.6 + Math.random() * 4.2, -2.5 + Math.random() * 5.5);
+        s.userData.speed = 14 + Math.random() * 16;
+        const len = 0.8 + Math.random() * 2.6;
+        s.scale.set(len, 1, 1);
+        s.material.opacity = 0.18 + Math.random() * 0.5;
+        s.material.color.setHex(Math.random() < 0.5 ? GOLD : ACCENT);
+        if (initial) s.position.x = -6 + Math.random() * 14;
+    }
+    for (let i = 0; i < LINES; i++) {
+        const s = new THREE.Mesh(new THREE.BoxGeometry(1, 0.02, 0.02), lineMat.clone());
+        s.userData = {}; resetLine(s, true); scene.add(s); speedLines.push(s);
     }
 
-    // ───── Noutbuk ekrani (qopqoq) — orqa qirrada, gepardga qaragan ─────
-    const lidPivot = new THREE.Group();
-    lidPivot.position.set(0, 0.0, (ROWS - 1) / 2 * SPZ + 0.32);   // kameraga yaqin (uzoq) qirra
-    lidPivot.rotation.x = 0.32;                                   // tepasi orqaga egiladi
-    kb.add(lidPivot);
-    const lidW = COLS * SP + 0.34, lidH = 0.82;
-    const lid = part(new THREE.BoxGeometry(lidW, lidH, 0.07),
-        new THREE.MeshStandardMaterial({ color: 0x14142a, roughness: 0.5, metalness: 0.5 }));
-    lid.position.y = lidH / 2; lidPivot.add(lid);
-    // ekran paneli (gepardga qaragan -z yuzi — yoniq)
-    const screen = part(new THREE.PlaneGeometry(lidW - 0.16, lidH - 0.16),
-        new THREE.MeshStandardMaterial({ color: 0x0f0f1a, emissive: GOLD, emissiveIntensity: 0.55, roughness: 0.3, side: THREE.DoubleSide }));
-    screen.position.set(0, lidH / 2, -0.045); screen.rotation.y = Math.PI;
-    lidPivot.add(screen);
-    // orqa qopqoqdagi yongan logo (kameraga qaraydi)
-    const emblem = part(new THREE.CircleGeometry(0.17, 28),
-        new THREE.MeshStandardMaterial({ color: GOLD, emissive: GOLD, emissiveIntensity: 0.9, roughness: 0.3 }));
-    emblem.position.set(0, lidH * 0.56, 0.05); lidPivot.add(emblem);
-    // ekran nuri — gepard yuziga tushadi
-    const screenLight = new THREE.PointLight(GOLD, 1.1, 5);
-    screenLight.position.set(0, lidH * 0.5, -0.5); lidPivot.add(screenLight);
-
-    // ───── Uchqunlar (klavish bosilganda otiladi) ─────
-    const sparks = [];
-    const sparkMat = new THREE.MeshBasicMaterial({ color: ACCENT, transparent: true });
-    for (let i = 0; i < 30; i++) {
-        const s = new THREE.Mesh(new THREE.SphereGeometry(0.045, 6, 6), sparkMat.clone());
-        s.visible = false; s.userData = { life: 0, vy: 0, vx: 0, vz: 0 };
-        scene.add(s); sparks.push(s);
+    // ═════════ Chang zarralari (oyoq ostidan) ═════════
+    const dust = [];
+    const dustMat = new THREE.MeshBasicMaterial({ color: 0xcaa86a, transparent: true });
+    for (let i = 0; i < 40; i++) {
+        const d = new THREE.Mesh(new THREE.SphereGeometry(0.07, 6, 6), dustMat.clone());
+        d.visible = false; d.userData = { life: 0, vx: 0, vy: 0, vz: 0 };
+        scene.add(d); dust.push(d);
     }
-    function emitSpark(pos) {
-        for (const s of sparks) {
-            if (s.userData.life <= 0) {
-                s.position.copy(pos); s.position.y += 0.12;
-                s.userData.life = 0.32;
-                s.userData.vy = 1.2 + Math.random() * 1.0;
-                s.userData.vx = (Math.random() - 0.5) * 1.2;
-                s.userData.vz = (Math.random() - 0.5) * 1.2;
-                s.visible = true; s.material.opacity = 1;
+    function emitDust(x, y, z) {
+        for (const d of dust) {
+            if (d.userData.life <= 0) {
+                d.position.set(x, y, z);
+                d.userData.life = 0.5 + Math.random() * 0.3;
+                d.userData.vx = -1.8 - Math.random() * 2.2;     // orqaga
+                d.userData.vy = 0.4 + Math.random() * 1.0;
+                d.userData.vz = (Math.random() - 0.5) * 1.2;
+                const sc = 0.6 + Math.random() * 1.4; d.scale.setScalar(sc);
+                d.visible = true; d.material.opacity = 0.7;
                 return;
             }
         }
     }
 
-    // bosilgan klavishni yondirish
-    function pressKeyNear(worldPos, side) {
-        let best = -1, bd = 1e9;
-        for (let i = 0; i < keyWorld.length; i++) {
-            // panja tomoniga mos klavishlarni afzal ko'rish
-            if (side < 0 && keyWorld[i].x > 0.4) continue;
-            if (side > 0 && keyWorld[i].x < -0.4) continue;
-            const dx = keyWorld[i].x - worldPos.x, dz = keyWorld[i].z - worldPos.z;
-            const d = dx * dx + dz * dz;
-            if (d < bd) { bd = d; best = i; }
-        }
-        if (best >= 0) {
-            keys[best].userData.press = 1;
-            emitSpark(keyWorld[best]);
-        }
-    }
-
-    // ───── Yer ─────
-    const ground = new THREE.Mesh(new THREE.CircleGeometry(7, 48),
-        new THREE.MeshStandardMaterial({ color: 0x121224, roughness: 1 }));
-    ground.rotation.x = -Math.PI / 2; ground.position.y = -0.02; ground.receiveShadow = true;
-    scene.add(ground);
-
-    // ───── Stol (desk) — noutbuk ustida turadi ─────
-    const desk = new THREE.Group();
-    scene.add(desk);
-    const deskMat = new THREE.MeshStandardMaterial({ color: 0x3a2a1a, roughness: 0.65, metalness: 0.1 });
-    const legMat = new THREE.MeshStandardMaterial({ color: 0x1b1b2a, roughness: 0.5, metalness: 0.5 });
-    const deskTop = part(new THREE.BoxGeometry(5.6, 0.16, 2.9), deskMat);
-    deskTop.position.set(0, 0.91, 0.7); deskTop.receiveShadow = true; desk.add(deskTop);
-    const legGeo = new THREE.CylinderGeometry(0.11, 0.11, 0.91, 12);
-    [[-2.5, -0.5], [2.5, -0.5], [-2.5, 1.8], [2.5, 1.8]].forEach(([lx, lz]) => {
-        const leg = part(legGeo, legMat); leg.position.set(lx, 0.455, lz); desk.add(leg);
-    });
-
-    // ───── Stul suyanchig'i (gepard ortida — "o'tirgan" hissi) ─────
-    const chairMat = new THREE.MeshStandardMaterial({ color: 0x20202e, roughness: 0.6, metalness: 0.3 });
-    const chairBack = part(new THREE.BoxGeometry(1.7, 1.7, 0.16), chairMat);
-    chairBack.position.set(0, 1.55, -2.0); desk.add(chairBack);
-    const chairTop = part(new THREE.CylinderGeometry(0.13, 0.13, 1.7, 12), chairMat);
-    chairTop.rotation.z = Math.PI / 2; chairTop.position.set(0, 2.45, -2.0); desk.add(chairTop);
-
-    // ───── Animatsiya ─────
-    const FREQ = 17;            // bosish tezligi — tez, lekin aniq ko'rinadi
-    const HIT = [0, 1];         // har panja uchun oxirgi yarim-davr indeksi
+    // ═════════ Animatsiya ═════════
+    const STRIDE = 2.7;                 // soniyasiga gallop tsikllari (juda tez)
     let t = 0;
     const clock = new THREE.Clock();
-    const pawWorld = new THREE.Vector3();
     let firstFrame = true;
+    const groundY = -1.45;
+    const legState = [
+        { leg: legFL, off: 0.62, struck: false },
+        { leg: legFR, off: 0.52, struck: false },
+        { leg: legHL, off: 0.10, struck: false },
+        { leg: legHR, off: 0.00, struck: false },
+    ];
 
     function frame() {
         const dt = Math.min(clock.getDelta(), 0.05);
         t += dt;
+        const p = (t * STRIDE) % 1;          // gallop fazasi [0,1)
+        const ph = p * Math.PI * 2;
 
-        // panjalar gupillatib bosadi (chap/o'ng navbatma-navbat)
-        arms.forEach((arm, idx) => {
-            const ang = t * FREQ + idx * Math.PI;     // chap-o'ng faza
-            const lift = Math.max(0, Math.cos(ang));         // 0 = klavishni urgan payt
-            // panja klaviaturaga pastga-oldinga cho'ziladi; lift bo'lsa ko'tariladi
-            arm.shoulder.rotation.x = -0.8 - lift * 0.28;
-            arm.elbow.rotation.x = 0.15 + lift * 0.65;       // tirsak aniq ko'tarilib-tushadi
-            // gorizontal mayda siljish (turli klavishlarni bosgandek)
-            arm.shoulder.rotation.z = 0.12 * arm.side + Math.sin(t * 6 + idx) * 0.14;
+        // ── umurtqa egilishi (gather ↔ extend) ──
+        const flex = Math.sin(ph);           // +1 yig'ilgan, -1 cho'zilgan
+        front.rotation.z = -flex * 0.16;
+        rear.rotation.z = flex * 0.20;
+        front.position.x = -flex * 0.12;      // cho'zilganda yarimlar ajraladi
+        rear.position.x = flex * 0.12;
+        spine.scale.x = 1 + (-flex) * 0.06;
 
-            // pastki nuqtaga yetganda klavish bos + uchqun
-            const half = Math.floor((ang) / Math.PI);
-            if (half !== HIT[idx] && Math.cos(ang) < -0.3) {
-                HIT[idx] = half;
-                arm.paw.getWorldPosition(pawWorld);
-                pressKeyNear(pawWorld, arm.side);
-            }
+        // ── tana sakrashi (ikki suspension) ──
+        root.position.y = 1.42 + Math.max(0, -Math.cos(ph)) * 0.34 + Math.max(0, Math.cos(ph)) * 0.12;
+        root.position.z = Math.sin(ph) * 0.05;
+        root.rotation.z = Math.sin(ph) * 0.04;
+
+        // ── oyoqlar gallopi ──
+        for (const st of legState) {
+            const a = (p - st.off) * Math.PI * 2;
+            const swing = Math.cos(a);
+            st.leg.hip.rotation.z = swing * 0.95;                 // oldinga-orqaga zarba
+            const fold = Math.max(0, Math.sin(a));               // recovery'da tizza bukiladi
+            st.leg.knee.rotation.z = 0.35 + fold * 1.5;
+            // yerga zarba lahzasida chang
+            const contact = Math.cos(a) < -0.55;
+            if (contact && !st.struck) {
+                st.struck = true;
+                st.leg.paw.getWorldPosition(st.leg.world);
+                if (st.leg.world.y < groundY + 0.6)
+                    emitDust(st.leg.world.x, groundY + 0.08, st.leg.world.z);
+            } else if (!contact) st.struck = false;
+        }
+
+        // ── dum hilpirashi (orqaga oqib, to'lqinlanadi) ──
+        tailSegs.forEach((seg, i) => {
+            if (i === 0) { seg.rotation.z = -0.5 + Math.sin(ph) * 0.15; return; }
+            seg.rotation.z = Math.sin(t * 9 - i * 0.55) * 0.28 + 0.06;
+            seg.rotation.y = Math.sin(t * 7 - i * 0.4) * 0.18;
         });
 
-        // klavishlar bosilishi va oltin nuri so'nishi
-        for (const k of keys) {
-            if (k.userData.press > 0) {
-                k.userData.press = Math.max(0, k.userData.press - dt * 6);
-                const p = k.userData.press;
-                k.position.y = k.userData.restY - p * 0.09;
-                k.material.emissiveIntensity = p * 1.3;
-                const s = 1 + p * 0.12; k.scale.set(s, 1, s);
+        // ── bosh barqaror, ufqqa intiladi ──
+        head.rotation.z = flex * 0.05 + Math.sin(t * 11) * 0.015;
+
+        // ── yer surilishi ──
+        groundTex.offset.x = (t * 1.6) % 1;
+
+        // ── tezlik chiziqlari ──
+        for (const s of speedLines) {
+            s.position.x -= s.userData.speed * dt;
+            if (s.position.x < -7) resetLine(s, false);
+        }
+
+        // ── chang ──
+        for (const d of dust) {
+            if (d.userData.life > 0) {
+                d.userData.life -= dt;
+                d.position.x += d.userData.vx * dt;
+                d.position.y += d.userData.vy * dt;
+                d.position.z += d.userData.vz * dt;
+                d.userData.vy -= dt * 1.2;
+                d.material.opacity = Math.max(0, d.userData.life) * 0.9;
+                d.scale.multiplyScalar(1 + dt * 1.5);
+                if (d.userData.life <= 0) d.visible = false;
             }
         }
 
-        // uchqunlar
-        for (const s of sparks) {
-            if (s.userData.life > 0) {
-                s.userData.life -= dt;
-                s.position.x += s.userData.vx * dt;
-                s.position.y += s.userData.vy * dt;
-                s.position.z += s.userData.vz * dt;
-                s.material.opacity = Math.max(0, s.userData.life / 0.32);
-                if (s.userData.life <= 0) s.visible = false;
-            }
-        }
-
-        // bosh va tana yengil tebranishi (diqqat bilan yozyapti)
-        head.rotation.x = 0.62 + Math.sin(t * 9) * 0.03;
-        cheetah.rotation.z = Math.sin(t * 12) * 0.012;
-        torso.position.y = 1.65 + Math.sin(t * 12) * 0.015;
-
-        // dum uchining hayajonli silkinishi
-        tailTip.forEach((seg, i) => {
-            if (i >= 2) seg.position.y = curve[i][1] + Math.sin(t * 6 - i) * 0.12;
-        });
-
-        // kameraning juda yumshoq tebranishi
-        camera.position.x = 1.9 + Math.sin(t * 0.22) * 0.55;
-        camera.lookAt(0, 1.15, 0.9);
+        // ── kameraning yengil tebranishi (dinamika) ──
+        camera.position.y = 2.7 + Math.sin(t * STRIDE * Math.PI * 2) * 0.07;
+        camera.position.x = 5.6 + Math.sin(t * 0.3) * 0.4;
+        camera.lookAt(0.2, 1.5, 0);
 
         renderer.render(scene, camera);
-
-        // birinchi kadr chizilgach loader yashiriladi (gepard endi ko'rinadi)
         if (firstFrame) { firstFrame = false; hideLoader(); }
     }
 
