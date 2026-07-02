@@ -9,6 +9,9 @@ namespace TypingWar.Application.Features.Profile;
 public record PbDto(string ModeKey, double BestWpm, double Accuracy, DateTime AchievedAt);
 public record RecentResultDto(string ModeKey, double Wpm, double Accuracy, DateTime PlayedAt);
 
+/// <summary>Bir kunlik faollik (o'sish grafiklari + yillik faollik kalendari uchun).</summary>
+public record DailyActivityDto(string Date, int Races, double AvgWpm, double BestWpm, int Seconds);
+
 /// <summary>Profil statistikasi (umumiy ko'rsatkichlar).</summary>
 public record ProfileStatsDto(
     int TotalRaces, double BestWpm, double AvgWpm, double AvgAccuracy,
@@ -17,7 +20,8 @@ public record ProfileStatsDto(
 public record ProfileDto(
     string Username, string Region, string? RegionCode, int Elo, DateTime JoinedAt,
     string? AvatarUrl, string ShareUrl, ProfileStatsDto Stats,
-    IReadOnlyList<PbDto> PersonalBests, IReadOnlyList<RecentResultDto> Recent);
+    IReadOnlyList<PbDto> PersonalBests, IReadOnlyList<RecentResultDto> Recent,
+    IReadOnlyList<DailyActivityDto> Activity);
 
 /// <summary>Joriy foydalanuvchi profili — to'liq statistika, PB lar, so'nggi natijalar.</summary>
 public record GetProfileQuery : IRequest<ProfileDto?>;
@@ -110,11 +114,24 @@ internal static class ProfileBuilder
                 .ToList()
             : new List<RecentResultDto>();
 
+        // Kunlik faollik — o'sish grafiklari (kunlik/haftalik/oylik/yillik) va yillik
+        // faollik kalendari (GitHub uslubidagi heat map) frontendda shundan quriladi.
+        var activity = results
+            .GroupBy(r => r.PlayedAt.Date)
+            .OrderBy(g => g.Key)
+            .Select(g => new DailyActivityDto(
+                g.Key.ToString("yyyy-MM-dd"),
+                g.Count(),
+                Math.Round(g.Average(x => x.Wpm), 1),
+                Math.Round(g.Max(x => x.Wpm), 1),
+                g.Sum(x => (int)x.TimeMode)))
+            .ToList();
+
         string region = regionCode is not null && UzbekistanRegions.All.TryGetValue(regionCode, out var name)
             ? name : "—";
 
         return new ProfileDto(
             username, region, regionCode, elo, joinedAt, avatarUrl,
-            "/share/" + username, stats, pbs, recent);
+            "/share/" + username, stats, pbs, recent, activity);
     }
 }

@@ -170,10 +170,391 @@
                     <h3 class="tw-panel-title"><i class="bi bi-clock-history"></i> So'nggi natijalar</h3>
                     <ul class="tw-recent-list">${recent}</ul>
                 </section>
-            </div>`;
+            </div>
+
+            <section class="tw-profile-panel tw-growth">
+                <div class="tw-growth-head">
+                    <h3 class="tw-panel-title"><i class="bi bi-graph-up-arrow"></i> O'sish grafiklari</h3>
+                    <div class="tw-growth-tabs" id="tw-growth-tabs">
+                        <button class="tw-growth-tab tw-growth-tab--on" data-gran="daily">Kunlik</button>
+                        <button class="tw-growth-tab" data-gran="weekly">Haftalik</button>
+                        <button class="tw-growth-tab" data-gran="monthly">Oylik</button>
+                        <button class="tw-growth-tab" data-gran="yearly">Yillik</button>
+                    </div>
+                </div>
+                <div class="tw-chart-wrap">
+                    <canvas id="tw-growth-canvas"></canvas>
+                    <div class="tw-chart-tip" id="tw-growth-tip"></div>
+                </div>
+                <div class="tw-chart-legend">
+                    <span><i class="tw-lg-line tw-lg-line--avg"></i> O'rtacha WPM</span>
+                    <span><i class="tw-lg-line tw-lg-line--best"></i> Eng yuqori WPM</span>
+                    <span><i class="tw-lg-bar"></i> Poygalar soni</span>
+                </div>
+            </section>
+
+            <section class="tw-profile-panel tw-act">
+                <div class="tw-act-head">
+                    <h3 class="tw-panel-title"><i class="bi bi-calendar-heart-fill"></i> Yillik faollik</h3>
+                    <div class="tw-act-years" id="tw-act-years"></div>
+                </div>
+                <div class="tw-act-summary" id="tw-act-summary"></div>
+                <div class="tw-act-scroll">
+                    <div class="tw-act-grid-wrap">
+                        <div class="tw-act-months" id="tw-act-months"></div>
+                        <div class="tw-act-body">
+                            <div class="tw-act-days">
+                                <span></span><span>Dush</span><span></span><span>Chor</span><span></span><span>Jum</span><span></span>
+                            </div>
+                            <div class="tw-act-grid" id="tw-act-grid"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tw-act-legend">
+                    <span>Kam</span>
+                    <i class="tw-act-cell tw-act-l0"></i><i class="tw-act-cell tw-act-l1"></i><i class="tw-act-cell tw-act-l2"></i><i class="tw-act-cell tw-act-l3"></i><i class="tw-act-cell tw-act-l4"></i>
+                    <span>Ko'p</span>
+                </div>
+            </section>`;
 
         bindShare();
         if (own) bindRename();
+        initGrowth(p.activity || []);
+        initActivity(p.activity || [], p.joinedAt);
+    }
+
+    // ───────── O'sish grafiklari (kunlik / haftalik / oylik / yillik) ─────────
+
+    // activity → {'yyyy-mm-dd': {races, avgWpm, bestWpm, seconds}}
+    function activityMap(activity) {
+        const m = new Map();
+        for (const a of activity) m.set(a.date, a);
+        return m;
+    }
+
+    function ymd(d) {
+        return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    }
+    const MONTHS_UZ = ["Yan", "Fev", "Mar", "Apr", "May", "Iyn", "Iyl", "Avg", "Sen", "Okt", "Noy", "Dek"];
+
+    // Granularlik bo'yicha qatorlarni quradi: [{label, avgWpm, bestWpm, races}]
+    function buildBuckets(activity, gran) {
+        const map = activityMap(activity);
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const merge = items => {
+            let races = 0, wsum = 0, best = 0;
+            for (const it of items) { races += it.races; wsum += it.avgWpm * it.races; best = Math.max(best, it.bestWpm); }
+            return { races, avgWpm: races ? wsum / races : 0, bestWpm: best };
+        };
+
+        if (gran === "daily") {
+            const out = [];
+            for (let i = 29; i >= 0; i--) {
+                const d = new Date(today); d.setDate(d.getDate() - i);
+                const a = map.get(ymd(d));
+                out.push({
+                    label: d.getDate() + " " + MONTHS_UZ[d.getMonth()],
+                    avgWpm: a ? a.avgWpm : 0, bestWpm: a ? a.bestWpm : 0, races: a ? a.races : 0
+                });
+            }
+            return out;
+        }
+        if (gran === "weekly") {
+            const out = [];
+            // hafta dushanbadan boshlanadi
+            const monday = new Date(today);
+            const dow = (monday.getDay() + 6) % 7; // 0 = Dushanba
+            monday.setDate(monday.getDate() - dow);
+            for (let w = 15; w >= 0; w--) {
+                const start = new Date(monday); start.setDate(start.getDate() - w * 7);
+                const items = [];
+                for (let k = 0; k < 7; k++) {
+                    const d = new Date(start); d.setDate(d.getDate() + k);
+                    const a = map.get(ymd(d)); if (a) items.push(a);
+                }
+                const agg = merge(items);
+                out.push({ label: start.getDate() + " " + MONTHS_UZ[start.getMonth()], ...agg });
+            }
+            return out;
+        }
+        if (gran === "monthly") {
+            const out = [];
+            for (let i = 11; i >= 0; i--) {
+                const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+                const pref = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+                const items = [];
+                for (const [k, v] of map) if (k.startsWith(pref + "-")) items.push(v);
+                const agg = merge(items);
+                out.push({ label: MONTHS_UZ[d.getMonth()] + " " + String(d.getFullYear()).slice(2), ...agg });
+            }
+            return out;
+        }
+        // yearly
+        const byYear = new Map();
+        for (const a of activity) {
+            const y = a.date.slice(0, 4);
+            if (!byYear.has(y)) byYear.set(y, []);
+            byYear.get(y).push(a);
+        }
+        const years = [...byYear.keys()].sort();
+        if (years.length) {
+            const first = +years[0], last = Math.max(+years[years.length - 1], today.getFullYear());
+            const out = [];
+            for (let y = first; y <= last; y++) {
+                const agg = merge(byYear.get(String(y)) || []);
+                out.push({ label: String(y), ...agg });
+            }
+            return out;
+        }
+        return [{ label: String(today.getFullYear()), avgWpm: 0, bestWpm: 0, races: 0 }];
+    }
+
+    let growthState = { activity: [], gran: "daily", buckets: [], rects: [], css: null };
+
+    function cssVars() {
+        const cs = getComputedStyle(document.documentElement);
+        const v = n => (cs.getPropertyValue(n) || "").trim();
+        return {
+            gold: v("--tw-gold") || "#E8A020",
+            muted: v("--tw-muted") || "#9aa0aa",
+            border: v("--tw-border") || "#2a2a35",
+            text: v("--tw-text") || "#e8e8ee",
+            surface: v("--tw-surface") || "#14141c"
+        };
+    }
+
+    function initGrowth(activity) {
+        growthState.activity = activity;
+        growthState.css = cssVars();
+        const tabs = document.getElementById("tw-growth-tabs");
+        if (tabs) {
+            tabs.addEventListener("click", e => {
+                const btn = e.target.closest(".tw-growth-tab"); if (!btn) return;
+                tabs.querySelectorAll(".tw-growth-tab").forEach(b => b.classList.toggle("tw-growth-tab--on", b === btn));
+                growthState.gran = btn.dataset.gran;
+                drawGrowth();
+            });
+        }
+        const canvas = document.getElementById("tw-growth-canvas");
+        if (canvas) {
+            canvas.addEventListener("mousemove", onGrowthHover);
+            canvas.addEventListener("mouseleave", () => { const t = document.getElementById("tw-growth-tip"); if (t) t.style.opacity = 0; });
+        }
+        window.addEventListener("resize", debounce(drawGrowth, 150));
+        drawGrowth();
+    }
+
+    function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+
+    function drawGrowth() {
+        const canvas = document.getElementById("tw-growth-canvas");
+        if (!canvas) return;
+        const css = growthState.css || cssVars();
+        const buckets = buildBuckets(growthState.activity, growthState.gran);
+        growthState.buckets = buckets;
+
+        const wrap = canvas.parentElement;
+        const cssW = Math.max(280, wrap.clientWidth);
+        const cssH = 240;
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = cssW * dpr; canvas.height = cssH * dpr;
+        canvas.style.width = cssW + "px"; canvas.style.height = cssH + "px";
+        const ctx = canvas.getContext("2d");
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, cssW, cssH);
+
+        const padL = 38, padR = 12, padT = 14, padB = 28;
+        const plotW = cssW - padL - padR, plotH = cssH - padT - padB;
+        const n = buckets.length;
+
+        const maxWpm = Math.max(10, ...buckets.map(b => Math.max(b.avgWpm, b.bestWpm)));
+        const yMax = Math.ceil(maxWpm / 20) * 20 || 20;
+        const maxRaces = Math.max(1, ...buckets.map(b => b.races));
+
+        const xAt = i => padL + (n <= 1 ? plotW / 2 : (plotW * i) / (n - 1));
+        const yAt = v => padT + plotH - (v / yMax) * plotH;
+
+        // gorizontal to'r + Y belgilar
+        ctx.font = "11px " + (css.font || "system-ui");
+        ctx.textBaseline = "middle";
+        for (let g = 0; g <= 4; g++) {
+            const val = (yMax / 4) * g;
+            const y = yAt(val);
+            ctx.strokeStyle = css.border; ctx.globalAlpha = .5; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(cssW - padR, y); ctx.stroke();
+            ctx.globalAlpha = 1; ctx.fillStyle = css.muted; ctx.textAlign = "right";
+            ctx.fillText(Math.round(val), padL - 6, y);
+        }
+
+        // poyga soni — ustunlar (orqa fonda)
+        const bw = Math.max(2, Math.min(22, (plotW / Math.max(1, n)) * 0.5));
+        const rects = [];
+        for (let i = 0; i < n; i++) {
+            const b = buckets[i];
+            const x = xAt(i);
+            const bh = (b.races / maxRaces) * plotH;
+            ctx.fillStyle = css.gold; ctx.globalAlpha = .14;
+            ctx.fillRect(x - bw / 2, padT + plotH - bh, bw, bh);
+            rects.push({ x, i });
+        }
+        ctx.globalAlpha = 1;
+
+        // chiziq chizuvchi
+        const drawLine = (key, color, dashed) => {
+            ctx.strokeStyle = color; ctx.lineWidth = 2;
+            ctx.setLineDash(dashed ? [5, 4] : []);
+            ctx.beginPath();
+            let started = false;
+            for (let i = 0; i < n; i++) {
+                const v = buckets[i][key];
+                if (v <= 0) { started = false; continue; } // bo'sh kunda chiziqni uzamiz
+                const x = xAt(i), y = yAt(v);
+                if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
+            }
+            ctx.stroke(); ctx.setLineDash([]);
+            // nuqtalar
+            ctx.fillStyle = color;
+            for (let i = 0; i < n; i++) {
+                const v = buckets[i][key]; if (v <= 0) continue;
+                ctx.beginPath(); ctx.arc(xAt(i), yAt(v), dashed ? 2.2 : 3, 0, Math.PI * 2); ctx.fill();
+            }
+        };
+        drawLine("bestWpm", css.muted, true);
+        drawLine("avgWpm", css.gold, false);
+
+        // X belgilar (joy bo'lsa)
+        ctx.fillStyle = css.muted; ctx.textAlign = "center"; ctx.textBaseline = "top";
+        const step = Math.ceil(n / Math.max(1, Math.floor(plotW / 60)));
+        for (let i = 0; i < n; i++) {
+            if (i % step !== 0 && i !== n - 1) continue;
+            ctx.fillText(buckets[i].label, xAt(i), padT + plotH + 8);
+        }
+
+        growthState.rects = rects;
+        growthState.geom = { padL, padR, padT, padB, plotW, plotH, n, xAt: null };
+    }
+
+    function onGrowthHover(e) {
+        const canvas = e.currentTarget;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const tip = document.getElementById("tw-growth-tip");
+        const rects = growthState.rects, buckets = growthState.buckets;
+        if (!rects.length || !tip) return;
+        let best = rects[0], bd = Infinity;
+        for (const r of rects) { const d = Math.abs(r.x - x); if (d < bd) { bd = d; best = r; } }
+        const b = buckets[best.i];
+        tip.innerHTML = `<strong>${esc(b.label)}</strong>` +
+            `<span><i style="color:var(--tw-gold)">●</i> O'rtacha: ${Math.round(b.avgWpm)} wpm</span>` +
+            `<span><i style="color:var(--tw-muted)">●</i> Eng yuqori: ${Math.round(b.bestWpm)} wpm</span>` +
+            `<span>${b.races} poyga</span>`;
+        tip.style.opacity = 1;
+        let tx = best.x + 12;
+        if (tx + 150 > rect.width) tx = best.x - 150;
+        tip.style.left = Math.max(4, tx) + "px";
+        tip.style.top = "10px";
+    }
+
+    // ───────── Yillik faollik kalendari (GitHub uslubidagi heat map) ─────────
+
+    let actState = { map: null, years: [], year: 0 };
+
+    function initActivity(activity, joinedAt) {
+        actState.map = activityMap(activity);
+        // mavjud yillar: faollik yillari + ro'yxatdan o'tgan yil + joriy yil
+        const set = new Set(activity.map(a => +a.date.slice(0, 4)));
+        if (joinedAt) set.add(new Date(joinedAt).getFullYear());
+        set.add(new Date().getFullYear());
+        actState.years = [...set].sort((a, b) => a - b);
+        // standart: joriy yil (faollik bo'lmasa ham) — eng oxirgi
+        actState.year = actState.years[actState.years.length - 1];
+
+        const yearsEl = document.getElementById("tw-act-years");
+        if (yearsEl) {
+            yearsEl.innerHTML = actState.years.map(y =>
+                `<button class="tw-act-year${y === actState.year ? " tw-act-year--on" : ""}" data-year="${y}">${y}</button>`).join("");
+            yearsEl.addEventListener("click", e => {
+                const btn = e.target.closest(".tw-act-year"); if (!btn) return;
+                actState.year = +btn.dataset.year;
+                yearsEl.querySelectorAll(".tw-act-year").forEach(b => b.classList.toggle("tw-act-year--on", b === btn));
+                drawActivity();
+            });
+        }
+        drawActivity();
+    }
+
+    function actLevel(races) {
+        if (races <= 0) return 0;
+        if (races <= 2) return 1;
+        if (races <= 5) return 2;
+        if (races <= 9) return 3;
+        return 4;
+    }
+
+    function drawActivity() {
+        const grid = document.getElementById("tw-act-grid");
+        const monthsEl = document.getElementById("tw-act-months");
+        const summaryEl = document.getElementById("tw-act-summary");
+        if (!grid) return;
+        const year = actState.year, map = actState.map;
+
+        // grid dushanbadan boshlanadi: 1-yanvardan oldingi dushanbani topamiz
+        const jan1 = new Date(year, 0, 1);
+        const start = new Date(jan1);
+        start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
+        const end = new Date(year, 11, 31);
+
+        let html = "", cells = 0;
+        let yearRaces = 0, activeDays = 0, bestWpm = 0, curStreak = 0, maxStreak = 0;
+        const monthCols = []; // {col, month}
+        let col = 0, lastMonth = -1;
+        const d = new Date(start);
+        while (d <= end || ((d.getDay() + 6) % 7) !== 0) {
+            const inYear = d.getFullYear() === year;
+            const key = ymd(d);
+            const a = inYear ? map.get(key) : null;
+            const races = a ? a.races : 0;
+            const lvl = inYear ? actLevel(races) : 0;
+            // oy belgisi — yangi oyning birinchi ustuni
+            const dow = (d.getDay() + 6) % 7;
+            if (dow === 0) col = Math.floor(cells / 7);
+            if (inYear && d.getMonth() !== lastMonth && dow <= 3) {
+                monthCols.push({ col: Math.floor(cells / 7), month: d.getMonth() });
+                lastMonth = d.getMonth();
+            }
+            const title = inYear
+                ? (races > 0
+                    ? `${d.getDate()} ${MONTHS_UZ[d.getMonth()]} ${year} — ${races} poyga, eng yuqori ${Math.round(a.bestWpm)} wpm`
+                    : `${d.getDate()} ${MONTHS_UZ[d.getMonth()]} ${year} — faollik yo'q`)
+                : "";
+            html += `<i class="tw-act-cell tw-act-l${lvl}${inYear ? "" : " tw-act-out"}"${title ? ` title="${esc(title)}"` : ""}></i>`;
+            if (inYear) {
+                yearRaces += races;
+                if (races > 0) { activeDays++; curStreak++; maxStreak = Math.max(maxStreak, curStreak); bestWpm = Math.max(bestWpm, a.bestWpm); }
+                else curStreak = 0;
+            }
+            cells++;
+            d.setDate(d.getDate() + 1);
+        }
+        grid.innerHTML = html;
+
+        // oy yorliqlari — har ustun uchun bitta span (auto-flow column orqali grid bilan tekislanadi)
+        if (monthsEl) {
+            const totalCols = Math.ceil(cells / 7);
+            const placed = {};
+            for (const m of monthCols) placed[m.col] = MONTHS_UZ[m.month];
+            let mh = "";
+            for (let c = 0; c < totalCols; c++) mh += `<span>${placed[c] || ""}</span>`;
+            monthsEl.innerHTML = mh;
+        }
+
+        if (summaryEl) {
+            summaryEl.innerHTML =
+                `<span><strong>${yearRaces}</strong> poyga</span>` +
+                `<span><strong>${activeDays}</strong> faol kun</span>` +
+                `<span><strong>${maxStreak}</strong> kun ketma-ket</span>` +
+                `<span>Eng yuqori <strong>${Math.round(bestWpm)}</strong> wpm</span>`;
+        }
     }
 
     const USERNAME_RE = /^[a-zA-Z0-9_]{3,32}$/;

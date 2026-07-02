@@ -2411,6 +2411,72 @@ body.tw-bk-full-open { overflow: hidden; }
 .tw-recent-date { color: var(--tw-muted); font-size: .78rem; }
 .tw-recent-empty { display: block; color: var(--tw-muted); text-align: center; padding: 1rem 0; }
 
+/* ───── Profil: o'sish grafiklari ───── */
+.tw-growth { margin-top: 1rem; }
+.tw-growth-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem; }
+.tw-growth-head .tw-panel-title { margin: 0; }
+.tw-growth-tabs { display: inline-flex; gap: .25rem; background: var(--tw-bg, #0f0f1a); border: 1px solid var(--tw-border); border-radius: 10px; padding: .2rem; }
+.tw-growth-tab {
+    border: none; background: transparent; color: var(--tw-muted); cursor: pointer;
+    font-size: .82rem; font-weight: 600; padding: .35rem .7rem; border-radius: 8px; transition: all .15s;
+}
+.tw-growth-tab:hover { color: var(--tw-text); }
+.tw-growth-tab--on { background: var(--tw-gold); color: #fff; }
+.tw-chart-wrap { position: relative; margin-top: 1rem; }
+.tw-chart-wrap canvas { display: block; width: 100%; }
+.tw-chart-tip {
+    position: absolute; pointer-events: none; opacity: 0; transition: opacity .12s;
+    background: var(--tw-surface); border: 1px solid var(--tw-border-strong, var(--tw-border)); border-radius: 10px;
+    padding: .5rem .65rem; font-size: .78rem; box-shadow: 0 10px 30px -10px rgba(0,0,0,.6);
+    min-width: 130px; z-index: 5; display: flex; flex-direction: column; gap: .15rem;
+}
+.tw-chart-tip strong { font-size: .82rem; margin-bottom: .1rem; }
+.tw-chart-tip span { color: var(--tw-muted); }
+.tw-chart-tip i { font-style: normal; margin-right: .25rem; }
+.tw-chart-legend { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: .7rem; font-size: .8rem; color: var(--tw-muted); }
+.tw-chart-legend span { display: inline-flex; align-items: center; gap: .4rem; }
+.tw-lg-line { display: inline-block; width: 16px; height: 0; border-top: 2px solid var(--tw-gold); }
+.tw-lg-line--best { border-top-style: dashed; border-color: var(--tw-muted); }
+.tw-lg-bar { display: inline-block; width: 9px; height: 12px; border-radius: 2px; background: color-mix(in srgb, var(--tw-gold) 20%, transparent); }
+
+/* ───── Profil: yillik faollik (heat map) ───── */
+.tw-act { margin-top: 1rem; }
+.tw-act-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem; }
+.tw-act-head .tw-panel-title { margin: 0; }
+.tw-act-years { display: inline-flex; flex-wrap: wrap; gap: .25rem; }
+.tw-act-year {
+    border: 1px solid var(--tw-border); background: transparent; color: var(--tw-muted);
+    cursor: pointer; font-size: .82rem; font-weight: 600; padding: .3rem .7rem; border-radius: 8px; transition: all .15s;
+}
+.tw-act-year:hover { color: var(--tw-text); border-color: var(--tw-gold); }
+.tw-act-year--on { background: var(--tw-gold); color: #fff; border-color: var(--tw-gold); }
+.tw-act-summary { display: flex; flex-wrap: wrap; gap: 1.2rem; margin: 1rem 0 .8rem; font-size: .85rem; color: var(--tw-muted); }
+.tw-act-summary strong { color: var(--tw-text); font-family: var(--tw-font); font-weight: 800; }
+.tw-act-scroll { overflow-x: auto; padding-bottom: .4rem; }
+.tw-act-grid-wrap { display: inline-block; min-width: 100%; }
+.tw-act-months {
+    display: grid; grid-auto-flow: column; grid-auto-columns: 13px; gap: 3px;
+    margin-left: 30px; margin-bottom: 4px; font-size: .68rem; color: var(--tw-muted);
+}
+.tw-act-months span { white-space: nowrap; }
+.tw-act-body { display: flex; gap: 5px; }
+.tw-act-days {
+    display: grid; grid-template-rows: repeat(7, 13px); gap: 3px;
+    font-size: .62rem; color: var(--tw-muted); width: 25px; align-items: center;
+}
+.tw-act-grid {
+    display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 13px); grid-auto-columns: 13px; gap: 3px;
+}
+.tw-act-cell { width: 13px; height: 13px; border-radius: 3px; background: var(--tw-border); }
+.tw-act-l0 { background: color-mix(in srgb, var(--tw-border) 60%, transparent); }
+.tw-act-l1 { background: color-mix(in srgb, var(--tw-gold) 28%, var(--tw-border)); }
+.tw-act-l2 { background: color-mix(in srgb, var(--tw-gold) 52%, var(--tw-border)); }
+.tw-act-l3 { background: color-mix(in srgb, var(--tw-gold) 78%, transparent); }
+.tw-act-l4 { background: var(--tw-gold); }
+.tw-act-out { opacity: 0; }
+.tw-act-legend { display: flex; align-items: center; gap: .35rem; margin-top: .8rem; font-size: .76rem; color: var(--tw-muted); }
+.tw-act-legend .tw-act-cell { display: inline-block; }
+
 .tw-toast {
     position: fixed; left: 50%; bottom: 28px;
     transform: translateX(-50%) translateY(16px);

@@ -339,6 +339,20 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-18] /Profile — o'sish grafiklari + yillik faollik kalendari (GitHub uslubi):
+    (1) BACKEND: GetProfile.cs (ProfileBuilder) RaceResults'ni kun bo'yicha guruhlab
+    DailyActivityDto(Date, Races, AvgWpm, BestWpm, Seconds) ro'yxatini quradi; ProfileDto'ga
+    Activity qo'shildi (own + ommaviy /share ikkalasida). PB bo'limlari (vaqt 15/30/60/120 +
+    so'z 10/25/50/100, har biri alohida, eng kuchlida toj) avvalgidek.
+    (2) FRONTEND (profile.js): "O'sish grafiklari" paneli — 4 tab (Kunlik 30 kun / Haftalik 16
+    hafta / Oylik 12 oy / Yillik barcha yillar). Canvas (DPR-aware): o'rtacha WPM (oltin
+    chiziq+nuqta), eng yuqori WPM (kulrang uzuq), poyga soni (orqa fon ustun), to'r+Y belgilar,
+    X yorliqlar, hover tooltip. buildBuckets avg'ni poyga soniga vaznlaydi, best=max.
+    (3) "Yillik faollik" — GitHub heat map: yil tugmalari (faollik+ro'yxat+joriy yil, standart eng
+    oxirgi), 53×7 (dushanbadan), 5 darajali rang (0/1-2/3-5/6-9/10+), oy/kun yorliqlari, title
+    tooltip, yil xulosasi (jami poyga/faol kun/eng uzun streak/eng yuqori WPM). 2027'da ham 2026
+    faollik ko'rinadi. site.css tw-growth/tw-chart-*/tw-act-*; sw.js cache v47. Build OK, 102 test,
+    headless Chrome (toza konsol, 4 tab+canvas+heat map l0-l4+2026/2027 tugma+xulosa) tasdiqlandi.
   - [2026-06-18] /Admin paneli to'liq qayta qurildi + SuperAdmin roli:
     (1) ROLLAR: yangi "SuperAdmin" roli + mavjud "Admin". Config Admin:SuperEmail
     (standart javohirsadullayev836@gmail.com) → bu email Admin+SuperAdmin oladi; Admin:Email →
