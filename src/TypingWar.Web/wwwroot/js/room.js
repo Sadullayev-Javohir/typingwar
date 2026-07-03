@@ -150,6 +150,16 @@
         s.players.forEach(p => players.set(p.connId, p));
         updateHostUi();
         renderPlayers();
+
+        // Kech qo'shilgan / qayta ulangan o'yinchi: host "Boshlash"ni bosgan lahzada guruhda
+        // bo'lmaganmiz — RaceStarting kelmagan. Poyga davom etayotgan bo'lsa (matn RoomState
+        // bilan keladi) lobbyda qotib qolmasdan darrov poygaga ulanamiz. Allaqachon yozayotgan
+        // (raceActive) yoki tugatgan (finished) bo'lsak — qaytib boshlamaymiz (reconnect holati).
+        if ((s.status === "InProgress" || s.status === "Countdown") && s.text &&
+            !raceActive && !finished && resultEl.classList.contains("d-none")) {
+            cdEl.classList.add("d-none");
+            beginRace(s.text);
+        }
     });
     conn.on("PlayerJoined", p => { players.set(p.connId, p); renderPlayers(); updateSabotagePanel(); });
     conn.on("PlayerLeft", p => { players.delete(p.connId); renderPlayers(); updateSabotagePanel(); });

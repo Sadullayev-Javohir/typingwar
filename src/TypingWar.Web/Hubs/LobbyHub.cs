@@ -134,6 +134,10 @@ public class LobbyHub : Hub
             code,
             isHost,
             status = live.Status.ToString(),
+            // Poyga allaqachon ketayotgan bo'lsa — joriy matnni ham yuboramiz. Shunda kech
+            // qo'shilgan / qayta ulangan o'yinchi lobbyda qotib qolmasdan poygaga ulanadi
+            // (host "Boshlash"ni bosgan lahzada guruhda bo'lmagan bo'lsa ham).
+            text = live.Status is RoomStatus.Countdown or RoomStatus.InProgress ? live.TextContent : null,
             players = live.Players.Values.Select(View).ToList()
         });
         await Clients.OthersInGroup(code).SendAsync("PlayerJoined", View(player));
