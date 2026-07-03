@@ -15,6 +15,7 @@
     var canonicalUrl = canonicalPath.StartsWith("http") ? canonicalPath : baseUrl + canonicalPath;
     var ogImage = ViewData["OgImage"] as string ?? (baseUrl + "/img/typingwar-logo.png");
     var ogType = ViewData["OgType"] as string ?? "website";
+    var googleVerify = Configuration["Site:GoogleSiteVerification"];
 }
 <!DOCTYPE html>
 <html lang="uz" data-bs-theme="dark">
@@ -25,6 +26,10 @@
     <meta name="description" content="@metaDescription" />
     <meta name="keywords" content="@metaKeywords" />
     <meta name="robots" content="@robots" />
+    @if (!string.IsNullOrWhiteSpace(googleVerify))
+    {
+        <meta name="google-site-verification" content="@googleVerify" />
+    }
     <meta name="author" content="TypingWar.uz" />
     <meta name="application-name" content="TypingWar.uz" />
     <meta name="generator" content="TypingWar.uz" />
