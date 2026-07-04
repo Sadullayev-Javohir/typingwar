@@ -202,7 +202,16 @@
         .then(() => { myConnId = conn.connectionId; return conn.invoke("JoinRoom", code, displayName); })
         .catch(() => { errEl.textContent = "Ulanishda xatolik."; });
 
-    startBtn.addEventListener("click", () => conn.invoke("StartRace", code).catch(() => { }));
+    // Host tugmasi: birinchi marta "Boshlash", keyin (poyga ketayotgan/tugagan bo'lsa ham)
+    // "Qaytadan boshlash" — kimdir yozmay tursa host yangi poygani majburan boshlay oladi.
+    let raceEverStarted = false;
+    function startNewRace() {
+        startBtn.disabled = true;                 // takror bosishdan himoya
+        conn.invoke("StartRace", code)
+            .catch(() => { errEl.textContent = "Poygani boshlashda xatolik."; })
+            .finally(() => { setTimeout(() => { startBtn.disabled = false; }, 1200); });
+    }
+    startBtn.addEventListener("click", startNewRace);
     $("tw-copy").addEventListener("click", () => { navigator.clipboard?.writeText(code); });
 
     // ── Countdown ──
@@ -332,6 +341,15 @@
         raceEl.classList.remove("d-none");
         applyStatVisibility();
         wordsEl.focus();
+        // Poyga boshlandi: host tugmasi endi "Qaytadan boshlash" bo'ladi (poyga davomida ham
+        // ko'rinadi — kimdir yozmay tursa host yangi poygani boshlashi mumkin). Non-host uchun
+        // "Host kuting…" matni poyga davomida o'rinsiz — yashiramiz.
+        raceEverStarted = true;
+        if (isHost) {
+            startBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i>Qaytadan boshlash';
+            startBtn.disabled = false;
+        }
+        waitEl.classList.add("d-none");
         // barcha o'yinchilar holatini yangi poygaga tiklash
         players.forEach(p => { p.progress = 0; p.wpm = 0; p.finished = false; p.lastType = 0; });
         renderPlayers();

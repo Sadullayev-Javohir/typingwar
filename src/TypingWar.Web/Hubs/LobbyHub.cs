@@ -153,7 +153,10 @@ public class LobbyHub : Hub
             await Clients.Caller.SendAsync("Error", "Faqat host poygani boshlay oladi.");
             return;
         }
-        if (live.Status is RoomStatus.Countdown or RoomStatus.InProgress) return;
+        // Host istalgan vaqtda YANGI poyga boshlay oladi — masalan, kimdir umuman yozmay
+        // tursa va poyga "tugamay" qolsa, host "Qaytadan boshlash"ni bosib hammani yangi
+        // poygaga o'tkazadi. Countdown — bir lahzalik o'tish oynasi, takror bosishdan himoya.
+        if (live.Status is RoomStatus.Countdown) return;
 
         var text = await _textProvider.GetAsync(BuildTextRequest(live.Settings));
         live.TextContent = text.Content;
