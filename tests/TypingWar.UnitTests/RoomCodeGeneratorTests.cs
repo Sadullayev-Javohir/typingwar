@@ -13,17 +13,15 @@ public class RoomCodeGeneratorTests
     }
 
     [Fact]
-    public void Generate_OnlyUsesAllowedAlphabet_NoConfusingChars()
+    public void Generate_OnlyDigits()
     {
         for (int i = 0; i < 200; i++)
         {
             var code = RoomCodeGenerator.Generate();
-            Assert.All(code, c => Assert.Contains(c, GameConstants.RoomCodeAlphabet));
-            // I, O, 0, 1 — chalkashlik belgilari ishlatilmasligi kerak
-            Assert.DoesNotContain('I', code);
-            Assert.DoesNotContain('O', code);
-            Assert.DoesNotContain('0', code);
-            Assert.DoesNotContain('1', code);
+            // Kod faqat 8 ta raqamdan iborat bo'lishi kerak
+            Assert.Equal(8, code.Length);
+            Assert.All(code, c => Assert.True(char.IsDigit(c), $"'{c}' raqam emas"));
+            Assert.Matches("^[0-9]{8}$", code);
         }
     }
 }
