@@ -24,7 +24,7 @@
     $("tw-team-code").textContent = code;
 
     const listA = $("tw-team-a"), listB = $("tw-team-b"), scoreAEl = $("tw-score-a"), scoreBEl = $("tw-score-b"),
-        startBtn = $("tw-team-start"), waitEl = $("tw-team-wait"), errEl = $("tw-team-err"),
+        startBtn = $("tw-team-start"), endBtn = $("tw-team-end"), waitEl = $("tw-team-wait"), errEl = $("tw-team-err"),
         cdEl = $("tw-team-countdown"), raceEl = $("tw-team-race"), wordsEl = $("tw-team-words"),
         resultEl = $("tw-team-result"), verdictEl = $("tw-team-verdict"), detailEl = $("tw-team-detail"),
         switchBtn = $("tw-switch"), restartBtn = $("tw-team-restart"), rrWait = $("tw-team-rr-wait");
@@ -146,6 +146,13 @@
         s.players.forEach(p => players.set(p.connId, p));
         const me = players.get(myConnId); if (me) mySide = me.side;
         updateHostUi(); renderPlayers(); setScores(s.scores);
+        // Poyga davom etayotgan bo'lsa (kech qo'shilish yoki qayta ulanish) — matnni darrov
+        // ko'rsat. Aks holda TeamRaceStarting xabarini o'tkazib yuborgan o'yinchida matn chiqmasdi.
+        if (s.status === "InProgress" && s.text && !finished && raceEl.classList.contains("d-none")) {
+            cdEl.classList.add("d-none");
+            resultEl.classList.add("d-none");
+            beginRace(s.text);
+        }
     });
     conn.on("PlayerJoined", p => { players.set(p.connId, p); renderPlayers(); });
     conn.on("PlayerLeft", d => { players.delete(d.connId); renderPlayers(); setScores(d.scores); });
@@ -183,6 +190,14 @@
         .catch(() => { errEl.textContent = "Ulanishda xatolik."; });
 
     startBtn.addEventListener("click", () => conn.invoke("StartRace", code).catch(() => { }));
+    if (endBtn) endBtn.addEventListener("click", () => {
+        if (!confirm("Poygani hamma uchun yakunlaysizmi? Tugatmagan o'yinchilar joriy natijasi bilan qayd etiladi.")) return;
+        endBtn.disabled = true;
+        if (!finished) finish();
+        conn.invoke("EndRace", code)
+            .catch(() => { errEl.textContent = "Poygani yakunlashda xatolik."; })
+            .finally(() => { endBtn.disabled = false; });
+    });
     switchBtn.addEventListener("click", () =>
         conn.invoke("ChangeSide", code, mySide === "A" ? "B" : "A").catch(() => { }));
     $("tw-team-copy").addEventListener("click", () => navigator.clipboard?.writeText(code));
@@ -313,6 +328,7 @@
         if (timerEl) timerEl.textContent = "0";
         render(text);
         raceEl.classList.remove("d-none");
+        if (endBtn) endBtn.classList.toggle("d-none", !isHost); // host poygani majburan yakunlay oladi
         applyStatVisibility();
         wordsEl.focus();
         players.forEach(p => { p.progress = 0; p.wpm = 0; p.finished = false; p.lastType = 0; });
@@ -433,6 +449,7 @@
         if (liveTimer) clearInterval(liveTimer);
         raceEl.classList.add("d-none");
         cdEl.classList.add("d-none");
+        if (endBtn) endBtn.classList.add("d-none");
         resultEl.classList.remove("d-none");
 
         setScores(d.scores);

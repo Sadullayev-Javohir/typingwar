@@ -252,6 +252,30 @@ public class TeamRaceHub : Hub
             await FinishWholeRaceAsync(live, code);
     }
 
+    /// <summary>
+    /// Host poygani majburan yakunlaydi (ba'zi o'yinchilar matnni yoza olmay qolsa ham).
+    /// Tugatmagan o'yinchilar joriy holati (progress/wpm) bilan "tugatilgan" deb belgilanadi.
+    /// </summary>
+    public async Task EndRace(string code)
+    {
+        code = code.ToUpperInvariant();
+        if (!_state.TryGet(code, out var live)) return;
+        if (!live.Players.TryGetValue(Context.ConnectionId, out var me) || !me.IsHost)
+        {
+            await Clients.Caller.SendAsync("Error", "Faqat host poygani yakunlay oladi.");
+            return;
+        }
+        if (live.Status != RaceStatus.InProgress) return;
+
+        foreach (var p in live.Players.Values.Where(x => !x.Finished))
+        {
+            p.Finished = true;
+            p.Place ??= Interlocked.Increment(ref live.FinishOrder);
+        }
+
+        await FinishWholeRaceAsync(live, code);
+    }
+
     private async Task FinishWholeRaceAsync(TeamRaceLive live, string code)
     {
         live.RaceTimeoutCts?.Cancel();
