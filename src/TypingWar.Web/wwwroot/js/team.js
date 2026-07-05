@@ -36,7 +36,7 @@
 
     // typing holati (Practice bilan bir xil)
     let chars = [], letterEls = [], status = [], pos = 0, keypresses = 0,
-        startTime = null, finished = false, lastReport = 0;
+        startTime = null, finished = false, raceActive = false, lastReport = 0;
     let wordsInner = null, caretEl = null, liveTimer = null;
     let keyEvents = [];
 
@@ -146,11 +146,13 @@
         s.players.forEach(p => players.set(p.connId, p));
         const me = players.get(myConnId); if (me) mySide = me.side;
         updateHostUi(); renderPlayers(); setScores(s.scores);
-        // Poyga davom etayotgan bo'lsa (kech qo'shilish yoki qayta ulanish) — matnni darrov
-        // ko'rsat. Aks holda TeamRaceStarting xabarini o'tkazib yuborgan o'yinchida matn chiqmasdi.
-        if (s.status === "InProgress" && s.text && !finished && raceEl.classList.contains("d-none")) {
+        // Kech qo'shilgan / qayta ulangan o'yinchi: host "Boshlash"ni bosgan lahzada guruhda
+        // bo'lmaganmiz — TeamRaceStarting kelmagan. Poyga boshlangan (Countdown yoki InProgress —
+        // matn TeamState bilan keladi) bo'lsa kutib qolmasdan darrov poygaga ulanamiz. Allaqachon
+        // yozayotgan (raceActive) yoki tugatgan (finished) bo'lsak qaytib boshlamaymiz (reconnect).
+        if ((s.status === "InProgress" || s.status === "Countdown") && s.text &&
+            !raceActive && !finished && resultEl.classList.contains("d-none")) {
             cdEl.classList.add("d-none");
-            resultEl.classList.add("d-none");
             beginRace(s.text);
         }
     });
@@ -319,7 +321,7 @@
 
     // ── Poyga (typing) ──
     function beginRace(text) {
-        pos = 0; keypresses = 0; startTime = null; finished = false; lastReport = 0;
+        pos = 0; keypresses = 0; startTime = null; finished = false; raceActive = true; lastReport = 0;
         keyEvents = []; myFinishPayload = null;
         if (liveTimer) clearInterval(liveTimer);
         liveTimer = null;
@@ -446,6 +448,7 @@
     };
 
     function showResults(d) {
+        raceActive = false;
         if (liveTimer) clearInterval(liveTimer);
         raceEl.classList.add("d-none");
         cdEl.classList.add("d-none");
@@ -638,6 +641,7 @@
         if (closed) return;
         closed = true;
         finished = true;
+        raceActive = false;
         if (liveTimer) clearInterval(liveTimer);
         try { conn.stop(); } catch (e) { }
         root.innerHTML = `<div class="tw-room-closed">

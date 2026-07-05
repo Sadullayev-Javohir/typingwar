@@ -153,7 +153,9 @@ public class TeamRaceHub : Hub
             status = live.Status.ToString(),
             players = live.Players.Values.Select(View).ToList(),
             scores = Scores(live),
-            text = live.Status == RaceStatus.InProgress ? live.TextContent : null
+            // Countdown davrida ham matn yuboriladi: StartRace'dagi broadcast "await" oynasida
+            // (status hali Countdown) qo'shilgan/qayta ulangan o'yinchi matnsiz qolmasligi uchun.
+            text = live.Status is RaceStatus.Countdown or RaceStatus.InProgress ? live.TextContent : null
         });
         await Clients.OthersInGroup(code).SendAsync("PlayerJoined", View(player));
     }
