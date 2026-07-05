@@ -257,6 +257,7 @@
         const matches = detail.matches || [];
         const r = window.TWBracketLayout.build(matches, (m, isFinal) => matchHtml(m, isFinal), esc);
         wrap.classList.toggle("d-none", !r.has);
+        const canvas = $("tw-bracket-canvas");
         if (!r.has) {
             $("tw-bracket-left").innerHTML = "";
             $("tw-bracket-right").innerHTML = "";
@@ -266,6 +267,9 @@
         $("tw-bracket-left").innerHTML = r.left;
         $("tw-bracket-right").innerHTML = r.right;
         $("tw-bracket-final").innerHTML = r.final;
+        // Bir tomonlama bracket (masalan 3 kishilik turnir): o'ng yarm umuman ko'rinmaydi.
+        $("tw-bracket-right").classList.toggle("d-none", !r.twoSided);
+        if (canvas) canvas.classList.toggle("tw-bk2--single", !r.twoSided);
 
         // Zoom/pan — birinchi marta ekranga sig'diradi, keyin foydalanuvchi holatini saqlaydi
         ensureBracketZoom();

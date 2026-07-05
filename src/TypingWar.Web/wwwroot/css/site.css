@@ -2056,13 +2056,16 @@ body.tw-bk-full-open { overflow: hidden; }
 /* Viewport ichida "canvas": kontentga moslab kichrayadi (inline-flex), JS transform qiladi. */
 .tw-bk2 {
     display: inline-flex; align-items: center; width: max-content;
-    gap: 1rem; padding: 1rem;
+    gap: .5rem; padding: .8rem;
 }
-.tw-bk2-side { display: flex; align-items: stretch; gap: .85rem; flex: none; }
+.tw-bk2-side { display: flex; align-items: stretch; gap: .5rem; flex: none; }
 .tw-bk2-center {
     display: flex; flex-direction: column; align-items: center; gap: .4rem; flex: none;
     align-self: center;
 }
+/* Bir tomonlama bracket (3 kishilik turnir kabi) — chap yarm + markaz, ixcham markazlangan */
+.tw-bk2--single { gap: .55rem; }
+.tw-bk2--single .tw-bk2-center { align-self: center; }
 .tw-bk2-final { width: 185px; max-width: 78vw; }
 .tw-bk2-final .tw-bk-rname {
     text-align: center; color: var(--tw-gold); font-size: .72rem; text-transform: uppercase;
@@ -2072,7 +2075,7 @@ body.tw-bk-full-open { overflow: hidden; }
 /* O'ng yarmda ulagich chiziq markazga (chapga) qaraydi */
 .tw-bk2-side--right .tw-bk-round:not(.tw-bk-round--final) .tw-bk-match::after { display: none; }
 .tw-bk2-side--right .tw-bk-round:not(.tw-bk-round--final) .tw-bk-match::before {
-    content: ""; position: absolute; top: 50%; left: -.85rem; width: .85rem; height: 2px;
+    content: ""; position: absolute; top: 50%; left: -.55rem; width: .55rem; height: 2px;
     background: linear-gradient(270deg, var(--tw-border-strong), transparent); pointer-events: none;
 }
 /* O'ng yarm kartalarini ko'zguda aks ettiramiz (avatar o'ngda) — futbol bracket ko'rinishi */
@@ -2083,14 +2086,14 @@ body.tw-bk-full-open { overflow: hidden; }
 .tw-bk2-center .tw-trophy-3d { width: 210px; height: 250px; }
 
 @media (max-width: 720px) {
-    .tw-bk2 { gap: .7rem; }
-    .tw-bk2-side { gap: .6rem; }
+    .tw-bk2 { gap: .45rem; }
+    .tw-bk2-side { gap: .45rem; }
     .tw-bk2-center .tw-trophy-3d { width: 170px; height: 200px; }
-    .tw-bk2-final { width: 165px; }
-    .tw-bk-round { min-width: 144px; }
+    .tw-bk2-final { width: 158px; }
+    .tw-bk-round { min-width: 132px; }
 }
 
-.tw-bk-round { display: flex; flex-direction: column; min-width: 158px; }
+.tw-bk-round { display: flex; flex-direction: column; min-width: 140px; }
 .tw-bk-rname {
     text-align: center; color: var(--tw-gold); font-size: .72rem; text-transform: uppercase;
     letter-spacing: .08em; font-weight: 800; margin-bottom: .5rem;
@@ -2110,7 +2113,7 @@ body.tw-bk-full-open { overflow: hidden; }
 .tw-bk-match:hover { transform: translateY(-2px); }
 /* Round'lararo ulagich chiziq */
 .tw-bk-round:not(.tw-bk-round--final) .tw-bk-match::after {
-    content: ""; position: absolute; top: 50%; right: -.85rem; width: .85rem; height: 2px;
+    content: ""; position: absolute; top: 50%; right: -.55rem; width: .55rem; height: 2px;
     background: linear-gradient(90deg, var(--tw-border-strong), transparent); pointer-events: none;
 }
 .tw-bk-match.tw-bk-racing {
