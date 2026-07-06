@@ -6,7 +6,8 @@ namespace TypingWar.Application.Features.Map;
 /// <param name="BestWpm">Hududda 30s rejimida eng tez yozilgan WPM.</param>
 /// <param name="AvgWpm">Hudud ishtirokchilarining o'rtacha 30s WPM.</param>
 /// <param name="PlayerCount">Hududda 30s natijasi bor foydalanuvchilar soni.</param>
-public record RegionStatDto(string Code, string Name, double BestWpm, double AvgWpm, int PlayerCount);
+/// <param name="TopUsername">Hududda eng tez yozgan foydalanuvchining ismi (profilga havola uchun); natija bo'lmasa null.</param>
+public record RegionStatDto(string Code, string Name, double BestWpm, double AvgWpm, int PlayerCount, string? TopUsername);
 
 /// <summary>Butun xarita — 14 hudud + rang shkalasi uchun eng yuqori WPM.</summary>
 public record RegionMapDto(IReadOnlyList<RegionStatDto> Regions, double MaxBestWpm);

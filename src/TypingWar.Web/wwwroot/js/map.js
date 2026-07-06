@@ -103,14 +103,43 @@
                  <p class="tw-detail-none">Hali natija yo'q. Birinchi bo'lib 30s testni yozing!</p>`;
             return;
         }
+        // Eng tez o'yinchi — profilga havola (/share/{username})
+        let topHtml = "";
+        if (s.topUsername) {
+            const u = s.topUsername;
+            topHtml =
+                `<a class="tw-detail-top-player" href="/share/${encodeURIComponent(u)}" title="${esc(u)} profilini ko'rish">
+                    <span class="tw-detail-ava" style="--c:${avatarColor(u)}">${initials(u)}</span>
+                    <span class="tw-detail-player-info">
+                        <span class="tw-detail-player-cap">Eng tez o'yinchi</span>
+                        <span class="tw-detail-player-name">${esc(u)}</span>
+                    </span>
+                    <span class="tw-detail-player-go"><i class="bi bi-box-arrow-up-right"></i> Profil</span>
+                </a>`;
+        }
         detailEl.innerHTML =
             `<div class="tw-detail-top"><span class="tw-detail-dot" style="background:${colorFor(s.bestWpm)}"></span>
                 <h4>${esc(name)}</h4></div>
              <div class="tw-detail-best">${Math.round(s.bestWpm)}<small>wpm · eng tez</small></div>
+             ${topHtml}
              <div class="tw-detail-grid">
                 <div class="tw-detail-cell"><span class="tw-detail-num">${s.playerCount}</span><span class="tw-detail-cap">ishtirokchi</span></div>
                 <div class="tw-detail-cell"><span class="tw-detail-num">${Math.round(s.avgWpm)}</span><span class="tw-detail-cap">o'rtacha wpm</span></div>
              </div>`;
+    }
+
+    // Avatar yordamchilari (eng tez o'yinchi uchun)
+    function initials(name) {
+        const t = String(name || "?").trim();
+        const parts = t.split(/\s+/);
+        const a = (parts[0] || "")[0] || "?";
+        const b = parts.length > 1 ? (parts[1] || "")[0] : (parts[0] || "")[1] || "";
+        return (a + b).toUpperCase();
+    }
+    function avatarColor(name) {
+        let h = 0; const s = String(name || "");
+        for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) & 0xffffff;
+        return `hsl(${h % 360}, 62%, 52%)`;
     }
 
     function renderRank() {

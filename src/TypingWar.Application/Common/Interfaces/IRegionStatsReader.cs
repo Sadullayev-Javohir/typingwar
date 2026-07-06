@@ -14,5 +14,5 @@ public interface IRegionStatsReader
     Task<RegionAggregate?> GetRegionAsync(string regionCode, CancellationToken ct = default);
 }
 
-/// <summary>Hudud bo'yicha yig'ma: eng tez 30s WPM, o'rtacha WPM, ishtirokchilar soni.</summary>
-public record RegionAggregate(string RegionCode, double BestWpm, double AvgWpm, int PlayerCount);
+/// <summary>Hudud bo'yicha yig'ma: eng tez 30s WPM, o'rtacha WPM, ishtirokchilar soni + eng tez o'yinchi.</summary>
+public record RegionAggregate(string RegionCode, double BestWpm, double AvgWpm, int PlayerCount, string? TopUsername);

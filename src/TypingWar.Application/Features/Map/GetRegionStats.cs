@@ -24,8 +24,8 @@ public class GetRegionStatsQueryHandler : IRequestHandler<GetRegionStatsQuery, R
         var regions = UzbekistanRegions.All.Select(kv =>
         {
             if (byCode.TryGetValue(kv.Key, out var a))
-                return new RegionStatDto(kv.Key, kv.Value, a.BestWpm, a.AvgWpm, a.PlayerCount);
-            return new RegionStatDto(kv.Key, kv.Value, 0, 0, 0);
+                return new RegionStatDto(kv.Key, kv.Value, a.BestWpm, a.AvgWpm, a.PlayerCount, a.TopUsername);
+            return new RegionStatDto(kv.Key, kv.Value, 0, 0, 0, null);
         }).ToList();
 
         double max = regions.Count > 0 ? regions.Max(r => r.BestWpm) : 0;
@@ -49,7 +49,7 @@ public class GetRegionStatQueryHandler : IRequestHandler<GetRegionStatQuery, Reg
         var a = await _reader.GetRegionAsync(request.Code, cancellationToken);
         var name = UzbekistanRegions.All[request.Code];
         return a is null
-            ? new RegionStatDto(request.Code, name, 0, 0, 0)
-            : new RegionStatDto(request.Code, name, a.BestWpm, a.AvgWpm, a.PlayerCount);
+            ? new RegionStatDto(request.Code, name, 0, 0, 0, null)
+            : new RegionStatDto(request.Code, name, a.BestWpm, a.AvgWpm, a.PlayerCount, a.TopUsername);
     }
 }

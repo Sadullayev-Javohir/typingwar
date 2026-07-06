@@ -1199,6 +1199,28 @@ body.tw-record {
     color: var(--tw-gold); line-height: 1; margin: .4rem 0 1rem; letter-spacing: -.03em; }
 .tw-detail-best small { display: block; font-size: .72rem; font-weight: 600; color: var(--tw-muted);
     letter-spacing: .04em; margin-top: .35rem; font-family: var(--tw-ui-font); }
+/* Eng tez o'yinchi — profilga havola */
+.tw-detail-top-player {
+    display: flex; align-items: center; gap: .6rem; text-decoration: none;
+    background: rgba(255,255,255,.03); border: 1px solid var(--tw-border);
+    border-radius: 12px; padding: .55rem .65rem; margin-bottom: 1rem;
+    transition: border-color .2s, background .2s, transform .15s;
+}
+.tw-detail-top-player:hover {
+    border-color: color-mix(in srgb, var(--tw-gold) 55%, transparent);
+    background: color-mix(in srgb, var(--tw-gold) 9%, transparent); transform: translateY(-1px);
+}
+.tw-detail-ava {
+    width: 36px; height: 36px; flex: 0 0 auto; border-radius: 50%; display: grid; place-items: center;
+    font-size: .82rem; font-weight: 800; color: #fff; background: var(--c, var(--tw-accent));
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.15);
+}
+.tw-detail-player-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.tw-detail-player-cap { font-size: .68rem; color: var(--tw-muted); letter-spacing: .04em; }
+.tw-detail-player-name { font-weight: 700; color: var(--tw-text); font-size: .98rem;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tw-detail-player-go { font-size: .74rem; font-weight: 700; color: var(--tw-gold);
+    display: inline-flex; align-items: center; gap: .25rem; white-space: nowrap; }
 .tw-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin-top: auto; }
 .tw-detail-cell { background: rgba(255,255,255,.03); border: 1px solid var(--tw-border);
     border-radius: 12px; padding: .7rem .6rem; text-align: center; }
