@@ -32,7 +32,8 @@ public class CreateDemoTournamentCommandHandler : IRequestHandler<CreateDemoTour
 
     public async Task<Guid> Handle(CreateDemoTournamentCommand request, CancellationToken cancellationToken)
     {
-        int count = request.PlayerCount is >= 2 and <= TournamentBracket.MaxCapacity ? request.PlayerCount : 64;
+        // Demo uchun 1–64 oralig'ida (foydalanuvchi /TournamentDemo da o'zi kiritadi).
+        int count = Math.Clamp(request.PlayerCount, 1, TournamentBracket.MaxCapacity);
 
         var tournament = new Tournament
         {

@@ -6,7 +6,6 @@
     const root = $("tw-demo");
     if (!root) return;
 
-    const DEMO_PLAYERS = 64;
     let tid = null;        // joriy turnir id
     let busy = false;      // bir vaqtda bitta amal
     let finished = false;
@@ -21,7 +20,27 @@
     }
 
     const elCreate = $("tw-d-create"), elStart = $("tw-d-start"),
-          elRound = $("tw-d-round"), elAuto = $("tw-d-auto"), elReset = $("tw-d-reset");
+          elRound = $("tw-d-round"), elAuto = $("tw-d-auto"), elReset = $("tw-d-reset"),
+          elCount = $("tw-d-count");
+
+    // ── O'yinchilar soni (1–64) ──
+    const MIN_PLAYERS = 1, MAX_PLAYERS = 64;
+    function playerCount() {
+        let n = parseInt(elCount && elCount.value, 10);
+        if (!Number.isFinite(n)) n = 8;
+        return Math.min(MAX_PLAYERS, Math.max(MIN_PLAYERS, n));
+    }
+    // Tugma yozuvini kiritilgan songa moslab turadi
+    function syncCreateLabel() {
+        const span = elCreate.querySelector("span");
+        if (span) span.textContent = `${playerCount()} o'yinchili turnir yaratish`;
+    }
+    if (elCount) {
+        elCount.addEventListener("input", syncCreateLabel);
+        // Maydondan chiqqanda chegaraga moslab to'g'irlaymiz (bo'sh/chegaradan tashqari)
+        elCount.addEventListener("change", () => { elCount.value = playerCount(); syncCreateLabel(); });
+        syncCreateLabel();
+    }
 
     // ── Yordamchilar ──
     const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
@@ -50,6 +69,8 @@
         elRound.disabled = b || !tid || !started() || finished;
         elAuto.disabled = b || !tid || !started() || finished;
         elReset.disabled = b || !tid;
+        // O'yinchilar sonini faqat turnir yo'q paytida o'zgartirsa bo'ladi
+        if (elCount) elCount.disabled = b || !!tid;
     }
     // turnir boshlanganmi (bracketda o'yinlar bormi) — detail keshidan
     let lastDetail = null;
@@ -193,11 +214,14 @@
             $("tw-d-log").innerHTML = "";
             $("tw-d-standings").classList.add("d-none");
 
-            const r = await api("POST", "/api/tournamentdemo", { playerCount: DEMO_PLAYERS });
+            const count = playerCount();
+            const r = await api("POST", "/api/tournamentdemo", { playerCount: count });
             tid = r.id;
             const d = await refresh();
-            log(`<b>Turnir yaratildi</b> — ${d.players.length} ta soxta o'yinchi ro'yxatga olindi (sig'im ${DEMO_PLAYERS}).`, "ok");
-            status("Turnir yaratildi. Endi «Turnirni boshlash»ni bosing — bracket quriladi.");
+            log(`<b>Turnir yaratildi</b> — ${d.players.length} ta soxta o'yinchi ro'yxatga olindi.`, "ok");
+            status(d.players.length < 2
+                ? "Bitta o'yinchi bilan turnir boshlanmaydi — kamida 2 ta kerak."
+                : "Turnir yaratildi. Endi «Turnirni boshlash»ni bosing — bracket quriladi.");
         } catch (e) { showErr(e.message); }
         finally { setBusy(false); }
     }

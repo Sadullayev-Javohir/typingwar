@@ -11,16 +11,26 @@
     <header class="tw-demo-hero">
         <span class="tw-demo-badge"><i class="bi bi-cpu"></i> Simulyatsiya</span>
         <h1>Turnir simulyatsiyasi</h1>
-        <p>64 ta soxta o'yinchi bilan playoff bracket qanday ishlashini boshqarib kuzating —
-           yaratish, boshlash va har bir raundni qadam-baqadam o'ynash. Bracketni xarita kabi
-           kattalashtirib (zoom) va sudrab ko'ring.</p>
+        <p>O'yinchilar sonini o'zingiz tanlang (1–64) va playoff bracket /Tournaments sahifasida
+           qanday ko'rinishini kuzating — yaratish, boshlash va har bir raundni qadam-baqadam o'ynash.
+           Bracketni xarita kabi kattalashtirib (zoom) va sudrab ko'ring.</p>
     </header>
 
     <!-- Boshqaruv paneli -->
     <div class="tw-demo-panel">
+        <!-- O'yinchilar sonini kiritish (1–64) -->
+        <div class="tw-demo-countrow">
+            <label for="tw-d-count"><i class="bi bi-people-fill"></i> O'yinchilar soni</label>
+            <div class="tw-demo-count-field">
+                <input id="tw-d-count" type="number" min="1" max="64" step="1" value="8"
+                       class="tw-demo-count-input" inputmode="numeric" autocomplete="off" />
+                <span class="tw-demo-count-hint">1–64 oralig'ida</span>
+            </div>
+        </div>
+
         <div class="tw-demo-controls">
             <button id="tw-d-create" class="tw-rbtn tw-rbtn--gold">
-                <i class="bi bi-people-fill"></i><span>64 o'yinchili turnir yaratish</span>
+                <i class="bi bi-people-fill"></i><span>8 o'yinchili turnir yaratish</span>
             </button>
             <button id="tw-d-start" class="tw-rbtn tw-rbtn--outline" disabled>
                 <i class="bi bi-flag-fill"></i><span>Turnirni boshlash</span>
@@ -35,7 +45,7 @@
                 <i class="bi bi-trash3"></i><span>O'chirish / yangidan</span>
             </button>
         </div>
-        <div id="tw-d-status" class="tw-demo-status">Boshlash uchun «32 o'yinchili turnir yaratish» tugmasini bosing.</div>
+        <div id="tw-d-status" class="tw-demo-status">O'yinchilar sonini kiriting (1–64) va «Turnir yaratish» tugmasini bosing.</div>
     </div>
 
     <div id="tw-d-err" class="tw-rcard-err text-center"></div>

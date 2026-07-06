@@ -2513,6 +2513,27 @@ body.tw-bk-full-open { overflow: hidden; }
     background: var(--tw-surface); border: 1px solid var(--tw-border);
     border-radius: 14px; padding: 1.1rem; margin-bottom: 1.2rem;
 }
+/* O'yinchilar sonini kiritish (1–64) */
+.tw-demo-countrow {
+    display: flex; align-items: center; flex-wrap: wrap; gap: .6rem 1rem;
+    margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--tw-border);
+}
+.tw-demo-countrow > label {
+    display: inline-flex; align-items: center; gap: .45rem; font-weight: 700; font-size: .95rem;
+}
+.tw-demo-countrow > label i { color: var(--tw-gold); }
+.tw-demo-count-field { display: inline-flex; align-items: center; gap: .6rem; }
+.tw-demo-count-input {
+    width: 92px; padding: .5rem .7rem; font-size: 1.05rem; font-weight: 800; text-align: center;
+    color: var(--tw-text); background: var(--tw-bg); border: 1px solid var(--tw-border-strong);
+    border-radius: 10px; transition: border-color .2s, box-shadow .2s;
+}
+.tw-demo-count-input:focus {
+    outline: none; border-color: var(--tw-gold);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--tw-gold) 22%, transparent);
+}
+.tw-demo-count-input:disabled { opacity: .55; cursor: not-allowed; }
+.tw-demo-count-hint { color: var(--tw-muted); font-size: .82rem; }
 .tw-demo-controls { display: flex; flex-wrap: wrap; gap: .6rem; }
 .tw-demo-status {
     margin-top: .9rem; color: var(--tw-muted); font-size: .9rem;
