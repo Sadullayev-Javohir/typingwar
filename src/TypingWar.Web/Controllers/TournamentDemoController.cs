@@ -23,6 +23,16 @@ public class TournamentDemoController : ApiControllerBase
         return Ok(new { id });
     }
 
+    public record SeedRequest(List<Guid> OrderedUserIds);
+
+    /// <summary>O'yinchilar tartibini (seed) belgilaydi — /Tournaments host boshqaruvi kabi.</summary>
+    [HttpPost("{id:guid}/seed")]
+    public async Task<IActionResult> Seed(Guid id, [FromBody] SeedRequest req)
+    {
+        await Mediator.Send(new SetDemoSeedOrderCommand(id, req?.OrderedUserIds ?? new List<Guid>()));
+        return Ok();
+    }
+
     /// <summary>Turnirni boshlaydi — bracket quriladi (Registration → InProgress).</summary>
     [HttpPost("{id:guid}/start")]
     public async Task<IActionResult> Start(Guid id)

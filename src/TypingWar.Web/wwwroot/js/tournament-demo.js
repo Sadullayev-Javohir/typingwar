@@ -9,6 +9,7 @@
     let tid = null;        // joriy turnir id
     let busy = false;      // bir vaqtda bitta amal
     let finished = false;
+    let live = {};         // matchId -> { p1:{prog,curWpm,fin}, p2:{...}, racing, decided, winnerId } (jonli animatsiya)
 
     // Bracket zoom/pan (Google Maps uslubi) — bir marta ulanadi, render orasida saqlanadi
     let bracketZoom = null;
@@ -101,47 +102,159 @@
     }
     const getDetail = () => api("GET", `/api/tournaments/${tid}`);
 
-    // ── Render: o'yinchilar (ro'yxat bosqichi) ──
+    // ── Render: o'yinchilar (ro'yxat bosqichi) — host kabi tartibni o'zgartirish mumkin ──
     function renderSeeds(detail) {
         const box = $("tw-d-seeds");
         if (!detail.players || !detail.players.length) { box.innerHTML = ""; return; }
-        box.innerHTML = `<h3 class="tw-demo-h3"><i class="bi bi-person-badge"></i> Ishtirokchilar (${detail.players.length})</h3>
+        // Tartibni faqat turnir boshlanmaganda (Registration) o'zgartirsa bo'ladi
+        const canReorder = !started() && detail.players.length > 1;
+        const n = detail.players.length;
+        const hint = canReorder
+            ? `<span class="tw-demo-h3-hint">(joylashuvni strelkalar bilan o'zgartiring)</span>` : "";
+        box.innerHTML = `<h3 class="tw-demo-h3"><i class="bi bi-person-badge"></i> Ishtirokchilar (${n}) ${hint}</h3>
             <div class="tw-demo-seedgrid">` +
-            detail.players.map(p => `
-                <div class="tw-demo-seed">
+            detail.players.map((p, i) => {
+                const ctrl = canReorder ? `<span class="tw-demo-seed-ctrl">
+                    <button class="tw-demo-seed-up" data-uid="${p.userId}" title="Yuqoriga" ${i === 0 ? "disabled" : ""}><i class="bi bi-chevron-up"></i></button>
+                    <button class="tw-demo-seed-down" data-uid="${p.userId}" title="Pastga" ${i === n - 1 ? "disabled" : ""}><i class="bi bi-chevron-down"></i></button>
+                </span>` : "";
+                return `<div class="tw-demo-seed">
                     <span class="tw-demo-seedno">#${p.seed}</span>
                     <span class="tw-bk-ava" style="--c:${avatarColor(p.username)}">${initials(p.username)}</span>
                     <span class="tw-demo-seedname">${esc(p.username)}</span>
-                </div>`).join("") + `</div>`;
+                    ${ctrl}
+                </div>`;
+            }).join("") + `</div>`;
+
+        if (canReorder) {
+            box.querySelectorAll(".tw-demo-seed-up").forEach(b => b.addEventListener("click", () => moveSeed(b.dataset.uid, -1)));
+            box.querySelectorAll(".tw-demo-seed-down").forEach(b => b.addEventListener("click", () => moveSeed(b.dataset.uid, 1)));
+        }
     }
 
-    // ── Render: bracket ──
-    function matchSideHtml(m, slot) {
+    // O'yinchini ro'yxatda bir pog'ona yuqori/pastga suradi (host reseed kabi)
+    async function moveSeed(uid, dir) {
+        if (busy || !tid || !lastDetail) return;
+        const arr = lastDetail.players.map(p => p.userId);
+        const i = arr.indexOf(uid);
+        const j = i + dir;
+        if (i < 0 || j < 0 || j >= arr.length) return;
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+        setBusy(true); showErr("");
+        try {
+            await api("POST", `/api/tournamentdemo/${tid}/seed`, { orderedUserIds: arr });
+            await refresh();
+        } catch (e) { showErr(e.message); }
+        finally { setBusy(false); }
+    }
+
+    // ── Render: bracket (jonli "yozish" animatsiyasini ham qo'llab-quvvatlaydi) ──
+    function matchSideHtml(m, slot, ls) {
         const pid = slot === 1 ? m.player1Id : m.player2Id;
         const pname = slot === 1 ? m.player1 : m.player2;
-        const wpm = slot === 1 ? m.player1Wpm : m.player2Wpm;
-        const decided = !!m.winnerId;
-        if (!pid) return `<div class="tw-bk-side tw-bk-empty">
-            <span class="tw-bk-ava">?</span><span class="tw-bk-pname">kutilmoqda…</span></div>`;
-        const won = decided && m.winnerId === pid;
+        const finalWpm = slot === 1 ? m.player1Wpm : m.player2Wpm;
+        if (!pid) return `<div class="tw-bk-side tw-bk-empty" data-slot="${slot}">
+            <span class="tw-bk-ava">?</span><span class="tw-bk-pname">kutilmoqda…</span>
+            <span class="tw-bk-bar"><span style="width:0"></span></span></div>`;
+
+        const s = ls ? (slot === 1 ? ls.p1 : ls.p2) : null;
+        const racing = !!(ls && ls.racing);
+        const decided = !!m.winnerId || !!(ls && ls.decided);
+        const winnerId = (ls && ls.winnerId) || m.winnerId;
+        const won = decided && winnerId === pid;
         const cls = "tw-bk-side" + (decided ? (won ? " tw-bk-won" : " tw-bk-lost") : "");
-        const crown = won ? ` <i class="bi bi-trophy-fill tw-bk-crown"></i>` : "";
-        const metric = decided
-            ? `<span class="tw-bk-wpm">${Math.round(wpm)}<small>wpm</small></span>`
-            : `<span class="tw-bk-wpm" style="visibility:hidden">0</span>`;
-        return `<div class="${cls}">
+        const crown = won ? `<i class="bi bi-trophy-fill tw-bk-crown"></i>` : "";
+
+        // Metr: poyga vaqtida jonli (curWpm), tugagach yakuniy WPM, aks holda yashirin
+        let metricVal = 0, fin = false, prog = 0, showMetric = decided || racing;
+        if (racing && s) { metricVal = s.curWpm || 0; fin = s.fin; prog = s.prog || 0; }
+        else if (decided) { metricVal = Math.round(finalWpm || 0); prog = won ? 100 : (s ? s.prog : 0); }
+        const metric = `<span class="tw-bk-wpm${fin ? " tw-bk-fin" : ""}"${showMetric ? "" : ' style="visibility:hidden"'}>${Math.round(metricVal)}<small>wpm</small></span>`;
+
+        return `<div class="${cls}" data-slot="${slot}">
             <span class="tw-bk-ava" style="--c:${avatarColor(pname)}">${initials(pname)}</span>
-            <span class="tw-bk-pname">${esc(pname || "?")}${crown}</span>
-            ${metric}
+            <span class="tw-bk-pname">${esc(pname || "?")}</span>
+            ${crown}${metric}
+            <span class="tw-bk-bar"><span style="width:${prog}%"></span></span>
         </div>`;
     }
     function matchHtml(m, isFinal) {
-        const decided = !!m.winnerId;
-        return `<div class="tw-bk-match${decided ? " tw-bk-decided" : ""}${isFinal ? " tw-bk-match--final" : ""}" id="tw-dbk-${m.id}">
-            ${matchSideHtml(m, 1)}
+        const ls = live[m.id];
+        const racing = !!(ls && ls.racing);
+        const decided = !!m.winnerId || !!(ls && ls.decided);
+        const liveBadge = racing ? `<span class="tw-bk-live">● LIVE</span>` : "";
+        return `<div class="tw-bk-match${racing ? " tw-bk-racing" : ""}${decided ? " tw-bk-decided" : ""}${isFinal ? " tw-bk-match--final" : ""}" id="tw-dbk-${m.id}">
+            ${liveBadge}
+            ${matchSideHtml(m, 1, ls)}
             <span class="tw-bk-vs">VS</span>
-            ${matchSideHtml(m, 2)}
+            ${matchSideHtml(m, 2, ls)}
         </div>`;
+    }
+
+    // Jonli animatsiya: bitta o'yin kartasini to'liq qayta chizmasdan joyida yangilaydi
+    function updateLiveCard(matchId) {
+        const ls = live[matchId]; if (!ls) return;
+        const el = $("tw-dbk-" + matchId); if (!el) return;
+        [["1", ls.p1], ["2", ls.p2]].forEach(([slot, s]) => {
+            if (!s) return;
+            const side = el.querySelector(`.tw-bk-side[data-slot="${slot}"]`);
+            if (!side) return;
+            const bar = side.querySelector(".tw-bk-bar > span");
+            if (bar) bar.style.width = (s.prog || 0) + "%";
+            const wpm = side.querySelector(".tw-bk-wpm");
+            if (wpm) {
+                wpm.style.visibility = "";
+                wpm.classList.toggle("tw-bk-fin", !!s.fin);
+                if (wpm.firstChild) wpm.firstChild.textContent = Math.round(s.curWpm || 0);
+                else wpm.textContent = Math.round(s.curWpm || 0);
+            }
+        });
+    }
+
+    // Bir raundni "jonli poyga" qilib animatsiya qiladi: progress barlar 0→100,
+    // tezroq WPM'li o'yinchi oldin yetib boradi; WPM raqami ham o'sib boradi.
+    function animateRound(matches) {
+        return new Promise(resolve => {
+            const D = 2600;          // poyga davomiyligi (ms)
+            live = {};               // yangi raund — eski jonli holatni tozalaymiz
+            matches.forEach(m => {
+                live[m.matchId] = {
+                    p1: { wpm: m.p1Wpm, curWpm: 0, prog: 0, fin: false },
+                    p2: { wpm: m.p2Wpm, curWpm: 0, prog: 0, fin: false },
+                    racing: true, decided: false, winnerId: m.winnerId
+                };
+            });
+            // LIVE belgilari + barlarni bir marta chizamiz (keyin joyida yangilanadi)
+            if (lastDetail) renderBracket(lastDetail);
+
+            const start = performance.now();
+            function frame(now) {
+                const t = Math.min(D, now - start);
+                const tf = t / D;
+                matches.forEach(m => {
+                    const ls = live[m.matchId];
+                    const wMax = Math.max(ls.p1.wpm, ls.p2.wpm, 1);
+                    ["p1", "p2"].forEach(k => {
+                        const s = ls[k];
+                        s.prog = Math.min(100, tf * (s.wpm / wMax) * 100);
+                        s.curWpm = Math.round(s.wpm * Math.min(1, 0.35 + 0.65 * tf));
+                        if (s.prog >= 100) s.fin = true;
+                    });
+                    updateLiveCard(m.matchId);
+                });
+                if (t < D) requestAnimationFrame(frame);
+                else {
+                    // Poyga tugadi — g'oliblarni belgilaymiz (toj), so'ng keyingi raundga
+                    matches.forEach(m => {
+                        const ls = live[m.matchId];
+                        ls.racing = false; ls.decided = true;
+                    });
+                    if (lastDetail) renderBracket(lastDetail);
+                    setTimeout(resolve, 650);
+                }
+            }
+            requestAnimationFrame(frame);
+        });
     }
     function renderBracket(detail) {
         const matches = detail.matches || [];
@@ -157,6 +270,10 @@
         $("tw-d-bracket-left").innerHTML = r.left;
         $("tw-d-bracket-right").innerHTML = r.right;
         $("tw-d-bracket-final").innerHTML = r.final;
+        // Bir tomonlama bracket (3 kishilik turnir kabi): o'ng yarm umuman ko'rinmaydi
+        $("tw-d-bracket-right").classList.toggle("d-none", !r.twoSided);
+        const canvas = $("tw-d-bracket-canvas");
+        if (canvas) canvas.classList.toggle("tw-bk2--single", !r.twoSided);
 
         // Zoom/pan — birinchi marta ekranga sig'diradi, keyin foydalanuvchi holatini saqlaydi
         ensureBracketZoom();
@@ -209,7 +326,7 @@
         try {
             // mavjud demo bo'lsa — avval o'chiramiz
             if (tid) { try { await api("DELETE", `/api/tournamentdemo/${tid}`); } catch { } }
-            tid = null; finished = false; lastDetail = null;
+            tid = null; finished = false; lastDetail = null; live = {};
             $("tw-d-champion").classList.add("d-none");
             $("tw-d-log").innerHTML = "";
             $("tw-d-standings").classList.add("d-none");
@@ -241,15 +358,18 @@
 
     async function playRound() {
         const res = await api("POST", `/api/tournamentdemo/${tid}/round`);
-        // O'ynalgan o'yinlar bo'lsa — jurnalga yozamiz (finished bilan birga kelishi mumkin)
+        // O'ynalgan o'yinlar bo'lsa — JONLI poyga animatsiyasi, so'ng jurnalga yozamiz
         if (res.matches && res.matches.length) {
-            log(`<b>${esc(res.roundName)}</b> o'ynaldi — ${res.matches.length} ta o'yin:`, "round");
+            log(`<b>${esc(res.roundName)}</b> boshlandi — ${res.matches.length} ta o'yin jonli o'ynalmoqda…`, "round");
+            status(`${res.roundName}: raqiblar yozmoqda…`);
+            await animateRound(res.matches);
             res.matches.forEach(m => {
                 log(`${esc(m.player1)} <span class="tw-demo-sc">${Math.round(m.p1Wpm)}</span> — ` +
                     `<span class="tw-demo-sc">${Math.round(m.p2Wpm)}</span> ${esc(m.player2)} ` +
                     `→ <b class="tw-demo-hl">${esc(m.winner)}</b>`, "match");
             });
         }
+        live = {};                 // animatsiya tugadi — keyingi render toza holatdan
         const d = await refresh();
         if (res.finished) {
             finished = true;
@@ -290,7 +410,7 @@
         try {
             await api("DELETE", `/api/tournamentdemo/${tid}`);
             log("Turnir o'chirildi.", "");
-            tid = null; finished = false; lastDetail = null;
+            tid = null; finished = false; lastDetail = null; live = {};
             $("tw-d-bracket-left").innerHTML = "";
             $("tw-d-bracket-right").innerHTML = "";
             $("tw-d-bracket-final").innerHTML = "";

@@ -2557,7 +2557,19 @@ body.tw-bk-full-open { overflow: hidden; }
     background: var(--tw-bg); border: 1px solid var(--tw-border); border-radius: 10px;
 }
 .tw-demo-seedno { font-size: .72rem; font-weight: 700; color: var(--tw-muted); min-width: 26px; }
-.tw-demo-seedname { font-weight: 600; font-size: .85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tw-demo-seedname { flex: 1; font-weight: 600; font-size: .85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tw-demo-h3-hint { font-weight: 400; font-size: .78rem; color: var(--tw-muted); }
+.tw-demo-seed-ctrl { display: inline-flex; gap: .2rem; margin-left: auto; }
+.tw-demo-seed-ctrl button {
+    width: 24px; height: 24px; display: grid; place-items: center; cursor: pointer;
+    border-radius: 6px; border: 1px solid var(--tw-border-strong); background: var(--tw-surface);
+    color: var(--tw-muted); font-size: .7rem; transition: border-color .2s, color .2s, background .2s;
+}
+.tw-demo-seed-ctrl button:hover:not(:disabled) {
+    border-color: var(--tw-gold); color: var(--tw-gold);
+    background: color-mix(in srgb, var(--tw-gold) 10%, transparent);
+}
+.tw-demo-seed-ctrl button:disabled { opacity: .35; cursor: not-allowed; }
 
 /* Yakuniy joylar */
 .tw-demo-stand-list { display: flex; flex-direction: column; gap: .4rem; }
