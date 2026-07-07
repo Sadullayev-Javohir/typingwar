@@ -32,6 +32,18 @@
         const abs = d.toLocaleString("uz-UZ", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
         return `${abs}<small class="tw-admin-ago">${timeAgo(d)}</small>`;
     }
+    // Oxirgi online: yashil (online, ≤5 daq) / kulrang nuqta + "necha vaqt oldin"
+    function fmtLastSeen(s) {
+        if (!s) return '<span class="tw-srv-muted">hech qachon</span>';
+        const d = new Date(s);
+        if (isNaN(d)) return "—";
+        const sec = Math.max(0, (Date.now() - d.getTime()) / 1000);
+        const online = sec < 300; // 5 daqiqa
+        const dot = `<span class="tw-online-dot${online ? " is-on" : ""}"></span>`;
+        const label = online ? "online" : timeAgo(d);
+        const title = d.toLocaleString("uz-UZ", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+        return `<span class="tw-last-seen" title="${title}">${dot}${label}</span>`;
+    }
     function timeAgo(d) {
         const sec = Math.max(0, (Date.now() - d.getTime()) / 1000);
         if (sec < 60) return "hozirgina";
@@ -117,7 +129,7 @@
 
     function renderUsers(list) {
         uCount.textContent = `${list.length} ta foydalanuvchi`;
-        if (!list.length) { usersBody.innerHTML = `<tr><td colspan="9" class="tw-admin-empty">Foydalanuvchi topilmadi.</td></tr>`; return; }
+        if (!list.length) { usersBody.innerHTML = `<tr><td colspan="10" class="tw-admin-empty">Foydalanuvchi topilmadi.</td></tr>`; return; }
         usersBody.innerHTML = list.map(u => `<tr>
             <td><div class="tw-admin-user">
                 <span class="tw-admin-ava">${esc(initials(u.username))}</span>
@@ -131,6 +143,7 @@
             <td>${roleBadges(u.roles)}</td>
             <td class="tw-admin-date">${fmtDate(u.createdAt)}</td>
             <td class="tw-admin-date tw-admin-login">${fmtDateTime(u.lastLoginAt)}</td>
+            <td class="tw-admin-date tw-admin-seen">${fmtLastSeen(u.lastSeenAt)}</td>
             <td class="tw-admin-actions">${userActions(u)}</td>
         </tr>`).join("");
     }
@@ -139,7 +152,7 @@
         try {
             const q = search ? `?search=${encodeURIComponent(search)}` : "";
             renderUsers(await api("/api/admin/users" + q));
-        } catch (e) { usersBody.innerHTML = `<tr><td colspan="9" class="tw-admin-empty">${esc(e.message)}</td></tr>`; }
+        } catch (e) { usersBody.innerHTML = `<tr><td colspan="10" class="tw-admin-empty">${esc(e.message)}</td></tr>`; }
     }
 
     usersBody.addEventListener("click", async (e) => {

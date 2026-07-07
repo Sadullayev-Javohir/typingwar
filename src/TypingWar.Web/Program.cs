@@ -26,6 +26,7 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddMemoryCache();   // LastSeen throttle uchun
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // ── Authentication: JWT (HttpOnly cookie) + Google OAuth ──────
@@ -177,6 +178,9 @@ app.Use(async (ctx, next) =>
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Foydalanuvchining "oxirgi online" vaqtini yangilaydi (autentifikatsiyadan keyin)
+app.UseMiddleware<TypingWar.Web.Middleware.LastSeenMiddleware>();
 
 app.MapRazorPages();
 app.MapControllers();

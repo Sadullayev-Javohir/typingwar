@@ -1322,6 +1322,22 @@ body.tw-record {
 .tw-admin-login small.tw-admin-ago { display: block; font-size: .7rem; opacity: .7; }
 .tw-srv-muted { color: var(--tw-muted); opacity: .7; }
 
+/* Oxirgi online — holat nuqtasi */
+.tw-last-seen { display: inline-flex; align-items: center; gap: .4rem; white-space: nowrap; }
+.tw-online-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--tw-muted); opacity: .5; flex: 0 0 auto;
+}
+.tw-online-dot.is-on {
+    background: #22c55e; opacity: 1;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, .18);
+    animation: twOnlinePulse 1.8s ease-in-out infinite;
+}
+@keyframes twOnlinePulse {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(34, 197, 94, .25); }
+    50% { box-shadow: 0 0 0 5px rgba(34, 197, 94, 0); }
+}
+
 /* ── Server holati paneli (CPU/RAM/disk) ── */
 .tw-srv { display: flex; flex-direction: column; gap: 1.2rem; }
 .tw-srv-loading { color: var(--tw-muted); padding: 1.6rem; text-align: center; }

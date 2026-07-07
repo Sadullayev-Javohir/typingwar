@@ -16,6 +16,13 @@ public class ApplicationUser : IdentityUser<Guid>
     /// <summary>Foydalanuvchi oxirgi marta tizimga (Google orqali) kirgan vaqt. Hech kirmagan bo'lsa null.</summary>
     public DateTime? LastLoginAt { get; set; }
 
+    /// <summary>
+    /// Foydalanuvchi oxirgi marta faol (online) bo'lgan vaqt — har autentifikatsiyalangan
+    /// so'rovda yangilanadi (throttled). Login esa uzoq vaqt oldin bo'lishi mumkin, shu sabab
+    /// "oxirgi online" uchun aynan shu maydon ishlatiladi. Hech faol bo'lmagan bo'lsa null.
+    /// </summary>
+    public DateTime? LastSeenAt { get; set; }
+
     /// <summary>Google OAuth subject (sub) — faqat Google orqali kirish uchun.</summary>
     public string? GoogleId { get; set; }
 

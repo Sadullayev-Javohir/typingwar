@@ -53,7 +53,7 @@ public class AdminService : IAdminService
             var roles = await _userManager.GetRolesAsync(u);
             result.Add(new AdminUserDto(
                 u.Id, u.UserName ?? "—", u.Email ?? "—", u.RegionCode, u.EloRating,
-                u.CreatedAt, u.LastLoginAt, u.ProfileCompleted, roles.ToList(),
+                u.CreatedAt, u.LastLoginAt, u.LastSeenAt, u.ProfileCompleted, roles.ToList(),
                 raceCounts.TryGetValue(u.Id, out var c) ? c : 0,
                 bestWpms.TryGetValue(u.Id, out var w) ? w : 0));
         }
