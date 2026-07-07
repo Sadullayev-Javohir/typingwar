@@ -52,6 +52,10 @@ public class AuthService : IIdentityService
             await _userManager.CreateAsync(user);   // parolsiz
         }
 
+        // Oxirgi kirish vaqtini yozamiz (admin panelida ko'rsatiladi)
+        user.LastLoginAt = DateTime.UtcNow;
+        await _userManager.UpdateAsync(user);
+
         // Sozlangan email bo'yicha admin rollarini ta'minlash (birinchi kirishda ham)
         await EnsureConfiguredAdminRolesAsync(user);
 

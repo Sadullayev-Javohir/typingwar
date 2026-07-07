@@ -8,6 +8,7 @@ public record AdminUserDto(
     string? RegionCode,
     int EloRating,
     DateTime CreatedAt,
+    DateTime? LastLoginAt,
     bool ProfileCompleted,
     IReadOnlyList<string> Roles,
     int RaceCount,

@@ -64,6 +64,7 @@ public static class DependencyInjection
         // Admin statistika + foydalanuvchi boshqaruvi
         services.AddScoped<IAdminStatsReader, Identity.AdminStatsReader>();
         services.AddScoped<IAdminService, Identity.AdminService>();
+        services.AddScoped<IServerStatsReader, Diagnostics.ServerStatsReader>();
 
         // Redis
         var redisConn = configuration.GetConnectionString("Redis") ?? "localhost:6380";

@@ -23,6 +23,7 @@
 
     <div class="tw-admin-tabs" role="tablist">
         <button class="tw-admin-tab is-active" data-tab="users"><i class="bi bi-people-fill"></i> Foydalanuvchilar</button>
+        <button class="tw-admin-tab" data-tab="server"><i class="bi bi-hdd-rack-fill"></i> Server</button>
         <button class="tw-admin-tab" data-tab="tournaments"><i class="bi bi-trophy-fill"></i> Turnirlar</button>
         <button class="tw-admin-tab" data-tab="texts"><i class="bi bi-card-text"></i> Matn qo'shish</button>
     </div>
@@ -46,12 +47,24 @@
                         <th class="tw-num">Poyga</th>
                         <th class="tw-num">Eng yaxshi</th>
                         <th>Rol</th>
-                        <th>Sana</th>
+                        <th>Ro'yxatdan</th>
+                        <th>Oxirgi kirish</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody id="tw-admin-users"></tbody>
             </table>
+        </div>
+    </section>
+
+    <!-- ── Server holati ── -->
+    <section class="tw-admin-panel" data-panel="server">
+        <div class="tw-admin-toolbar">
+            <span class="text-secondary small"><i class="bi bi-broadcast"></i> Jonli yangilanadi (har 4 soniyada)</span>
+            <span id="tw-srv-updated" class="text-secondary small ms-auto"></span>
+        </div>
+        <div id="tw-admin-server" class="tw-srv">
+            <div class="tw-srv-loading">Server holati yuklanmoqda…</div>
         </div>
     </section>
 

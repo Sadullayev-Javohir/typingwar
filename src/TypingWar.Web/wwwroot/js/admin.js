@@ -24,6 +24,39 @@
         .replace(/"/g, "&quot;");
     const initials = n => { const t = String(n || "?").trim(); return t ? t.charAt(0).toUpperCase() : "?"; };
     const fmtDate = s => { const d = new Date(s); return isNaN(d) ? "—" : d.toLocaleDateString("uz-UZ"); };
+    // Sana + vaqt + "necha vaqt oldin" (oxirgi kirish uchun)
+    function fmtDateTime(s) {
+        if (!s) return '<span class="tw-srv-muted">hech qachon</span>';
+        const d = new Date(s);
+        if (isNaN(d)) return "—";
+        const abs = d.toLocaleString("uz-UZ", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+        return `${abs}<small class="tw-admin-ago">${timeAgo(d)}</small>`;
+    }
+    function timeAgo(d) {
+        const sec = Math.max(0, (Date.now() - d.getTime()) / 1000);
+        if (sec < 60) return "hozirgina";
+        const m = sec / 60; if (m < 60) return Math.floor(m) + " daqiqa oldin";
+        const h = m / 60; if (h < 24) return Math.floor(h) + " soat oldin";
+        const days = h / 24; if (days < 30) return Math.floor(days) + " kun oldin";
+        const mo = days / 30; if (mo < 12) return Math.floor(mo) + " oy oldin";
+        return Math.floor(mo / 12) + " yil oldin";
+    }
+    function fmtBytes(b) {
+        if (!b || b <= 0) return "0";
+        const u = ["B", "KB", "MB", "GB", "TB"]; let i = 0; let v = b;
+        while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
+        return (v >= 100 ? Math.round(v) : v.toFixed(1)) + " " + u[i];
+    }
+    function fmtUptime(sec) {
+        sec = Math.floor(sec || 0);
+        const d = Math.floor(sec / 86400), h = Math.floor((sec % 86400) / 3600),
+            m = Math.floor((sec % 3600) / 60);
+        const parts = [];
+        if (d) parts.push(d + " kun");
+        if (h) parts.push(h + " soat");
+        parts.push(m + " daqiqa");
+        return parts.join(" ");
+    }
 
     const STATUS = {
         Registration: ["Ro'yxat", "reg"], InProgress: ["Jonli", "live"], Finished: ["Tugagan", "done"]
@@ -84,7 +117,7 @@
 
     function renderUsers(list) {
         uCount.textContent = `${list.length} ta foydalanuvchi`;
-        if (!list.length) { usersBody.innerHTML = `<tr><td colspan="8" class="tw-admin-empty">Foydalanuvchi topilmadi.</td></tr>`; return; }
+        if (!list.length) { usersBody.innerHTML = `<tr><td colspan="9" class="tw-admin-empty">Foydalanuvchi topilmadi.</td></tr>`; return; }
         usersBody.innerHTML = list.map(u => `<tr>
             <td><div class="tw-admin-user">
                 <span class="tw-admin-ava">${esc(initials(u.username))}</span>
@@ -97,6 +130,7 @@
             <td class="tw-num">${Math.round(u.bestWpm)}</td>
             <td>${roleBadges(u.roles)}</td>
             <td class="tw-admin-date">${fmtDate(u.createdAt)}</td>
+            <td class="tw-admin-date tw-admin-login">${fmtDateTime(u.lastLoginAt)}</td>
             <td class="tw-admin-actions">${userActions(u)}</td>
         </tr>`).join("");
     }
@@ -105,7 +139,7 @@
         try {
             const q = search ? `?search=${encodeURIComponent(search)}` : "";
             renderUsers(await api("/api/admin/users" + q));
-        } catch (e) { usersBody.innerHTML = `<tr><td colspan="8" class="tw-admin-empty">${esc(e.message)}</td></tr>`; }
+        } catch (e) { usersBody.innerHTML = `<tr><td colspan="9" class="tw-admin-empty">${esc(e.message)}</td></tr>`; }
     }
 
     usersBody.addEventListener("click", async (e) => {
@@ -185,11 +219,61 @@
         } catch (err) { msgEl.textContent = err.message; }
     });
 
+    /* ── Server holati (CPU / RAM / disk) ── */
+    const serverEl = $("tw-admin-server"), srvUpdated = $("tw-srv-updated");
+    let srvTimer = null;
+
+    function gaugeClass(p) { return p >= 90 ? "crit" : p >= 70 ? "warn" : "ok"; }
+    function gauge(label, icon, percent, sub) {
+        const p = Math.max(0, Math.min(100, percent || 0));
+        const cls = gaugeClass(p);
+        return `<div class="tw-srv-gauge tw-srv-gauge--${cls}">
+            <div class="tw-srv-gauge-head"><span><i class="bi ${icon}"></i> ${label}</span><b>${p.toFixed(p < 10 ? 1 : 0)}%</b></div>
+            <div class="tw-srv-bar"><i style="width:${p}%"></i></div>
+            <div class="tw-srv-gauge-sub">${sub}</div>
+        </div>`;
+    }
+    function infoRow(label, value) {
+        return `<div class="tw-srv-info-row"><span>${label}</span><b>${esc(value)}</b></div>`;
+    }
+    function renderServer(s) {
+        serverEl.innerHTML = `
+            <div class="tw-srv-gauges">
+                ${gauge("Protsessor (CPU)", "bi-cpu-fill", s.cpuUsagePercent, `${s.cpuCores} yadro`)}
+                ${gauge("Operativ xotira (RAM)", "bi-memory", s.ramUsedPercent, `${fmtBytes(s.ramUsedBytes)} / ${fmtBytes(s.ramTotalBytes)}`)}
+                ${gauge("Disk", "bi-hdd-fill", s.diskUsedPercent, `${fmtBytes(s.diskUsedBytes)} / ${fmtBytes(s.diskTotalBytes)}`)}
+            </div>
+            <div class="tw-srv-info">
+                ${infoRow("Operatsion tizim", s.os)}
+                ${infoRow("Server nomi", s.machineName)}
+                ${infoRow(".NET versiyasi", s.dotnetVersion)}
+                ${infoRow("Protsessor yadrolari", String(s.cpuCores))}
+                ${infoRow("Ilova xotirasi (jarayon)", fmtBytes(s.processRamBytes))}
+                ${infoRow("Ilova ish vaqti", fmtUptime(s.uptimeSeconds))}
+            </div>`;
+        srvUpdated.textContent = "Yangilandi: " + new Date().toLocaleTimeString("uz-UZ");
+    }
+    async function loadServer() {
+        try { renderServer(await api("/api/admin/server")); }
+        catch (e) { serverEl.innerHTML = `<div class="tw-srv-loading">${esc(e.message)}</div>`; }
+    }
+    function startServerPolling() {
+        loadServer();
+        if (srvTimer) clearInterval(srvTimer);
+        srvTimer = setInterval(() => {
+            if (document.hidden) return;
+            const panel = root.querySelector('.tw-admin-panel[data-panel="server"]');
+            if (panel && panel.classList.contains("is-active")) loadServer();
+        }, 4000);
+    }
+    function stopServerPolling() { if (srvTimer) { clearInterval(srvTimer); srvTimer = null; } }
+
     /* ── Tablar ── */
     const loaded = { users: false, tournaments: false };
     function ensureLoaded(tab) {
         if (tab === "users" && !loaded.users) { loaded.users = true; loadUsers(""); }
         if (tab === "tournaments" && !loaded.tournaments) { loaded.tournaments = true; loadTours(); }
+        if (tab === "server") startServerPolling(); else stopServerPolling();
     }
     root.querySelectorAll(".tw-admin-tab").forEach(btn => {
         btn.addEventListener("click", () => {

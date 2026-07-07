@@ -17,6 +17,11 @@ public class AdminController : ApiControllerBase
     public async Task<ActionResult<AdminStatsDto>> Stats()
         => Ok(await Mediator.Send(new GetAdminStatsQuery()));
 
+    /// <summary>Server holati — CPU, RAM, disk, ish vaqti (jonli yangilanadi).</summary>
+    [HttpGet("server")]
+    public async Task<ActionResult<ServerStatsDto>> Server()
+        => Ok(await Mediator.Send(new GetServerStatsQuery()));
+
     public record AddTextRequest(string Content, Difficulty Difficulty, string? Source, Language Language = Language.Uzbek);
 
     [HttpPost("texts")]

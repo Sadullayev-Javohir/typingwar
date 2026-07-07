@@ -13,6 +13,9 @@ public class ApplicationUser : IdentityUser<Guid>
     public string? AvatarUrl { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    /// <summary>Foydalanuvchi oxirgi marta tizimga (Google orqali) kirgan vaqt. Hech kirmagan bo'lsa null.</summary>
+    public DateTime? LastLoginAt { get; set; }
+
     /// <summary>Google OAuth subject (sub) — faqat Google orqali kirish uchun.</summary>
     public string? GoogleId { get; set; }
 
