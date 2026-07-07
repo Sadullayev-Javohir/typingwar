@@ -29,6 +29,7 @@ public class UserSettings
     public bool ShowLiveTimer { get; set; } = true;
     public bool ShowStatsPanel { get; set; } = true;
     public bool ShowCheetah { get; set; } = true;
+    public bool ShowKeyboard { get; set; } = true;      // ekran klaviaturasi (/Practice)
     public bool BlindMode { get; set; } = false;
     public bool StopOnError { get; set; } = false;
     public SoundOnClick SoundOnClick { get; set; } = SoundOnClick.Off;

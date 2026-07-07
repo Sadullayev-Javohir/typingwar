@@ -110,6 +110,9 @@
         <span class="tw-hint"><i class="bi bi-mouse2 me-1"></i>Yozishni boshlash uchun shu yerga bosing va yozing</span>
     </div>
 
+    <!-- Ekran klaviaturasi — keyingi bosiladigan tugmani yoritib turadi -->
+    <div id="tw-keyboard" class="tw-keyboard" aria-hidden="true"></div>
+
     <div id="tw-result" class="tw-result-screen d-none">
         <div class="tw-result-top">
             <div class="tw-result-hero">
@@ -161,5 +164,6 @@
 </div>
 
 @section Scripts {
+    <script src="~/js/tw-keyboard.js" asp-append-version="true"></script>
     <script src="~/js/typing-engine.js" asp-append-version="true"></script>
 }

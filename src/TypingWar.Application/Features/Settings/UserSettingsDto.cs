@@ -24,6 +24,7 @@ public record UserSettingsDto
     public bool ShowLiveTimer { get; init; } = true;
     public bool ShowStatsPanel { get; init; } = true;
     public bool ShowCheetah { get; init; } = true;
+    public bool ShowKeyboard { get; init; } = true;
     public bool BlindMode { get; init; }
     public bool StopOnError { get; init; }
     public SoundOnClick SoundOnClick { get; init; } = SoundOnClick.Off;

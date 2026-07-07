@@ -18,6 +18,8 @@
     const resultEl = document.getElementById("tw-result");
     const hintEl = root.querySelector(".tw-hint");
     const cheetahEl = document.getElementById("tw-cheetah-pos");
+    const KB = window.TWKeyboard;
+    const kbEl = document.getElementById("tw-keyboard");
 
     // Holat
     let chars = [];          // matnning belgilari (probel ham)
@@ -73,6 +75,12 @@
         if (statsPanel) statsPanel.style.display = S.get("showStatsPanel") === false ? "none" : "";
         if (track) track.style.display = S.get("showCheetah") === false ? "none" : "";
 
+        // Ekran klaviaturasi — sozlamada o'chirilsa ko'rinmaydi (va fokus rejimda
+        // ko'rsatilmaydi, aks holda pastda joy egallaydi)
+        const kbOff = S.get("showKeyboard") === false;
+        if (kbEl) kbEl.style.display = kbOff ? "none" : "";
+        if (kbOff && document.body.classList.contains("tw-focus")) exitFocus();
+
         const map = {
             "tw-stat-wpm": S.get("showLiveWpm"),
             "tw-stat-acc": S.get("showLiveAcc"),
@@ -82,6 +90,22 @@
             const el = document.getElementById(id);
             if (el) el.style.display = map[id] === false ? "none" : "";
         }
+    }
+
+    // Keyingi yoziladigan belgini klaviaturada yoritadi
+    function updateKeyboard() {
+        if (!KB || S.get("showKeyboard") === false || finished) return;
+        KB.highlight(pos < chars.length ? chars[pos] : null);
+    }
+
+    // Fokus rejim — yozish boshlanganda asosiy ekran kattalashadi, navbar yashirinadi,
+    // klaviatura pastda mahkamlanadi. Sozlamada klaviatura o'chiq bo'lsa ham fokus ishlaydi.
+    function enterFocus() {
+        if (S.get("showKeyboard") === false) return;
+        document.body.classList.add("tw-focus");
+    }
+    function exitFocus() {
+        document.body.classList.remove("tw-focus");
     }
 
     function nearestTimeMode(elapsed) {
@@ -206,6 +230,7 @@
         caretEl.style.transform = `translate(${left}px, ${y}px)`;
         updateCurrentWord();
         updateScroll();
+        updateKeyboard();
     }
 
     // Tugagan qatorlarni yuqoriga suradi — joriy qator doim eng tepada ko'rinadi
@@ -277,6 +302,7 @@
         if (startTime === null) {
             startTime = performance.now();
             liveTimer = setInterval(tick, 150);
+            enterFocus();   // yozish boshlandi — fokus rejimga o'tamiz
         }
     }
 
@@ -347,6 +373,7 @@
         // Har bosish (to'g'ri/xato) hisoblanadi — aniqlik va grafik to'g'ri bo'lsin
         keypresses++;
         keyEvents.push({ t: elapsedSec(), correct });   // grafik tarixi
+        if (KB && S.get("showKeyboard") !== false) KB.flash(expected, correct);
         if (window.TWSound) window.TWSound.play(S.get("soundOnClick"), correct);
         lastKeyTime = performance.now();
         setCheetahRun(true);
@@ -382,6 +409,8 @@
         finished = true;
         if (liveTimer) clearInterval(liveTimer);
         setCheetahRun(false);   // poyga tugadi — mushuk to'xtaydi
+        exitFocus();            // natija ekrani — navbar qaytadi, klaviatura yashirinadi
+        if (KB) KB.clear();
         if (window.TWCaps) window.TWCaps.hide();
 
         const e = elapsedSec();
@@ -670,6 +699,7 @@
         if (cheetahEl) cheetahEl.style.left = "2%";
         lastKeyTime = 0;
         setCheetahRun(false);   // yangi matn — mushuk turadi (yozilguncha)
+        exitFocus();            // yangi matn — fokus rejimdan chiqamiz (yozilguncha)
         root.classList.remove("tw-show-result");   // typing UI qaytadi
         document.body.classList.remove("tw-record");
         resultEl.classList.add("d-none");
@@ -741,6 +771,11 @@
     root.addEventListener("focus", () => { if (hintEl) hintEl.style.opacity = "0"; });
     root.addEventListener("blur", () => { if (hintEl) hintEl.style.opacity = "1"; });
     wordsEl.addEventListener("click", () => root.focus());
+    // Ekran klaviaturasini bosish typing fokusini olib qo'ymasin (yozish davom etsin)
+    if (kbEl) {
+        kbEl.addEventListener("mousedown", (e) => e.preventDefault());
+        kbEl.addEventListener("click", () => root.focus());
+    }
 
     document.getElementById("tw-restart").addEventListener("click", restart);
     document.getElementById("tw-again").addEventListener("click", restart);
@@ -759,6 +794,7 @@
     });
 
     // Init
+    if (KB && kbEl) KB.mount(kbEl);
     refreshConfigButtons();
     applyStatVisibility();
     restart();

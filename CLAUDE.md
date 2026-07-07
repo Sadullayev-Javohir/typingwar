@@ -339,6 +339,24 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-18] /Practice — ekran klaviaturasi + fokus rejim + sozlama switch:
+    (1) Yangi tw-keyboard.js (window.TWKeyboard: mount/highlight/flash/clear/setVisible) —
+    QWERTY virtual klaviatura (54 tugma), keyingi yoziladigan belgini YORITIB ko'rsatadi
+    (katta harf/maxsus belgi bo'lsa Shift ham yonadi), bosilganda to'g'ri/xato vizual javob.
+    normChar engine bilan mos (tire/apostrof/qo'shtirnoq normallashtiriladi). Ranglar tema
+    o'zgaruvchilaridan (--tw-surface/--tw-gold/--tw-text) + color-mix translucent — tema/fon
+    almashganda klaviatura ham qayta bo'yaladi. Home-row (f/j) tayanch chiziqchasi.
+    (2) typing-engine.js integratsiya: init'da KB.mount, moveCaret→updateKeyboard (keyingi
+    belgini yoritadi), handleKey→KB.flash, klaviaturani bosish typing fokusini olmaydi.
+    FOKUS REJIM: yozish boshlanganda (startIfNeeded) body.tw-focus — navbar+footer yashirinadi,
+    asosiy ekran (.tw-words) ~1.4× kattalashadi, config yashirinadi, klaviatura pastda fixed
+    (blur fon). finish()/restart()→exitFocus, natija ekranida klaviatura yashirinadi.
+    (3) /Settings "Mashq ko'rinishi" kartasiga "Ekran klaviaturasi" switch (showKeyboard) —
+    o'chirilsa klaviatura ham, fokus rejim ham ishlamaydi. Backend: UserSettings+DTO
+    ShowKeyboard (default true), migration AddShowKeyboardSetting (mavjud yozuvlar true),
+    DB'ga qo'llandi. typing-settings.js DEFAULTS showKeyboard:true. site.css tw-keyboard/
+    tw-key/tw-key-next/tw-focus bloklari; sw.js cache v61 (+tw-keyboard.js). Build OK, 102
+    test, headless Chrome: 54 tugma render + boshlang'ich keyingi-tugma yoritildi, JS konsol toza.
   - [2026-06-18] SEO — Google'da yuqori chiqish uchun to'liq optimizatsiya:
     (1) _Layout.cshtml <head> qayta yozildi (IConfiguration inject): har sahifa uchun ViewData
     bilan boshqariladigan meta description/keywords/robots/canonical + Open Graph (og:type/title/

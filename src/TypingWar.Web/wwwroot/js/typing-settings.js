@@ -11,7 +11,7 @@
         caretStyle: "Line", smoothCaret: true,
         background: "nextjs",
         showLiveWpm: true, showLiveAcc: true, showLiveTimer: true,
-        showStatsPanel: true, showCheetah: true,
+        showStatsPanel: true, showCheetah: true, showKeyboard: true,
         blindMode: false, stopOnError: false, soundOnClick: "Off"
     };
 
