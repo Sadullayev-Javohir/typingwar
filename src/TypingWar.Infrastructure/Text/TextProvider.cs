@@ -41,10 +41,19 @@ public class TextProvider : ITextProvider
         if (pool.Length == 0) pool = bank;
 
         var sb = new StringBuilder();
+        string? prev = null;
         for (int i = 0; i < count; i++)
         {
             if (i > 0) sb.Append(' ');
-            sb.Append(pool[Rng.Next(pool.Length)]);
+            // Ketma-ket bir xil so'z chiqmasligi uchun oldingidan farqli so'z tanlaymiz
+            // (pool da 2+ so'z bo'lsa). Bir nechta so'zli pool da bu doim yakunlanadi.
+            string word;
+            do
+            {
+                word = pool[Rng.Next(pool.Length)];
+            } while (pool.Length > 1 && word == prev);
+            sb.Append(word);
+            prev = word;
         }
         return sb.ToString();
     }
