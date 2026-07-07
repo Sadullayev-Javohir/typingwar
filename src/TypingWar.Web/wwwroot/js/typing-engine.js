@@ -72,8 +72,13 @@
         // Butun statistika paneli (katta div) va mushuk+yo'lakcha — sozlamada yoqilsa ko'rinadi
         const statsPanel = root.querySelector(".tw-stats");
         const track = root.querySelector(".tw-practice-track");
-        if (statsPanel) statsPanel.style.display = S.get("showStatsPanel") === false ? "none" : "";
-        if (track) track.style.display = S.get("showCheetah") === false ? "none" : "";
+        const statsOff = S.get("showStatsPanel") === false;
+        const cheetahOff = S.get("showCheetah") === false;
+        if (statsPanel) statsPanel.style.display = statsOff ? "none" : "";
+        if (track) track.style.display = cheetahOff ? "none" : "";
+
+        // Mushuk ham, WPM paneli ham yo'q bo'lsa — yozish (scroll) maydoni tepaga ko'tariladi
+        root.classList.toggle("tw-minimal", statsOff && cheetahOff);
 
         // Ekran klaviaturasi — sozlamada o'chirilsa ko'rinmaydi (va fokus rejimda
         // ko'rsatilmaydi, aks holda pastda joy egallaydi)
