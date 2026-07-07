@@ -179,6 +179,9 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Profilni (nom + hudud) to'ldirmagan foydalanuvchini /CompleteProfile ga majburlaydi
+app.UseMiddleware<TypingWar.Web.Middleware.ProfileCompletionMiddleware>();
+
 // Foydalanuvchining "oxirgi online" vaqtini yangilaydi (autentifikatsiyadan keyin)
 app.UseMiddleware<TypingWar.Web.Middleware.LastSeenMiddleware>();
 

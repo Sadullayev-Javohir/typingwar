@@ -14,14 +14,15 @@ public class JwtTokenService : IJwtTokenService
 
     public JwtTokenService(IOptions<JwtSettings> settings) => _settings = settings.Value;
 
-    public string GenerateToken(Guid userId, string username, string? email, IEnumerable<string>? roles = null)
+    public string GenerateToken(Guid userId, string username, string? email, IEnumerable<string>? roles = null, bool profileCompleted = true)
     {
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, userId.ToString()),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(ClaimTypes.NameIdentifier, userId.ToString()),
-            new(ClaimTypes.Name, username)
+            new(ClaimTypes.Name, username),
+            new("profile_completed", profileCompleted ? "true" : "false")
         };
         if (!string.IsNullOrEmpty(email))
             claims.Add(new Claim(ClaimTypes.Email, email));

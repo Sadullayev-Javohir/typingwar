@@ -4,7 +4,7 @@ namespace TypingWar.Application.Common.Interfaces;
 public interface IJwtTokenService
 {
     /// <summary>Foydalanuvchi uchun JWT access token yaratadi.</summary>
-    string GenerateToken(Guid userId, string username, string? email, IEnumerable<string>? roles = null);
+    string GenerateToken(Guid userId, string username, string? email, IEnumerable<string>? roles = null, bool profileCompleted = true);
 
     /// <summary>Token amal qilish muddati (cookie expiry uchun).</summary>
     DateTime GetExpiry();

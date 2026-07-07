@@ -57,7 +57,7 @@ public class AuthController : ApiControllerBase
         // Tashqi (correlation) cookie endi kerak emas
         await HttpContext.SignOutAsync(ExternalScheme);
 
-        IssueCookie(result.UserId, result.Username, result.Email, result.Roles);
+        IssueCookie(result.UserId, result.Username, result.Email, result.Roles, result.ProfileCompleted);
 
         if (!result.ProfileCompleted)
             return Redirect("/CompleteProfile");
@@ -134,9 +134,9 @@ public class AuthController : ApiControllerBase
         email = User.FindFirstValue(ClaimTypes.Email)
     });
 
-    private void IssueCookie(Guid userId, string username, string? email, IEnumerable<string>? roles)
+    private void IssueCookie(Guid userId, string username, string? email, IEnumerable<string>? roles, bool profileCompleted = true)
     {
-        var token = _jwt.GenerateToken(userId, username, email, roles);
+        var token = _jwt.GenerateToken(userId, username, email, roles, profileCompleted);
         Response.Cookies.Append(AccessTokenCookie, token, new CookieOptions
         {
             HttpOnly = true,                       // JS dan o'qib bo'lmaydi (XSS himoya)
