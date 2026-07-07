@@ -600,7 +600,7 @@ body.tw-record {
 
 /* Ro'yxat (4+) */
 .tw-lb-list-head, .tw-lb-row { display: grid;
-    grid-template-columns: 48px 1fr 1fr 90px 70px; align-items: center;
+    grid-template-columns: 48px 1fr 1fr 90px 70px 40px; align-items: center;
     gap: .5rem; padding: .55rem .9rem; }
 .tw-lb-list-head { color: #888888; font-size: .72rem; text-transform: uppercase;
     letter-spacing: .04em; }
@@ -614,6 +614,16 @@ body.tw-record {
 .tw-lb-row .c-region { color: #888888; font-size: .85rem; }
 .tw-lb-row .c-acc { text-align: right; color: #999999; }
 .tw-lb-row .c-wpm { text-align: right; color: var(--tw-gold); font-weight: 800; font-size: 1.05rem; }
+.tw-lb-row .c-prof { display: flex; justify-content: flex-end; }
+.tw-lb-prof { display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 8px; color: #cfcfdd; text-decoration: none;
+    background: var(--tw-bg); border: 1px solid #2e2e2e; transition: all .15s ease; }
+.tw-lb-prof:hover { color: var(--tw-gold); border-color: var(--tw-gold); }
+.tw-pod-prof { display: inline-flex; align-items: center; gap: .35rem; margin-top: .5rem;
+    padding: .3rem .7rem; border-radius: 8px; font-size: .78rem; font-weight: 600;
+    color: #cfcfdd; text-decoration: none; background: var(--tw-bg);
+    border: 1px solid #2e2e2e; transition: all .15s ease; }
+.tw-pod-prof:hover { color: var(--tw-gold); border-color: var(--tw-gold); }
 .tw-lb-row.tw-me { border-color: var(--tw-gold);
     background: linear-gradient(90deg, rgba(0,112,243,.14), var(--tw-surface) 60%); }
 .tw-you { color: var(--tw-accent); font-size: .8rem; }
@@ -628,7 +638,7 @@ body.tw-record {
 
 @media (max-width: 560px) {
     .tw-lb-list-head .c-region, .tw-lb-row .c-region { display: none; }
-    .tw-lb-list-head, .tw-lb-row { grid-template-columns: 36px 1fr 70px 60px; }
+    .tw-lb-list-head, .tw-lb-row { grid-template-columns: 36px 1fr 70px 60px 38px; }
 }
 
 /* ───── Do'stlar xonasi (Rooms sahifa — yangi dizayn) ───── */
@@ -1845,7 +1855,13 @@ a.tw-author-link:hover { border-color: rgba(0,112,243,.5); color: var(--tw-gold)
 .tw-board-title i { color: var(--tw-gold); }
 .tw-board-title small { color: #888; font-weight: 500; }
 .tw-contest-ranks { max-width: 100%; margin: 0; }
-.tw-contest-ranks li { font-size: .9rem; }
+.tw-contest-ranks li { font-size: .9rem; align-items: center; }
+.tw-cboard-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.tw-cboard-right { display: inline-flex; align-items: center; gap: .5rem; flex-shrink: 0; }
+.tw-cboard-prof { display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 7px; color: #cfcfdd; text-decoration: none;
+    background: var(--tw-surface); border: 1px solid #2e2e2e; transition: all .15s ease; }
+.tw-cboard-prof:hover { color: var(--tw-gold); border-color: var(--tw-gold); }
 
 /* ═══════════════ Turnirlar (playoff) ═══════════════ */
 .tw-rbtn--gold { background: var(--tw-gold); border-color: var(--tw-gold); color: #fff; }

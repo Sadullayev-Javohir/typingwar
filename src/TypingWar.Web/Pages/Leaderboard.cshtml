@@ -2,7 +2,7 @@
 @model LeaderboardModel
 @{
     ViewData["Title"] = "Reyting — eng tez yozuvchilar";
-    ViewData["Description"] = "O'zbekistondagi eng tez yozuvchilar reytingi: 10s, 15s, 30s, 60s va 120s rejimlari bo'yicha top 50 WPM natijalari. O'z o'rningni ko'r va eng tepaga chiq!";
+    ViewData["Description"] = "O'zbekistondagi eng tez yozuvchilar reytingi: 15s, 30s, 60s va 120s rejimlari bo'yicha top 50 WPM natijalari. O'z o'rningni ko'r va eng tepaga chiq!";
 }
 
 <div class="tw-lb">
@@ -15,7 +15,6 @@
     </header>
 
     <div class="tw-lb-tabs" role="tablist">
-        <button class="tw-tab" data-mode="Ten"><i class="bi bi-lightning-charge-fill"></i>10s</button>
         <button class="tw-tab" data-mode="Fifteen"><i class="bi bi-stopwatch"></i>15s</button>
         <button class="tw-tab tw-active" data-mode="Thirty"><i class="bi bi-stopwatch-fill"></i>30s</button>
         <button class="tw-tab" data-mode="Sixty"><i class="bi bi-clock"></i>60s</button>
@@ -30,6 +29,7 @@
         <span class="c-region"><i class="bi bi-geo-alt-fill"></i> Hudud</span>
         <span class="c-acc"><i class="bi bi-bullseye"></i> Aniqlik</span>
         <span class="c-wpm"><i class="bi bi-speedometer2"></i> WPM</span>
+        <span class="c-prof"></span>
     </div>
 
     <div id="tw-lb-list" class="tw-lb-list">

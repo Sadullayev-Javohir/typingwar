@@ -31,6 +31,15 @@
         return n ? n.charAt(0).toUpperCase() : "?";
     }
 
+    // Foydalanuvchi profilini ko'rish tugmasi (/share/{username})
+    function profBtn(username, label) {
+        const href = "/share/" + encodeURIComponent(username);
+        if (label) {
+            return `<a class="tw-pod-prof" href="${href}"><i class="bi bi-person-badge"></i> Profil</a>`;
+        }
+        return `<a class="tw-lb-prof" href="${href}" title="Profilni ko'rish"><i class="bi bi-person-badge"></i></a>`;
+    }
+
     function avatar(e, size) {
         if (e.avatarUrl) {
             return `<img class="tw-av" style="width:${size}px;height:${size}px" src="${esc(e.avatarUrl)}" alt="">`;
@@ -53,6 +62,7 @@
                 <div class="tw-pod-region"><i class="bi bi-geo-alt-fill"></i>${esc(regionName(e.regionCode))}</div>
                 <div class="tw-pod-wpm">${Math.round(e.wpm)}<small>wpm</small></div>
                 <div class="tw-pod-acc"><i class="bi bi-bullseye"></i>${e.accuracy.toFixed(1)}%</div>
+                ${profBtn(e.username, true)}
             </div>`;
         }).join("");
     }
@@ -66,6 +76,7 @@
             <span class="c-region">${esc(regionName(e.regionCode))}</span>
             <span class="c-acc">${e.accuracy.toFixed(1)}%</span>
             <span class="c-wpm">${Math.round(e.wpm)}</span>
+            <span class="c-prof">${profBtn(e.username, false)}</span>
         </div>`;
     }
 

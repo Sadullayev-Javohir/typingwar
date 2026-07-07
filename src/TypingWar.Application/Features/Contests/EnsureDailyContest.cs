@@ -29,10 +29,27 @@ public class EnsureDailyContestCommandHandler : IRequestHandler<EnsureDailyConte
 
         var existing = await _db.DailyContests
             .FirstOrDefaultAsync(c => c.Date == today, cancellationToken);
-        if (existing is not null) return existing.Id;
+        if (existing is not null)
+        {
+            // Eski musobaqa matni 25 so'zlik "Words" rejimida bo'lmasa — yangilab qo'yamiz
+            // (TextId o'zgarmaydi, mavjud natijalar saqlanadi).
+            var existingText = await _db.RaceTexts
+                .FirstOrDefaultAsync(t => t.Id == existing.TextId, cancellationToken);
+            if (existingText is not null && existingText.Category != TextMode.Words)
+            {
+                var fresh = await _textProvider.GetAsync(
+                    new PracticeTextRequest(TextMode.Words, Language.Uzbek, Difficulty.Normal, 25), cancellationToken);
+                existingText.Content = fresh.Content;
+                existingText.WordCount = fresh.WordCount;
+                existingText.Category = TextMode.Words;
+                await _db.SaveChangesAsync(cancellationToken);
+            }
+            return existing.Id;
+        }
 
+        // Kunlik musobaqa — 25 ta so'z (barcha o'yinchilar bir xil so'zlarni yozadi)
         var text = await _textProvider.GetAsync(
-            new PracticeTextRequest(TextMode.Sentences, Language.Uzbek, Difficulty.Normal, 30), cancellationToken);
+            new PracticeTextRequest(TextMode.Words, Language.Uzbek, Difficulty.Normal, 25), cancellationToken);
 
         // Generatsiya qilingan matn (TextId yo'q) bo'lsa — RaceText sifatida saqlaymiz
         Guid textId;
@@ -48,7 +65,7 @@ public class EnsureDailyContestCommandHandler : IRequestHandler<EnsureDailyConte
                 Language = Language.Uzbek,
                 WordCount = text.WordCount,
                 Difficulty = Difficulty.Normal,
-                Category = TextMode.Sentences
+                Category = TextMode.Words
             };
             _db.RaceTexts.Add(rt);
             textId = rt.Id;

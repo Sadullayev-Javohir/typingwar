@@ -89,8 +89,13 @@
     function renderBoard(top) {
         boardEl.innerHTML = (top || []).map(e => {
             const medal = e.place === 1 ? "🥇" : e.place === 2 ? "🥈" : e.place === 3 ? "🥉" : (e.place + ".");
-            return `<li><span>${medal} ${esc(e.username)}</span>
-                <span class="tw-accent">${Math.round(e.wpm)} wpm · ${(e.accuracy || 0).toFixed(1)}%</span></li>`;
+            const prof = `<a class="tw-cboard-prof" href="/share/${encodeURIComponent(e.username)}" title="Profilni ko'rish"><i class="bi bi-person-badge"></i></a>`;
+            return `<li>
+                <span class="tw-cboard-name">${medal} ${esc(e.username)}</span>
+                <span class="tw-cboard-right">
+                    <span class="tw-accent">${Math.round(e.wpm)} wpm · ${(e.accuracy || 0).toFixed(1)}%</span>
+                    ${prof}
+                </span></li>`;
         }).join("") || `<li class="text-secondary">Hali natija yo'q — birinchi bo'ling!</li>`;
     }
 
