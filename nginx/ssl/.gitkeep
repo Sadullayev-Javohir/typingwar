@@ -1,0 +1,5 @@
+# Bu papka Cloudflare Origin sertifikati uchun (cloudflare.conf ishlatadi).
+# Bu yerga 2 ta fayl qo'yiladi (ular git'ga KIRMAYDI — .gitignore da):
+#   cloudflare-origin.pem   — Origin Certificate (Cloudflare panel)
+#   cloudflare-origin.key   — Private Key (Cloudflare panel)
+# Batafsil: deploy/CLOUDFLARE.md

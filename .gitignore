@@ -28,5 +28,10 @@ appsettings.*.Local.json
 *.pfx
 .env
 
+# TLS sertifikatlar / kalitlar (Cloudflare Origin va h.k.) — hech qachon git'ga emas
+nginx/ssl/*.pem
+nginx/ssl/*.key
+nginx/ssl/*.crt
+
 # Claude Code worktrees
 .claude/worktrees/
