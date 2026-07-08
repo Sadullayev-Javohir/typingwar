@@ -81,9 +81,11 @@ hajmli (L3/L4, gigabitli) DDoS uchun proxy/CDN kerak.
 2. **SSL/TLS → Full (strict)** (server'da Let's Encrypt sertifikati bilan).
 3. **Security → WAF / DDoS** — boshqariladigan qoidalarni yoqing.
 4. **Rate limiting rules** — `/api/auth/*` uchun qo'shimcha qoida.
-5. Cloudflare orqasida haqiqiy IP uchun nginx'ga `CF-Connecting-IP` ni o'qishni qo'shing
-   (yoki Cloudflare IP oralig'ini `set_real_ip_from` bilan ishonchli proxy qiling) —
-   aks holda rate limiting/fail2ban hammani bitta IP (Cloudflare) deb ko'radi.
+5. ✅ Haqiqiy mijoz IP'si **allaqachon sozlangan** — `nginx/conf.d/cloudflare-realip.conf`
+   (`set_real_ip_from` Cloudflare IP oraliqlari + `real_ip_header CF-Connecting-IP`).
+   Cloudflare ulangan zahoti nginx `limit_req` va ilova rate limiting / brute-force
+   qulflash avtomatik haqiqiy IP bilan ishlaydi. Cloudflare IP oralig'i o'zgarsa
+   (https://www.cloudflare.com/ips/) shu faylni yangilang.
 
 > Eslatma: Cloudflare ulangach, origin server faqat Cloudflare IP'laridan
 > 80/443 ni qabul qilsin (UFW yoki nginx `allow`/`deny`) — to'g'ridan-to'g'ri origin'ga
