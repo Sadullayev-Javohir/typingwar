@@ -357,8 +357,11 @@ public class TournamentHub : Hub
 
             foreach (var m in live.Matches.Values.Where(x => !x.Decided).ToList())
             {
-                // Tugatgan / ko'proq yozgan tomon g'olib
-                int Score(MatchSlotLive s) => (s.Finished ? 1 : 0);
+                // Aniqlik darvozasidan o'tib TUGATGAN tomon ustun. Shunday qilib "Xatoda
+                // to'xtash" o'chiq bo'lib hammasini xato yozib "tugatgan" o'yinchi taymer
+                // bo'yicha avtomatik g'olib bo'lib qolmaydi. Keyin progress, keyin WPM.
+                bool Valid(MatchSlotLive s) => s.Accuracy >= GameConstants.MinValidAccuracy && s.Wpm > 0;
+                int Score(MatchSlotLive s) => (s.Finished && Valid(s)) ? 1 : 0;
                 Guid winner;
                 if (Score(m.P1) != Score(m.P2)) winner = Score(m.P1) > Score(m.P2) ? m.P1.UserId : m.P2.UserId;
                 else if (m.P1.Progress != m.P2.Progress) winner = m.P1.Progress > m.P2.Progress ? m.P1.UserId : m.P2.UserId;

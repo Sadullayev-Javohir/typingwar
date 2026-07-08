@@ -288,9 +288,27 @@ public class TeamRaceHub : Hub
         {
             scores = new { a, b },
             winner = winner?.ToString(),
-            players = live.Players.Values.OrderBy(x => x.Place ?? int.MaxValue).Select(View).ToList()
+            players = RankedResults(live).Select(View).ToList()
         });
         await PersistAsync(live, a, b);
+    }
+
+    /// <summary>
+    /// Yakuniy o'rinlarni ADOLATLI belgilaydi (kelish tartibi bo'yicha EMAS): aniqlik
+    /// darvozasidan (&gt;={minAcc}%) o'tib, to'g'ri belgi yozgan o'yinchilar oldinda — WPM
+    /// bo'yicha; keyin o'tmaganlar. "Xatoda to'xtash" o'chiq bo'lib hammasini xato yozgan
+    /// o'yinchi birinchi o'rinni OLMAYDI. Teng bo'lsa — avval tugatgan.
+    /// </summary>
+    private static List<TeamPlayerLive> RankedResults(TeamRaceLive live)
+    {
+        var ranked = live.Players.Values
+            .OrderByDescending(p => p.Accuracy >= GameConstants.MinValidAccuracy && p.Wpm > 0)
+            .ThenByDescending(p => p.Wpm)
+            .ThenByDescending(p => p.Accuracy)
+            .ThenBy(p => p.Place ?? int.MaxValue)
+            .ToList();
+        for (int i = 0; i < ranked.Count; i++) ranked[i].Place = i + 1;
+        return ranked;
     }
 
     public async Task LeaveTeamRace(string code) =>
@@ -367,7 +385,7 @@ public class TeamRaceHub : Hub
                 {
                     scores = new { a, b },
                     winner = winner?.ToString(),
-                    players = live.Players.Values.OrderBy(x => x.Place ?? int.MaxValue).Select(View).ToList()
+                    players = RankedResults(live).Select(View).ToList()
                 });
 
                 using var scope = scopeFactory.CreateScope();

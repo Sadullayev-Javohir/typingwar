@@ -280,7 +280,7 @@ public class LobbyHub : Hub
         // Soniyalik WPM qatori (natija grafigi) — ishonchsiz uzunlikni cheklaymiz (5 daqiqa = 300s)
         p.WpmSeries = wpmSeries is { Length: > 0 } ? wpmSeries.Take(300).ToArray() : Array.Empty<double>();
         p.Progress = 100;
-        p.Place = Interlocked.Increment(ref live.FinishOrder);
+        p.Place = Interlocked.Increment(ref live.FinishOrder);   // vaqtinchalik: kelish tartibi (teng holatda tiebreak)
 
         await Clients.Group(code).SendAsync("PlayerFinished", View(p));
 
@@ -288,10 +288,28 @@ public class LobbyHub : Hub
         {
             live.RaceTimeoutCts?.Cancel();   // hamma tugatdi — taymer kerak emas
             live.Status = RoomStatus.Finished;
-            var results = live.Players.Values.OrderBy(x => x.Place).Select(View).ToList();
+            var results = RankedResults(live).Select(View).ToList();
             await Clients.Group(code).SendAsync("RaceFinished", results);
             await PersistFinishedAsync(live);
         }
+    }
+
+    /// <summary>
+    /// Yakuniy o'rinlarni ADOLATLI belgilaydi (kelish tartibi bo'yicha EMAS): aniqlik
+    /// darvozasidan (&gt;={minAcc}%) o'tib, to'g'ri belgi yozgan o'yinchilar oldinda — WPM
+    /// bo'yicha; keyin o'tmaganlar. Shunday qilib "Xatoda to'xtash" o'chiq bo'lsa, hammasini
+    /// xato yozib tez "tugatgan" o'yinchi birinchi o'rinni OLMAYDI. Teng bo'lsa avval tugatgan.
+    /// </summary>
+    private static List<RoomPlayerLive> RankedResults(RoomLive live)
+    {
+        var ranked = live.Players.Values
+            .OrderByDescending(p => p.Accuracy >= GameConstants.MinValidAccuracy && p.Wpm > 0)
+            .ThenByDescending(p => p.Wpm)
+            .ThenByDescending(p => p.Accuracy)
+            .ThenBy(p => p.Place ?? int.MaxValue)
+            .ToList();
+        for (int i = 0; i < ranked.Count; i++) ranked[i].Place = i + 1;
+        return ranked;
     }
 
     public async Task LeaveRoom(string code)
@@ -377,7 +395,7 @@ public class LobbyHub : Hub
             {
                 live.RaceTimeoutCts?.Cancel();
                 live.Status = RoomStatus.Finished;
-                var results = live.Players.Values.OrderBy(x => x.Place).Select(View).ToList();
+                var results = RankedResults(live).Select(View).ToList();
                 await hub.Clients.Group(code).SendAsync("RaceFinished", results);
 
                 using var scope = scopeFactory.CreateScope();

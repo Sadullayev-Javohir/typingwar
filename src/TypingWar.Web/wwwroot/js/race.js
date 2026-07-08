@@ -305,11 +305,14 @@
         lastKeyTime = performance.now();
         if (window.TWSound && window.TWSettings) window.TWSound.play(window.TWSettings.get("soundOnClick"), ok);
 
-        // Xato — oldinga o'tkazmaymiz: to'g'ri belgini yozmaguncha karet shu yerda turadi.
-        // (aks holda bitta tugmani bosib turib, hammasini xato yozgan holda ham finishga
-        //  "yetib" yutib ketish mumkin edi — vaqt o'tadi-yu, tezlik tushadi, oldinga yurmaydi)
-        // Blind Duel bundan mustasno: ko'rmay yozadi, xatoni tuzata olmaydi — o'tkazib yuboramiz.
-        if (!ok && !blind) {
+        // "Xatoda to'xtash" sozlamasi (boshqa sahifalar bilan bir xil): yoqilgan bo'lsa
+        // xato belgida karet TURADI — to'g'ri yozmaguncha oldinga yurmaydi. O'chirilgan
+        // bo'lsa xato belgi "incorrect" deb belgilanib oldinga o'tiladi (xato yozish mumkin).
+        // Har holatda WPM faqat TO'G'RI belgilardan hisoblanadi (correct), shuning uchun xato
+        // yozish WPM ni KO'TARMAYDI; aniqlik = correct/keypresses xatolarni aks ettiradi.
+        // Blind Duel: ko'rmay yozadi, har doim oldinga o'tadi (xatoni ko'rmaydi/tuzatmaydi).
+        const stopOnError = !!(S && S.get("stopOnError"));
+        if (!ok && stopOnError && !blind) {
             status[pos] = "incorrect";
             updateLetterView(pos);
             return;
