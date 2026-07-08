@@ -8,6 +8,9 @@ public interface ICacheService
     Task<bool> KeyExistsAsync(string key);
     Task<bool> RemoveAsync(string key);
 
+    /// <summary>Kalitni atomik 1 ga oshiradi (yangi kalit bo'lsa <paramref name="expiryIfFirst"/> TTL beriladi). Yangi qiymatni qaytaradi.</summary>
+    Task<long> IncrementAsync(string key, TimeSpan? expiryIfFirst = null);
+
     /// <summary>Sorted Set ga element qo'shadi/yangilaydi (leaderboard uchun).</summary>
     Task SortedSetAddAsync(string key, string member, double score);
 

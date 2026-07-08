@@ -72,6 +72,9 @@ public static class DependencyInjection
             ConnectionMultiplexer.Connect(redisConn));
         services.AddScoped<ICacheService, RedisCacheService>();
 
+        // Brute-force himoyasi (xona kodi enumeratsiyasi va h.k.)
+        services.AddScoped<IBruteForceGuard, Security.BruteForceGuard>();
+
         return services;
     }
 }

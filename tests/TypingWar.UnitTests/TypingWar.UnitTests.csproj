@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\TypingWar.Domain\TypingWar.Domain.csproj" />
     <ProjectReference Include="..\..\src\TypingWar.Application\TypingWar.Application.csproj" />
+    <ProjectReference Include="..\..\src\TypingWar.Infrastructure\TypingWar.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

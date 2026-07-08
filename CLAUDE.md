@@ -339,6 +339,25 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-18] XAVFSIZLIK 2-bosqich — xona kodi brute-force qulflash + server qattiqlashtirish:
+    (1) BRUTE-FORCE QULFLASH (kod 4 xonali = 10 000 variant, enumeratsiyaga ochiq edi):
+    yangi IBruteForceGuard (Application) + BruteForceGuard (Infrastructure, Redis) — bir amal +
+    bir IP bo'yicha xato urinishlarni sanaydi: 15 daqiqada 10 xato → IP 1 SOATGA bloklanadi
+    (hisoblagich/blok kalitlari Redis TTL bilan o'z-o'zidan o'chadi). ICacheService'ga atomik
+    IncrementAsync(key, expiryIfFirst) qo'shildi (Redis INCR + birinchi marta KeyExpire).
+    RoomsController.Get va TeamRacesController.Get: blok bo'lsa 429; topilmasa RegisterFailure;
+    topilsa ResetAsync (haqiqiy mehmon jazolanmaydi). IP — ForwardedHeaders orqali haqiqiy mijoz IP.
+    3 yangi unit test (105 jami). Jonli tasdiq: 10 ta noto'g'ri kod 404 → 11-dan 429+qulf xabari.
+    (2) SignalR HUBLAR KO'RIB CHIQILDI — spoofing YO'Q: UserId Context.User (imzolangan JWT claim)
+    dan olinadi, mijoz yuborgan qiymatdan emas; host amallari (u != live.HostId) server-tomonda
+    tekshiriladi; anonim (UserId=null) natijasi DB'ga yozilmaydi. [Authorize] qo'shilmadi (anonim
+    o'yinni buzadi, kerak emas).
+    (3) Host-header himoyasi: AllowedHosts endi sozlanadigan (docker-compose.prod env ALLOWED_HOSTS,
+    standart "*"; DNS ulangach domen bilan cheklash uchun .env.example izohi). nginx ssl.conf
+    server_name allaqachon cheklaydi.
+    (4) deploy/SECURITY.md — server qattiqlashtirish qo'llanmasi: UFW firewall (faqat 22/80/443,
+    DB/Redis yopiq tasdiqlash), fail2ban (nginx 429 → IP ban), Cloudflare (volumetrik DDoS + WAF +
+    real-IP), secrets/SSH/yangilanishlar. Build OK, 105 test.
   - [2026-06-18] XAVFSIZLIK qatlami — DDoS / brute-force / XSS himoyasi (kiber hujum):
     (1) RATE LIMITING (avval umuman yo'q edi — eng katta bo'shliq): nginx CHEKKA qatlami
     (default.conf + ssl.conf) — limit_req_zone general=30r/s (burst 60), auth=20r/m (burst 10,

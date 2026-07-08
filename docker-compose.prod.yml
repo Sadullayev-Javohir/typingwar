@@ -52,6 +52,8 @@ services:
       Jwt__Key: ${JWT_KEY}
       # HTTP-first bosqichda false; SSL ulangach nginx redirect qiladi (true shart emas)
       Hosting__UseHttpsRedirection: "${USE_HTTPS_REDIRECTION:-false}"
+      # Host-header in'ektsiyasi himoyasi (DNS ulangach domen bilan cheklang)
+      AllowedHosts: "${ALLOWED_HOSTS:-*}"
       Authentication__Google__ClientId: "${GOOGLE_CLIENT_ID:-}"
       Authentication__Google__ClientSecret: "${GOOGLE_CLIENT_SECRET:-}"
       Admin__Email: "${ADMIN_EMAIL:-}"

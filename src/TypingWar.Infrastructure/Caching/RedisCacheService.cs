@@ -25,6 +25,15 @@ public class RedisCacheService : ICacheService
 
     public Task<bool> RemoveAsync(string key) => Db.KeyDeleteAsync(key);
 
+    public async Task<long> IncrementAsync(string key, TimeSpan? expiryIfFirst = null)
+    {
+        var value = await Db.StringIncrementAsync(key);
+        // Faqat birinchi marta yaratilganda TTL beramiz (oyna siljimasin)
+        if (value == 1 && expiryIfFirst.HasValue)
+            await Db.KeyExpireAsync(key, expiryIfFirst);
+        return value;
+    }
+
     public Task SortedSetAddAsync(string key, string member, double score)
         => Db.SortedSetAddAsync(key, member, score);
 
