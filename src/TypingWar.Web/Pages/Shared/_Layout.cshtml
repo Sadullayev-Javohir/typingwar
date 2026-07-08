@@ -225,7 +225,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/tw-sound.js" asp-append-version="true"></script>
     <script src="~/js/typing-settings.js" asp-append-version="true"></script>
-    <script>
+    <script nonce="@ViewContext.HttpContext.Items["csp-nonce"]">
         document.getElementById("tw-logout")?.addEventListener("click", async (e) => {
             e.preventDefault();
             await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });

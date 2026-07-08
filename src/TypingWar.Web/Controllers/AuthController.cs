@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using TypingWar.Application.Common.Interfaces;
 using TypingWar.Application.Features.Auth;
 
 namespace TypingWar.Web.Controllers;
 
 /// <summary>Faqat Google OAuth orqali kirish/ro'yxatdan o'tish — JWT HttpOnly cookie da.</summary>
+[EnableRateLimiting("auth")]
 public class AuthController : ApiControllerBase
 {
     public const string AccessTokenCookie = "access_token";

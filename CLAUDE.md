@@ -339,7 +339,26 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
-  - [2026-06-18] /Practice — ekran klaviaturasi + fokus rejim + sozlama switch:
+  - [2026-06-18] XAVFSIZLIK qatlami — DDoS / brute-force / XSS himoyasi (kiber hujum):
+    (1) RATE LIMITING (avval umuman yo'q edi — eng katta bo'shliq): nginx CHEKKA qatlami
+    (default.conf + ssl.conf) — limit_req_zone general=30r/s (burst 60), auth=20r/m (burst 10,
+    /api/auth/ uchun qattiqroq), limit_conn perip=40; Slowloris himoyasi (client_body_timeout/
+    client_header_timeout 15s, send_timeout 30s, large_client_header_buffers 4 8k, client_max_body_size
+    10m→2m); server_tokens off (nginx versiyasi yashirin). /hubs/ alohida location (WebSocket — req-rate
+    cheklovsiz, faqat conn). ASP.NET ILOVA qatlami (defense-in-depth, nginx chetlab o'tilsa ham):
+    AddRateLimiter — GlobalLimiter har IP 240/daqiqa + "auth" siyosati 20/daqiqa (AuthController'da
+    [EnableRateLimiting("auth")]); 429 → JSON + Retry-After. IP partition ClientIp (ForwardedHeaders
+    orqali haqiqiy IP). Tasdiqlandi: /api/auth/me 20 dan keyin 429+Retry-After:60.
+    (2) CSP (Content-Security-Policy) — avval yo'q edi: har so'rovda yangi nonce (RandomNumberGenerator,
+    HttpContext.Items["csp-nonce"]); script-src 'self' 'nonce-...' cdnjs.cloudflare.com (SignalR);
+    style-src 'self' 'unsafe-inline' fonts.googleapis.com cdn.jsdelivr.net; font-src + gstatic/jsdelivr;
+    img-src 'self' data: https:; object-src 'none'; frame-ancestors 'none'; base-uri/form-action 'self';
+    connect-src/worker-src/manifest-src 'self'. 2 inline <script> (_Layout logout/SW + Index loader)
+    nonce oldi (@ViewContext.HttpContext.Items["csp-nonce"]). In'ektsiya skript bajarilmaydi.
+    (3) Qo'shimcha header: Permissions-Policy (geolocation/mic/camera/payment/usb=()), Cross-Origin-
+    Opener-Policy: same-origin; header'lar UseStaticFiles'dan OLDIN (statik fayllar ham nosniff oladi).
+    Kestrel AddServerHeader=false (Server header oshkor emas). Build OK, 102 test, headless Chrome:
+    bosh sahifa + /Map'da CSP buzilish YO'Q, nonce header=HTML mos, Server header yo'q. nginx -t parsing OK.
     (1) Yangi tw-keyboard.js (window.TWKeyboard: mount/highlight/flash/clear/setVisible) —
     QWERTY virtual klaviatura (54 tugma), keyingi yoziladigan belgini YORITIB ko'rsatadi
     (katta harf/maxsus belgi bo'lsa Shift ham yonadi), bosilganda to'g'ri/xato vizual javob.

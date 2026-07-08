@@ -1,6 +1,8 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
@@ -14,6 +16,9 @@ using TypingWar.Web.Middleware;
 using TypingWar.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Kestrel server versiyasini oshkor qilmaslik (axborot tarqalishi himoyasi)
+builder.WebHost.ConfigureKestrel(o => o.AddServerHeader = false);
 
 // ── Serilog (structured logging) ──────────────────────────────
 builder.Host.UseSerilog((ctx, cfg) => cfg
@@ -88,6 +93,47 @@ builder.Services.AddControllers().AddJsonOptions(o =>
 builder.Services.AddSignalR();
 builder.Services.AddAntiforgery(o => o.HeaderName = "X-CSRF-TOKEN");
 
+// ── Rate limiting (DDoS / brute-force himoyasi, defense-in-depth) ──
+// Asosiy hajmli (volumetric) DDoS himoyasi nginx chekkasida (limit_req/limit_conn),
+// bu esa ilova qatlamidagi qo'shimcha qatlam — nginx chetlab o'tilsa ham ishlaydi.
+static string ClientIp(HttpContext ctx) =>
+    ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+builder.Services.AddRateLimiter(options =>
+{
+    // 429 — JSON, Retry-After bilan
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+            context.HttpContext.Response.Headers.RetryAfter =
+                ((int)retryAfter.TotalSeconds).ToString();
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        await context.HttpContext.Response.WriteAsJsonAsync(
+            new { error = "Juda ko'p so'rov yuborildi. Birozdan keyin urinib ko'ring." }, token);
+    };
+
+    // Global — har IP uchun umumiy oqim chegarasi (flood himoyasi).
+    // SignalR doimiy ulanishlari websocket freymlari orqali ishlaydi (alohida HTTP
+    // so'rov sanalmaydi), shuning uchun bu chegara odatdagi o'yinni cheklamaydi.
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(ctx =>
+        RateLimitPartition.GetFixedWindowLimiter(ClientIp(ctx), _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 240,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        }));
+
+    // "auth" — kirish / OAuth callback brute-force himoyasi (har IP: 20 / daqiqa)
+    options.AddPolicy("auth", ctx =>
+        RateLimitPartition.GetFixedWindowLimiter(ClientIp(ctx), _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 20,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        }));
+});
+
 // ── Hangfire (fon vazifalari) — in-memory storage (DB ga bog'liq emas) ──
 builder.Services.AddHangfire(cfg => cfg
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -161,21 +207,45 @@ app.UseMiddleware<ApiExceptionMiddleware>();
 if (useHttpsRedirection)
     app.UseHttpsRedirection();
 
+// ── Xavfsizlik header'lari (XSS / clickjacking / sniffing himoya) ──
+// CSP har so'rovda yangi nonce bilan: inline <script> faqat shu nonce bilan ishlaydi
+// → tashqaridan in'ektsiya qilingan skript bajarilmaydi (XSS himoyasi).
+app.Use(async (ctx, next) =>
+{
+    var nonceBytes = new byte[16];
+    System.Security.Cryptography.RandomNumberGenerator.Fill(nonceBytes);
+    var nonce = Convert.ToBase64String(nonceBytes);
+    ctx.Items["csp-nonce"] = nonce;
+
+    var h = ctx.Response.Headers;
+    h.Append("X-Content-Type-Options", "nosniff");
+    h.Append("X-Frame-Options", "DENY");
+    h.Append("Referrer-Policy", "no-referrer");
+    h.Append("Permissions-Policy", "geolocation=(), microphone=(), camera=(), payment=(), usb=()");
+    h.Append("Cross-Origin-Opener-Policy", "same-origin");
+    h.Append("Content-Security-Policy",
+        "default-src 'self'; " +
+        "base-uri 'self'; " +
+        "object-src 'none'; " +
+        "frame-ancestors 'none'; " +
+        "form-action 'self'; " +
+        "img-src 'self' data: https:; " +
+        "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:; " +
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; " +
+        $"script-src 'self' 'nonce-{nonce}' https://cdnjs.cloudflare.com; " +
+        "connect-src 'self'; " +
+        "worker-src 'self'; " +
+        "manifest-src 'self'");
+    await next();
+});
+
 // PWA manifest MIME (.webmanifest static files default da noma'lum)
 var contentTypes = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
 contentTypes.Mappings[".webmanifest"] = "application/manifest+json";
 app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = contentTypes });
 
-// Xavfsizlik headerlari (XSS / clickjacking himoya)
-app.Use(async (ctx, next) =>
-{
-    ctx.Response.Headers.Append("X-Content-Type-Options", "nosniff");
-    ctx.Response.Headers.Append("X-Frame-Options", "DENY");
-    ctx.Response.Headers.Append("Referrer-Policy", "no-referrer");
-    await next();
-});
-
 app.UseRouting();
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
