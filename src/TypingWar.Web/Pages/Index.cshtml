@@ -51,15 +51,15 @@
         </div>
 
         <div class="tw-cheetah-stage">
-            <div id="tw-cheetah-3d" class="tw-cheetah-3d" aria-label="3D yuguruvchi gepard">
-                <img src="~/img/typingwar-logo.png" alt="TypingWar gepard" class="tw-cheetah-fallback" />
+            <div id="tw-cheetah-3d" class="tw-cheetah-3d" aria-label="3D yuguruvchi Tai Lung">
+                <img src="~/img/typingwar-logo.png" alt="TypingWar Tai Lung" class="tw-cheetah-fallback" />
                 <div id="tw-cheetah-loader" class="tw-cheetah-loader" role="status" aria-live="polite">
                     <span class="tw-cheetah-spinner" aria-hidden="true"></span>
-                    <span class="tw-cheetah-loadtxt">Gepard yuklanmoqda…</span>
+                    <span class="tw-cheetah-loadtxt">Tai Lung yuklanmoqda…</span>
                 </div>
             </div>
             <div class="tw-cheetah-caption">
-                <i class="bi bi-lightning-charge-fill"></i> 3D — to'liq tezlikda chopayotgan gepard
+                <i class="bi bi-lightning-charge-fill"></i> 3D — to'liq tezlikda chopayotgan Tai Lung
             </div>
         </div>
     </div>
@@ -144,10 +144,10 @@
 </section>
 
 @section Scripts {
-    <script type="module" src="~/js/home-cheetah.js" asp-append-version="true"></script>
+    <script type="module" src="~/js/tai-lung.js" asp-append-version="true"></script>
     <script>
         // Xavfsizlik to'ri: 3D modul yuklanmasa ham loader cheksiz qolmasin
-        // (module import muvaffaqiyatsiz bo'lsa home-cheetah.js ishlamaydi).
+        // (module import muvaffaqiyatsiz bo'lsa tai-lung.js ishlamaydi).
         setTimeout(function () {
             document.getElementById("tw-cheetah-loader")?.classList.add("tw-hide");
         }, 12000);

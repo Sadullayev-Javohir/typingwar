@@ -1,5 +1,5 @@
 /* TypingWar — Service Worker (offline app shell) */
-const CACHE = "tw-cache-v63";
+const CACHE = "tw-cache-v64";
 const SHELL = [
     "/",
     "/Practice",
@@ -10,7 +10,7 @@ const SHELL = [
     "/js/typing-engine.js",
     "/js/tw-keyboard.js",
     "/js/tw-offline.js",
-    "/js/home-cheetah.js",
+    "/js/tai-lung.js",
     "/js/tournament-trophy.js",
     "/js/tw-bracket-layout.js",
     "/js/tw-bracket-zoom.js",
