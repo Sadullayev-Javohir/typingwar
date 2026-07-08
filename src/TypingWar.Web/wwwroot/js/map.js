@@ -30,16 +30,25 @@
     };
 
     const stats = new Map();   // code -> {code,name,bestWpm,avgWpm,playerCount}
-    let maxBest = 0, selected = null;
+    let maxBest = 0, minBest = 0, selected = null;
 
-    // Sovuq (sekin) → issiq (tez): ko'k → ko'kimtir → yashil → sariq → to'q sariq → qizil
+    // Eng yomon (sekin) → o'rtacha → eng baland (tez): qizil → sariq → yashil
     function colorFor(wpm) {
         if (!wpm || wpm <= 0) return "#191c28";
-        const t = maxBest > 0 ? Math.min(1, Math.max(0, wpm / maxBest)) : 0;
-        const hue = 212 - t * 202;          // 212 (ko'k) → 10 (qizil)
-        const sat = 58 + t * 34;            // to'yinganlik oshadi
-        const light = 40 + t * 13;
+        // Faol hududlar ichida nisbiy o'rin: eng past=0 (qizil), eng baland=1 (yashil)
+        let t;
+        if (maxBest > minBest) t = Math.min(1, Math.max(0, (wpm - minBest) / (maxBest - minBest)));
+        else t = 1; // bitta hudud yoki hammasi teng → eng baland deb hisoblanadi
+        const hue = t * 130;                // 0 (qizil) → 65 (sariq) → 130 (yashil)
+        const sat = 70 + t * 14;            // to'yinganlik oshadi
+        const light = 46 + t * 6;
         return `hsl(${hue} ${sat}% ${light}%)`;
+    }
+
+    // Faol (WPM>0) hududlar ichidagi eng past WPM — rang shkalasining qizil uchi
+    function recalcMin() {
+        const vals = Array.from(stats.values()).map(x => x.bestWpm || 0).filter(v => v > 0);
+        minBest = vals.length ? Math.min(...vals) : 0;
     }
 
     function shapeOf(g) { return g.querySelector("path, circle, polygon"); }
@@ -177,6 +186,7 @@
             stats.clear();
             data.regions.forEach(s => stats.set(s.code, s));
             maxBest = data.maxBestWpm || 0;
+            recalcMin();
             renderAll();
         } catch { errEl.textContent = "Tarmoq xatosi."; }
     }
@@ -196,6 +206,7 @@
         conn.on("RegionUpdated", s => {
             stats.set(s.code, s);
             maxBest = Math.max(0, ...Array.from(stats.values()).map(x => x.bestWpm || 0));
+            recalcMin();
             renderAll();
             flash(s.code);
         });
