@@ -49,15 +49,19 @@ registratorida (`.uz` panel) eski NS o'rniga qo'ying. 2–24 soatda faollashadi
 
 ---
 
-## 4. nginx'ni Cloudflare konfiguratsiyasiga o'tkazish
+## 4. nginx'ni qo'llash
+`nginx/conf.d/default.conf` allaqachon Cloudflare (Origin sertifikat) konfiguratsiyasi —
+3-qadamdagi sertifikat fayllari joyida bo'lsa, qo'shimcha nusxa shart emas:
 ```bash
 cd /opt/typingwar
-cp nginx/cloudflare.conf nginx/conf.d/default.conf
-docker compose -f docker-compose.prod.yml up -d        # ssl mount uchun
-docker compose -f docker-compose.prod.yml restart nginx
-docker compose -f docker-compose.prod.yml exec nginx nginx -t   # tekshirish
+docker compose -f docker-compose.prod.yml up -d                 # ssl mount + konfig
+docker compose -f docker-compose.prod.yml exec nginx nginx -t   # "syntax is ok" bo'lsin
+docker compose -f docker-compose.prod.yml restart nginx         # MUHIM: yangi konfig yuklanadi
 ```
-Endi `https://typingwar.uz` Cloudflare orqali ochilishi kerak.
+> ⚠️ `nginx -t` faqat TEKSHIRADI — `restart` qilmasangiz ishlab turgan nginx eski
+> konfigda qoladi (443 ochilmaydi). Shuning uchun oxirgi `restart` shart.
+
+Endi `https://typingwar.uz` Cloudflare orqali ochilishi kerak (🔒 qulf bilan).
 
 ---
 
