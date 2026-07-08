@@ -292,10 +292,10 @@ body[data-tw-bg="mono"]::after { display: none; }
 /* Minimal rejim: mushuk + WPM paneli o'chiq bo'lsa, yozish (scroll) maydoni tepaga
    ko'tariladi — config va boshqaruv tugmalari pastga tushadi. */
 #tw-practice.tw-minimal { display: flex; flex-direction: column; }
+#tw-practice.tw-minimal .tw-config { order: -2; margin-bottom: 1rem; margin-top: 0; }
 #tw-practice.tw-minimal .tw-words { order: -1; margin-top: 0; }
 #tw-practice.tw-minimal .tw-actions { order: 1; }
-#tw-practice.tw-minimal .tw-config { order: 2; margin-bottom: 0; margin-top: 1rem; }
-#tw-practice.tw-minimal .tw-keyboard { order: 3; }
+#tw-practice.tw-minimal .tw-keyboard { order: 2; }
 
 .tw-config {
     display: flex; flex-wrap: wrap; gap: 1rem;
@@ -447,13 +447,26 @@ body[data-tw-caret="Bottom"] .tw-caret { border-radius: 1px; }
 .tw-key-hit { background: color-mix(in srgb, var(--tw-gold) 42%, transparent); transform: translateY(1px); box-shadow: none; }
 .tw-key-miss { background: rgba(255,85,85,.5); color: #fff; transform: translateY(1px); box-shadow: none; }
 
-/* ───── Fokus rejim — yozish boshlanganda ───── */
+/* ───── Fokus rejim — yozish boshlanganda ─────
+   Faqat yoziladigan matn + ekran klaviaturasi ko'rinadi. Navbar, footer,
+   config va boshqaruv tugmalari yashirinadi. Mushuk (track) va WPM paneli
+   sozlamada YOQILGAN bo'lsa, ular ham matn tepasida ko'rinadi. */
 body.tw-focus > header,
 body.tw-focus > footer { display: none !important; }
-body.tw-focus { padding-bottom: 250px; }                /* mahkam klaviatura uchun joy */
-body.tw-focus .tw-practice { max-width: 1180px; }
-body.tw-focus .tw-config { display: none; }             /* yozayotganda chalg'itmasin */
-body.tw-focus .tw-words { font-size: calc(var(--tw-fontsize) * 1.4); height: 6.4em; }
+body.tw-focus { padding-bottom: 240px; }                /* mahkam klaviatura uchun joy */
+body.tw-focus .tw-practice {
+    max-width: 1180px; margin-top: 2.25rem;
+    display: flex; flex-direction: column; align-items: stretch;
+}
+/* Yozishni chalg'ituvchi elementlar — config va tugmalar */
+body.tw-focus .tw-config,
+body.tw-focus .tw-actions { display: none !important; }
+/* Mushuk + WPM yoqilgan bo'lsa matn tepasida qoladi (display'ni JS boshqaradi) */
+body.tw-focus .tw-stats { order: -2; margin-bottom: 1rem; }
+body.tw-focus .tw-practice-track { order: -1; }
+body.tw-focus .tw-words {
+    order: 0; font-size: calc(var(--tw-fontsize) * 1.4); height: 6.4em;
+}
 body.tw-focus .tw-keyboard {
     position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%);
     width: min(840px, 95vw); margin: 0; z-index: 50;
@@ -462,11 +475,23 @@ body.tw-focus .tw-keyboard {
     box-shadow: 0 10px 40px rgba(0,0,0,.4);
 }
 
+/* ── Fokus rejim responsiv ── */
+@media (max-width: 768px) {
+    body.tw-focus { padding-bottom: 210px; }
+    body.tw-focus .tw-practice { margin-top: 1.25rem; }
+    body.tw-focus .tw-words { font-size: calc(var(--tw-fontsize) * 1.2); height: 6em; }
+    body.tw-focus .tw-stats { gap: 1rem; margin-bottom: .6rem; }
+    body.tw-focus .tw-stat { padding: .45rem .9rem; min-width: 64px; }
+    body.tw-focus .tw-stat span { font-size: 1.5rem; }
+}
 @media (max-width: 560px) {
     .tw-key { height: 32px; font-size: .72rem; border-radius: 6px; }
     .tw-keyboard { padding: 8px; gap: 4px; }
     .tw-kb-row { gap: 4px; }
-    body.tw-focus { padding-bottom: 200px; }
+    body.tw-focus { padding-bottom: 178px; }
+    body.tw-focus .tw-keyboard { bottom: 8px; }
+    body.tw-focus .tw-words { font-size: calc(var(--tw-fontsize) * 1.05); height: 5.8em; }
+    body.tw-focus .tw-practice-track .tw-track { height: 48px; }
 }
 
 .tw-result {
@@ -1346,11 +1371,13 @@ body.tw-record {
     .tw-rank-row { grid-template-columns: 22px 10px 1fr 44px; }
     .tw-rank-bar, .tw-rank-meta { display: none; } }
 
-/* ───── Yozish Pasporti (klaviatura heat map) ───── */
+/* ───── Yozish Pasporti (klaviatura heat map) ─────
+   Eslatma: bu qoidalar FAQAT /Fingerprint sahifasiga tegishli (.tw-fp ichida).
+   Aks holda ular /Practice ekran klaviaturasining responsiv flex tartibini buzadi. */
 .tw-fp { max-width: 900px; margin: 1.5rem auto; }
-.tw-keyboard { display: flex; flex-direction: column; gap: .4rem; align-items: center; margin: .5rem 0 1rem; }
-.tw-kb-row { display: flex; gap: .4rem; }
-.tw-key { width: 46px; height: 46px; border-radius: 8px; display: flex; align-items: center;
+.tw-fp .tw-keyboard { display: flex; flex-direction: column; gap: .4rem; align-items: center; margin: .5rem 0 1rem; }
+.tw-fp .tw-kb-row { display: flex; gap: .4rem; }
+.tw-fp .tw-key { width: 46px; height: 46px; border-radius: 8px; display: flex; align-items: center;
     justify-content: center; font-weight: 700; text-transform: uppercase; color: #fff;
     border: 1px solid #ffffff; transition: background .3s; }
 
