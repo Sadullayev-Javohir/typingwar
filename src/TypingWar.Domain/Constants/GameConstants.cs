@@ -3,11 +3,11 @@ namespace TypingWar.Domain.Constants;
 /// <summary>O'yin bo'yicha umumiy konstantalar.</summary>
 public static class GameConstants
 {
-    /// <summary>Room kodi alfaviti — faqat raqamlar (kod 8 ta tasodifiy raqamdan iborat).</summary>
+    /// <summary>Room kodi alfaviti — faqat raqamlar (kod 4 ta tasodifiy raqamdan iborat).</summary>
     public const string RoomCodeAlphabet = "0123456789";
 
     /// <summary>Room kodi uzunligi.</summary>
-    public const int RoomCodeLength = 8;
+    public const int RoomCodeLength = 4;
 
     /// <summary>5 harf = 1 so'z (xalqaro typing standart).</summary>
     public const int CharsPerWord = 5;

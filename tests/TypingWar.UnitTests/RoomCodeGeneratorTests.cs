@@ -7,21 +7,22 @@ namespace TypingWar.UnitTests;
 public class RoomCodeGeneratorTests
 {
     [Fact]
-    public void Generate_Has8Chars()
+    public void Generate_HasConfiguredLength()
     {
-        Assert.Equal(8, RoomCodeGenerator.Generate().Length);
+        Assert.Equal(GameConstants.RoomCodeLength, RoomCodeGenerator.Generate().Length);
     }
 
     [Fact]
     public void Generate_OnlyDigits()
     {
+        var len = GameConstants.RoomCodeLength;
         for (int i = 0; i < 200; i++)
         {
             var code = RoomCodeGenerator.Generate();
-            // Kod faqat 8 ta raqamdan iborat bo'lishi kerak
-            Assert.Equal(8, code.Length);
+            // Kod faqat belgilangan sondagi raqamdan iborat bo'lishi kerak
+            Assert.Equal(len, code.Length);
             Assert.All(code, c => Assert.True(char.IsDigit(c), $"'{c}' raqam emas"));
-            Assert.Matches("^[0-9]{8}$", code);
+            Assert.Matches($"^[0-9]{{{len}}}$", code);
         }
     }
 }

@@ -81,15 +81,15 @@
     }
 
     if (joinForm) {
-        // Kod faqat 8 ta raqam — boshqa belgilarni kiritishga yo'l qo'ymaymiz.
+        // Kod faqat 4 ta raqam — boshqa belgilarni kiritishga yo'l qo'ymaymiz.
         joinForm.code.addEventListener("input", () => {
-            joinForm.code.value = joinForm.code.value.replace(/\D/g, "").slice(0, 8);
+            joinForm.code.value = joinForm.code.value.replace(/\D/g, "").slice(0, 4);
         });
         joinForm.addEventListener("submit", (e) => {
             e.preventDefault();
             const code = joinForm.code.value.replace(/\D/g, "");
             const side = joinForm.side.value;
-            if (code.length === 8)
+            if (code.length === 4)
                 window.location.href = "/Team?code=" + encodeURIComponent(code) + "&side=" + side;
         });
     }

@@ -3,7 +3,7 @@
 @model RoomsModel
 @{
     ViewData["Title"] = "Do'stlar musobaqasi — xona yarating";
-    ViewData["Description"] = "Do'stlaringiz bilan typing poygasi: 8 xonali kod bilan xona yarating yoki qo'shiling, real-time yozing va kim eng tez ekanini aniqlang. Sabotaj effektlari bilan qiziqarli musobaqa.";
+    ViewData["Description"] = "Do'stlaringiz bilan typing poygasi: 4 xonali kod bilan xona yarating yoki qo'shiling, real-time yozing va kim eng tez ekanini aniqlang. Sabotaj effektlari bilan qiziqarli musobaqa.";
 }
 
 <div class="tw-rooms">
@@ -20,7 +20,7 @@
         <section class="tw-rcard tw-rcard--create">
             <div class="tw-rcard-icon"><i class="bi bi-plus-circle"></i></div>
             <h2>Xona yaratish</h2>
-            <p>Yangi xona ochasiz va sizga 8 xonali noyob kod beriladi. Kodni do'stlaringizga ulashing.</p>
+            <p>Yangi xona ochasiz va sizga 4 xonali noyob kod beriladi. Kodni do'stlaringizga ulashing.</p>
 
             <!-- Poyga sozlamalari (host tanlaydi — barcha o'yinchilar shu matnni yozadi) -->
             <div class="tw-config tw-room-config" id="tw-room-config">
@@ -64,12 +64,12 @@
         <section class="tw-rcard tw-rcard--join">
             <div class="tw-rcard-icon"><i class="bi bi-box-arrow-in-right"></i></div>
             <h2>Kodga qo'shilish</h2>
-            <p>Do'stingiz bergan 8 xonali kodni kiriting va xonaga qo'shiling.</p>
+            <p>Do'stingiz bergan 4 xonali kodni kiriting va xonaga qo'shiling.</p>
             <form id="tw-join" class="tw-join-form">
                 <div class="tw-join-input">
                     <i class="bi bi-hash"></i>
-                    <input name="code" maxlength="8" placeholder="12345678" autocomplete="off"
-                           inputmode="numeric" pattern="[0-9]{8}" spellcheck="false" required />
+                    <input name="code" maxlength="4" placeholder="1234" autocomplete="off"
+                           inputmode="numeric" pattern="[0-9]{4}" spellcheck="false" required />
                 </div>
                 <button class="tw-rbtn tw-rbtn--outline" type="submit">
                     <i class="bi bi-arrow-right-circle"></i>
@@ -86,8 +86,8 @@
             <li>
                 <i class="bi bi-key"></i>
                 <div>
-                    <strong>Noyob 8 xonali kod</strong>
-                    Har xona uchun chalkashmaydigan kod beriladi (I, O, 0, 1 harflarsiz).
+                    <strong>Noyob 4 xonali kod</strong>
+                    Har xona uchun 4 ta raqamdan iborat oson eslab qolinadigan kod beriladi.
                 </div>
             </li>
             <li>
