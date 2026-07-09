@@ -66,13 +66,24 @@ Endi `https://typingwar.uz` Cloudflare orqali ochilishi kerak (🔒 qulf bilan).
 ---
 
 ## 5. Firewall — faqat Cloudflare'ga ochish (oxirgi qadam) ⚠️
-**Sayt Cloudflare orqali ochilayotganini tasdiqlagandan keyin** ishga tushiring
-(aks holda to'g'ridan-to'g'ri IP kirish yopiladi):
+**Sayt Cloudflare orqali ochilayotganini tasdiqlagandan keyin** ishga tushiring.
+
+> ⚠️ **Docker UFW'ni chetlab o'tadi!** Konteyner portlari (80:80, 443:443) to'g'ridan-to'g'ri
+> iptables'ga yoziladi, shuning uchun UFW yakka o'zi 80/443 ni himoyalamaydi. Docker-published
+> portlar uchun **DOCKER-USER** zanjiri kerak:
+
 ```bash
 cd /opt/typingwar
-sudo bash deploy/ufw-cloudflare.sh          # SSH boshqa portda bo'lsa: sudo SSH_PORT=2222 bash ...
+# (1) Docker portlari (80/443) ni faqat Cloudflare'ga cheklash — ASOSIY himoya:
+sudo bash deploy/docker-cloudflare-firewall.sh
+# (2) Host darajasi + SSH uchun UFW (defense-in-depth, ixtiyoriy):
+sudo bash deploy/ufw-cloudflare.sh          # SSH boshqa portda: sudo SSH_PORT=2222 bash ...
 ```
-Bu 80/443 ni faqat Cloudflare IP'lariga ochadi, SSH (22) ochiq qoladi.
+`docker-cloudflare-firewall.sh` reboot'da avtomatik qayta qo'llanadi (systemd service).
+SSH (22) ikkalasida ham ochiq qoladi.
+
+> Muqobil (eng ishonchli): **Hetzner Cloud Firewall** (server tashqarisida) — panelда
+> 80/443 ni faqat Cloudflare IP oraliqlariga, 22 ni hammaga ochib, serverga biriktiring.
 
 ---
 

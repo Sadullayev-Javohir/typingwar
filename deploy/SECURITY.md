@@ -26,6 +26,11 @@ Tekshirish — DB/Redis tashqaridan yopiqligini tasdiqlang:
 sudo ss -tlnp | grep -E '5432|6379'   # natija BO'SH bo'lishi kerak (host'da listen qilmaydi)
 ```
 
+> ⚠️ **Docker + UFW:** Docker-published portlar (80/443) UFW'ni chetlab o'tadi — UFW ularni
+> bloklamaydi! Cloudflare orqasida 80/443 ni faqat Cloudflare IP'lariga cheklash uchun
+> `deploy/docker-cloudflare-firewall.sh` (DOCKER-USER zanjiri) yoki Hetzner Cloud Firewall
+> ishlating. Batafsil: `deploy/CLOUDFLARE.md` 5-qadam.
+
 ---
 
 ## 2. fail2ban — nginx 429 / hujumchi IP'larni avtomatik bloklash

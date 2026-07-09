@@ -10,6 +10,12 @@
 #   • Aks holda 80/443 hammaga yopiladi va sayt vaqtincha ochilmaydi.
 #   • SSH (22) ochiq qoladi — server bilan aloqa uzilmaydi.
 #
+# ⚠️⚠️ DIQQAT — DOCKER + UFW:
+#   Docker konteyner portlari (80:80, 443:443) UFW'ni CHETLAB o'tadi — bu skript
+#   YAKKA O'ZI 80/443 ni himoyalamaydi! Docker-published portlar uchun ALOHIDA
+#   ishlating:  sudo bash deploy/docker-cloudflare-firewall.sh  (DOCKER-USER zanjiri).
+#   Bu UFW skripti host darajasidagi portlar va SSH uchun foydali (defense-in-depth).
+#
 # Ishlatish (server'da, root sifatida):
 #   sudo bash deploy/ufw-cloudflare.sh
 #
@@ -35,8 +41,10 @@ ufw default deny incoming
 ufw default allow outgoing
 
 echo "==> Eski keng 80/443 qoidalarini olib tashlash (bo'lsa)…"
-ufw delete allow 80/tcp   2>/dev/null || true
-ufw delete allow 443/tcp  2>/dev/null || true
+ufw delete allow 80      2>/dev/null || true
+ufw delete allow 443     2>/dev/null || true
+ufw delete allow 80/tcp  2>/dev/null || true
+ufw delete allow 443/tcp 2>/dev/null || true
 ufw delete allow 'Nginx Full'  2>/dev/null || true
 ufw delete allow 'Nginx HTTP'  2>/dev/null || true
 ufw delete allow 'Nginx HTTPS' 2>/dev/null || true
