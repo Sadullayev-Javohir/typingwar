@@ -232,8 +232,8 @@ app.Use(async (ctx, next) =>
         "img-src 'self' data: https:; " +
         "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:; " +
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; " +
-        $"script-src 'self' 'nonce-{nonce}' https://cdnjs.cloudflare.com; " +
-        "connect-src 'self'; " +
+        $"script-src 'self' 'nonce-{nonce}' https://cdnjs.cloudflare.com https://static.cloudflareinsights.com; " +
+        "connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://static.cloudflareinsights.com; " +
         "worker-src 'self'; " +
         "manifest-src 'self'");
     await next();

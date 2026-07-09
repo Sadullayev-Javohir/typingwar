@@ -1,5 +1,5 @@
 /* TypingWar — Service Worker (offline app shell) */
-const CACHE = "tw-cache-v68";
+const CACHE = "tw-cache-v69";
 const SHELL = [
     "/",
     "/Practice",
@@ -35,6 +35,10 @@ self.addEventListener("fetch", (e) => {
     const req = e.request;
     if (req.method !== "GET") return;               // API yozuvlari cache qilinmaydi
     const url = new URL(req.url);
+    // Tashqi (cross-origin) resurslarni — Google Fonts, CDN (jsdelivr/cdnjs),
+    // Cloudflare beacon — SW ushlamaydi: brauzer to'g'ridan-to'g'ri yuklasin
+    // (CSP connect-src emas, balki style-src/font-src/script-src qo'llaniladi).
+    if (url.origin !== self.location.origin) return;
     if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/hubs/")) return;
 
     // Statik resurslar — cache-first; sahifalar — network-first + cache fallback
