@@ -11,22 +11,22 @@
     const SVGNS = "http://www.w3.org/2000/svg";
     const esc = s => String(s == null ? "" : s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 
-    // Hudud yorliqlari (markaz koordinatalari + qisqa nom). big=true → WPM ham xaritada ko'rsatiladi.
+    // Hudud yorliqlari (haqiqiy xarita markaz koordinatalari + qisqa nom). big=true → WPM ham xaritada ko'rsatiladi.
     const LABELS = {
-        KARAKALPAKSTAN: { x: 205, y: 158, t: "Qoraqalpog'iston", big: true },
-        NAVOI: { x: 498, y: 232, t: "Navoiy", big: true },
-        BUKHARA: { x: 350, y: 422, t: "Buxoro", big: true },
-        KASHKADARYA: { x: 560, y: 466, t: "Qashqadaryo", big: true },
-        SAMARKAND: { x: 545, y: 372, t: "Samarqand", big: true },
-        TASHKENT_REGION: { x: 793, y: 162, t: "Toshkent vil.", big: true },
-        KHOREZM: { x: 212, y: 333, t: "Xorazm", big: false },
-        JIZZAKH: { x: 650, y: 250, t: "Jizzax", big: false },
-        SYRDARYA: { x: 731, y: 250, t: "Sirdaryo", big: false },
-        TASHKENT_CITY: { x: 803, y: 208, t: "Toshkent sh.", big: false },
-        NAMANGAN: { x: 921, y: 180, t: "Namangan", big: false },
-        ANDIJAN: { x: 950, y: 263, t: "Andijon", big: false },
-        FERGANA: { x: 862, y: 290, t: "Farg'ona", big: false },
-        SURKHANDARYA: { x: 678, y: 516, t: "Surxondaryo", big: false }
+        KARAKALPAKSTAN: { x: 205, y: 185, t: "Qoraqalpog'iston", big: true },
+        NAVOI: { x: 486, y: 296, t: "Navoiy", big: true },
+        BUKHARA: { x: 455, y: 418, t: "Buxoro", big: true },
+        KASHKADARYA: { x: 578, y: 510, t: "Qashqadaryo", big: true },
+        SAMARKAND: { x: 597, y: 443, t: "Samarqand", big: true },
+        SURKHANDARYA: { x: 653, y: 560, t: "Surxondaryo", big: true },
+        KHOREZM: { x: 312, y: 345, t: "Xorazm", big: false },
+        JIZZAKH: { x: 662, y: 404, t: "Jizzax", big: false },
+        SYRDARYA: { x: 708, y: 408, t: "Sirdaryo", big: false },
+        TASHKENT_REGION: { x: 795, y: 332, t: "Toshkent vil.", big: false },
+        TASHKENT_CITY: { x: 733, y: 320, t: "Toshkent sh.", big: false },
+        NAMANGAN: { x: 864, y: 350, t: "Namangan", big: false },
+        ANDIJAN: { x: 912, y: 380, t: "Andijon", big: false },
+        FERGANA: { x: 857, y: 398, t: "Farg'ona", big: false }
     };
 
     const stats = new Map();   // code -> {code,name,bestWpm,avgWpm,playerCount}
