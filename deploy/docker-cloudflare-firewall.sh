@@ -22,10 +22,19 @@ SELF=/usr/local/sbin/tw-docker-cf-firewall.sh
 PORTS="80,443"
 
 apply_rules() {
-  local cf_v4 cf_v6 ip
+  local cf_v4 cf_v6 ip ext_if
   cf_v4="$(curl -fsS https://www.cloudflare.com/ips-v4)"
   cf_v6="$(curl -fsS https://www.cloudflare.com/ips-v6)"
   [[ -n "${cf_v4}" ]] || { echo "Cloudflare IPv4 ro'yxatini olib bo'lmadi." >&2; exit 1; }
+
+  # MUHIM: DOCKER-USER zanjiri FORWARD yo'lida — ya'ni IKKALA yo'nalish uchun ham
+  # ishlaydi (tashqaridan konteynerga KIRUVCHI va konteynerdan tashqariga CHIQUVCHI).
+  # Agar DROP qoidasi interfeyssiz bo'lsa, u konteynerning tashqariga 443-portga
+  # CHIQUVCHI ulanishlarini ham bloklaydi (masalan Google OAuth token almashinuvi).
+  # Shuning uchun cheklov FAQAT tashqi interfeysdan (${ext_if}) KIRUVCHI trafikka
+  # qo'llanadi; konteyner egress (docker bridge'dan) tegmasdan o'tadi.
+  ext_if="$(ip -4 route show default 2>/dev/null | awk '{print $5; exit}')"
+  [[ -n "${ext_if}" ]] || ext_if="eth0"
 
   # ── IPv4 ──
   iptables -N DOCKER-USER 2>/dev/null || true
@@ -33,9 +42,9 @@ apply_rules() {
   iptables -A DOCKER-USER -m conntrack --ctstate RELATED,ESTABLISHED -j RETURN
   while read -r ip; do
     [[ -z "${ip}" ]] && continue
-    iptables -A DOCKER-USER -s "${ip}" -p tcp -m multiport --dports "${PORTS}" -j RETURN
+    iptables -A DOCKER-USER -i "${ext_if}" -s "${ip}" -p tcp -m multiport --dports "${PORTS}" -j RETURN
   done <<< "${cf_v4}"
-  iptables -A DOCKER-USER -p tcp -m multiport --dports "${PORTS}" -j DROP
+  iptables -A DOCKER-USER -i "${ext_if}" -p tcp -m multiport --dports "${PORTS}" -j DROP
   iptables -A DOCKER-USER -j RETURN
 
   # ── IPv6 ──
@@ -45,9 +54,9 @@ apply_rules() {
     ip6tables -A DOCKER-USER -m conntrack --ctstate RELATED,ESTABLISHED -j RETURN
     while read -r ip; do
       [[ -z "${ip}" ]] && continue
-      ip6tables -A DOCKER-USER -s "${ip}" -p tcp -m multiport --dports "${PORTS}" -j RETURN
+      ip6tables -A DOCKER-USER -i "${ext_if}" -s "${ip}" -p tcp -m multiport --dports "${PORTS}" -j RETURN
     done <<< "${cf_v6}"
-    ip6tables -A DOCKER-USER -p tcp -m multiport --dports "${PORTS}" -j DROP
+    ip6tables -A DOCKER-USER -i "${ext_if}" -p tcp -m multiport --dports "${PORTS}" -j DROP
     ip6tables -A DOCKER-USER -j RETURN
   fi
 }
