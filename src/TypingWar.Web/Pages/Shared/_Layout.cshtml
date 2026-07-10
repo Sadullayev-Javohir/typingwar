@@ -232,8 +232,10 @@
             window.location.href = "/";
         });
         // PWA — service worker (offline app shell + natija navbati)
+        // Versiyalangan URL: Cloudflare bare "/sw.js"ni eski cache'lagan bo'lsa ham
+        // "?v=69" yangi URL => edge BYPASS => yangi worker darhol o'rnatiladi (o'z-o'zini tuzatadi).
         if ("serviceWorker" in navigator)
-            window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => { }));
+            window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js?v=69").catch(() => { }));
     </script>
     <script src="~/js/tw-offline.js" asp-append-version="true"></script>
 
