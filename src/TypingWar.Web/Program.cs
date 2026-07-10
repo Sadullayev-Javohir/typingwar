@@ -242,7 +242,24 @@ app.Use(async (ctx, next) =>
 // PWA manifest MIME (.webmanifest static files default da noma'lum)
 var contentTypes = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
 contentTypes.Mappings[".webmanifest"] = "application/manifest+json";
-app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = contentTypes });
+app.UseStaticFiles(new StaticFileOptions
+{
+    ContentTypeProvider = contentTypes,
+    OnPrepareResponse = ctx =>
+    {
+        // Service Worker'ni HECH QACHON cache'lamaslik: aks holda Cloudflare/brauzer
+        // eski sw.js'ni soatlab ushlab, yangilanish (yangi CSP/cache versiya) kechikadi.
+        // no-store => Cloudflare edge'da ham saqlamaydi, har safar origin'dan oladi.
+        var path = ctx.File.Name;
+        if (path.Equals("sw.js", StringComparison.OrdinalIgnoreCase) ||
+            path.Equals("manifest.webmanifest", StringComparison.OrdinalIgnoreCase))
+        {
+            ctx.Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+            ctx.Context.Response.Headers["Pragma"] = "no-cache";
+            ctx.Context.Response.Headers["Expires"] = "0";
+        }
+    }
+});
 
 app.UseRouting();
 app.UseRateLimiter();
