@@ -37,7 +37,9 @@ public class AiOpponentService : IAiOpponentService
         double avg = recent.Count > 0 ? recent.Average() : BaseWpm;
         int delta = await GetDeltaAsync(userId);
 
-        return Math.Max(MinTarget, (int)Math.Round(avg + delta));
+        // AI foydalanuvchidan USTUN bo'lishi kerak — bazaviy maqsad avg dan biroz yuqori.
+        // (Jonli poygada klient AI ni foydalanuvchining joriy WPM iga moslaydi; bu — boshlang'ich/zamin.)
+        return Math.Max(MinTarget, (int)Math.Round(avg * 1.05 + delta));
     }
 
     public async Task UpdateAfterRaceAsync(Guid userId, bool userWon, CancellationToken ct = default)

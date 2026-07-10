@@ -13,6 +13,12 @@
     // Aldash himoyasi: bundan past aniqlikda g'alaba berilmaydi (server bilan bir xil).
     const MIN_ACCURACY = 50;
 
+    // ───── Adaptiv AI raqib (jonli) ─────
+    // AI foydalanuvchining JORIY tezligini kuzatadi va doim undan biroz USTUN turadi:
+    // foydalanuvchi tezlashsa AI undan ko'proq tezlashadi, sekinlashsa AI ham biroz tushadi.
+    const AI_BASE_LEAD = 2.5;   // doimiy ustunlik (wpm) — AI har doim biroz oldinda
+    const AI_OVERSHOOT = 1.2;   // foydalanuvchi tezlashganda AI undan KO'PROQ otiladi
+
     const startBtn = $("tw-race-start"), errEl = $("tw-race-err"), vsEl = $("tw-vs"),
         youBar = $("tw-you-bar"), oppBar = $("tw-opp-bar"), youWpm = $("tw-you-wpm"),
         oppWpm = $("tw-opp-wpm"), oppName = $("tw-opp-name"), cdEl = $("tw-race-countdown"),
@@ -23,6 +29,10 @@
     let chars = [], pos = 0, correct = 0, keypresses = 0, startTime = null, finished = false;
     let schedule = [], aiFinishMs = 0, textId = null, targetWpm = 0, blind = false, rafId = null;
     let lastKeyTime = 0, currentSource = null;
+    // Adaptiv AI holati (Ghost EMAS — Ghost o'zgarmas PB ni qaytaradi)
+    let adaptive = false, aiChars = 0, aiWpmCur = 0, userFast = 0, userSlow = 0,
+        aiDoneMs = 0, aiLastFrame = 0, aiFloor = 15, aiSecWpm = [];
+    let cdTimer = null, starting = false;
     let keyEvents = [];          // grafik uchun: har bosish {t: soniya, correct}
     let lastGraphData = null;    // qayta chizish/hover uchun
     let chartGeom = null;
@@ -110,10 +120,17 @@
     }
 
     async function begin() {
+        if (starting) return;                      // qayta-qayta bosish/Tab spamidan himoya
+        starting = true;
+        // Avvalgi poyga (raf + countdown) to'xtatiladi — Tab bilan qaytadan boshlashda muhim
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+        if (cdTimer) { clearInterval(cdTimer); cdTimer = null; }
+        finished = true;                           // eski tick darhol to'xtasin
         errEl.textContent = "";
         resultEl.classList.add("d-none");
         root.classList.add("tw-racing");          // sozlamalar + boshlash tugmasi yashirinadi
         blind = (mode === "Blind");
+        adaptive = (mode === "AI" || mode === "Blind");   // Ghost adaptiv emas — o'zgarmas PB
         const lang = S.get("language"), tMode = S.get("textMode");
         const wc = S.get("wordCount") || 25, qLen = S.get("quoteLength") || "all";
         try {
@@ -143,6 +160,8 @@
         } catch (e) {
             errEl.textContent = "Boshlashda xatolik.";
             root.classList.remove("tw-racing");
+        } finally {
+            starting = false;
         }
     }
 
@@ -262,10 +281,10 @@
         areaEl.classList.add("d-none");
         cdEl.classList.remove("d-none");
         let n = 3; cdEl.textContent = n;
-        const t = setInterval(() => {
+        cdTimer = setInterval(() => {
             n--;
             if (n > 0) cdEl.textContent = n;
-            else { clearInterval(t); cdEl.textContent = "BOSHLANDI!"; setTimeout(() => { cdEl.classList.add("d-none"); go(); }, 400); }
+            else { clearInterval(cdTimer); cdTimer = null; cdEl.textContent = "BOSHLANDI!"; setTimeout(() => { cdEl.classList.add("d-none"); go(); }, 400); }
         }, 1000);
     }
 
@@ -273,7 +292,12 @@
         areaEl.classList.remove("d-none");
         wordsEl.focus();
         moveCaret();              // maydon endi ko'rinadi — karet/surma o'lchovlari to'g'ri bo'lsin
+        finished = false;
         startTime = performance.now();
+        // Adaptiv AI — zaminni tarixiy maqsaddan boshlaymiz, keyin jonli tezlikka moslanadi
+        aiChars = 0; aiDoneMs = 0; aiSecWpm = []; aiLastFrame = startTime;
+        aiWpmCur = targetWpm; userFast = targetWpm; userSlow = targetWpm;
+        aiFloor = Math.max(15, Math.round(targetWpm * 0.6));
         rafId = requestAnimationFrame(tick);
     }
 
@@ -329,24 +353,53 @@
 
     function tick() {
         if (finished) return;
+        const now = performance.now();
         const e = elapsedMs();
         const youProg = (pos / chars.length) * 100;
         const youW = e > 0 ? (correct / 5) / (e / 60000) : 0;
         youBar.style.left = cheetahLeft(youProg);
         youWpm.textContent = Math.round(youW);
 
-        let oi = 0; while (oi < schedule.length && schedule[oi] <= e) oi++;
-        oppBar.style.left = cheetahLeft((oi / chars.length) * 100);
-        oppWpm.textContent = Math.round(targetWpm);
+        let oppProg, oppShownWpm, oppRun;
+        if (adaptive) {
+            // ─── Adaptiv AI: foydalanuvchining JORIY tezligini kuzatib, undan USTUN turadi ───
+            const dt = Math.min(120, now - aiLastFrame); aiLastFrame = now;
+            if (!aiDoneMs) {
+                const youWc = Math.min(youW, 260);                 // boshlanishdagi shovqinni cheklash
+                const aFast = 1 - Math.exp(-dt / 500);             // tez EMA — joriy tezlik
+                const aSlow = 1 - Math.exp(-dt / 2500);            // sekin EMA — tendensiya
+                userFast += (youWc - userFast) * aFast;
+                userSlow += (youWc - userSlow) * aSlow;
+                const accel = userFast - userSlow;                 // >0: tezlashmoqda, <0: sekinlashmoqda
+                // Maqsad: joriy tezlik + doimiy ustunlik + tezlanishga mutanosib otilish
+                let tgt = userFast + AI_BASE_LEAD + AI_OVERSHOOT * accel;
+                tgt = Math.max(aiFloor, Math.min(250, tgt));
+                const aMove = 1 - Math.exp(-dt / 450);             // AI tezligi maqsadga silliq intiladi
+                aiWpmCur += (tgt - aiWpmCur) * aMove;
+                aiChars += (aiWpmCur * 5 / 60000) * dt;
+                if (aiChars >= chars.length) { aiChars = chars.length; aiDoneMs = e; }
+                aiSecWpm[Math.floor(e / 1000)] = aiWpmCur;         // grafik uchun soniyalik namuna
+            }
+            oppProg = (aiChars / chars.length) * 100;
+            oppShownWpm = aiWpmCur;
+            oppRun = !aiDoneMs;
+        } else {
+            // ─── Ghost: o'zgarmas PB jadvali ───
+            let oi = 0; while (oi < schedule.length && schedule[oi] <= e) oi++;
+            oppProg = (oi / chars.length) * 100;
+            oppShownWpm = targetWpm;
+            oppRun = e < aiFinishMs;
+        }
+        oppBar.style.left = cheetahLeft(oppProg);
+        oppWpm.textContent = Math.round(oppShownWpm);
 
         // Mushuklarni yurg'izish — siz yozayotganda, raqib hali tugatmaganda
         if (window.TwCheetah) {
-            const youRun = (performance.now() - lastKeyTime) < 500;
+            const youRun = (now - lastKeyTime) < 500;
             window.TwCheetah.setRunning(youBar, youRun);
             if (youRun) window.TwCheetah.setSpeed(youBar, youW);
-            const oppRun = e < aiFinishMs;
             window.TwCheetah.setRunning(oppBar, oppRun);
-            if (oppRun) window.TwCheetah.setSpeed(oppBar, targetWpm);
+            if (oppRun) window.TwCheetah.setSpeed(oppBar, oppShownWpm);
         }
 
         rafId = requestAnimationFrame(tick);
@@ -363,6 +416,16 @@
         const wpm = Math.round(((correct / 5) / minutes) * 100) / 100;
         const rawWpm = Math.round(((keypresses / 5) / minutes) * 100) / 100;
         const acc = keypresses > 0 ? Math.round((correct / keypresses) * 10000) / 100 : 0;
+
+        // Adaptiv AI: tugatgan vaqti/WPM si jonli simulyatsiyadan olinadi (jadval emas).
+        // AI hali tugatmagan bo'lsa — joriy sur'atiga ko'ra tugatish vaqti taxminlanadi
+        // (bu e dan katta bo'ladi → foydalanuvchi birinchi yetib kelgan = g'olib).
+        if (adaptive) {
+            const aiProjMs = aiDoneMs > 0 ? aiDoneMs
+                : (aiChars > 0 ? e * (chars.length / aiChars) : e * 2);
+            aiFinishMs = aiProjMs;
+            targetWpm = Math.round(((chars.length / 5) / (aiProjMs / 60000)) * 100) / 100;
+        }
         // G'olib faqat to'g'ri yozilgan belgilarga bog'liq: aniqlik juda past bo'lsa
         // (bitta tugmani bosib turish yoki tasodifiy belgilar) — raqibdan tez "tugatgan"
         // bo'lsa ham g'alaba berilmaydi. WPM ham faqat to'g'ri belgilardan hisoblanadi.
@@ -395,8 +458,19 @@
         return { rawWpm, netWpm, errAt, accAt, secs };
     }
 
-    // Raqib: schedule (kümülativ ms) bo'yicha har soniyada yozilgan belgilar -> WPM
+    // Raqib WPM grafigi. Adaptiv (AI/Blind) — jonli yozib olingan soniyalik namunalar;
+    // Ghost — o'zgarmas schedule (kümülativ ms) bo'yicha har soniyada yozilgan belgilar.
     function buildAiWpm(secs) {
+        if (adaptive) {
+            const out = new Array(secs).fill(0);
+            let last = 0;
+            for (let i = 0; i < secs; i++) {
+                if (aiSecWpm[i] != null) last = aiSecWpm[i];
+                // AI tugatgandan keyingi soniyalarda chiziq 0 ga tushadi (boshqa yozmaydi)
+                out[i] = (aiDoneMs > 0 && i > Math.floor(aiDoneMs / 1000)) ? 0 : last;
+            }
+            return out;
+        }
         const perSec = new Array(secs).fill(0);
         for (const ms of schedule) {
             let i = Math.floor(ms / 1000);
@@ -582,6 +656,14 @@
     // ───── Tugmalar ─────
     startBtn.addEventListener("click", begin);
     $("tw-race-again").addEventListener("click", begin);
+
+    // Tab — qaytadan boshlash (AI / Ghost / Blind). Poyga davomida ham, natija ekranida ham,
+    // sozlama ekranida ham ishlaydi: joriy sozlamalar bilan yangi poyga boshlanadi.
+    document.addEventListener("keydown", ev => {
+        if (ev.key !== "Tab" || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+        ev.preventDefault();
+        begin();
+    });
     $("tw-race-config").addEventListener("click", () => {
         // Boshlang'ich ko'rinishga qaytish — sozlamalar va Boshlash tugmasi qaytadi
         resultEl.classList.add("d-none");

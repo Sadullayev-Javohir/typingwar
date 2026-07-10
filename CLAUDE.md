@@ -339,6 +339,22 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-06-20] /Race ADAPTIV AI raqib (jonli) + Tab orqali qaytadan boshlash:
+    (1) ADAPTIV AI: avval AI butun poyga davomida O'ZGARMAS targetWpm (tarix avg+delta) jadvali
+    bilan yozardi. Endi AI foydalanuvchining JORIY tezligini kuzatadi va doim undan biroz USTUN
+    turadi. race.js tick() qayta yozildi: ikki EMA (tez tau 500ms = joriy tezlik, sekin tau 2500ms
+    = tendensiya); accel = userFast-userSlow; AI maqsadi = userFast + AI_BASE_LEAD(2.5) +
+    AI_OVERSHOOT(1.2)*accel; aiFloor = max(15, target*0.6); aiWpmCur maqsadga tau 450ms bilan silliq
+    intiladi; aiChars dt bo'yicha oldinga suriladi. Foydalanuvchi tezlashsa AI undan ko'proq otiladi,
+    sekinlashsa AI ham biroz tushadi, lekin doimo ustun (g'olib bo'lishga moyil, ammo yutib bo'ladi:
+    user matnni AI dan oldin tugatsa yutadi). Faqat AI/Blind adaptiv; Ghost o'zgarmas PB jadvalida
+    qoladi. Natija grafigi (buildAiWpm) endi adaptiv uchun jonli yozib olingan soniyalik aiSecWpm dan
+    chiziladi (Ghost — eski schedule). finish() AI tugatish vaqti/WPM ini jonli simulyatsiyadan oladi.
+    Server AiOpponentService: bazaviy maqsad avg*1.05+delta (zamin ham ustun).
+    (2) TAB = QAYTADAN BOSHLASH (AI/Ghost/Blind): document keydown Tab → preventDefault + begin();
+    poyga davomida, natija ekranida, sozlama ekranida ishlaydi. begin() qayta-kirishdan himoyalandi
+    (starting flag), eski rafId + countdown taymeri (cdTimer) tozalanadi — ikki tick loop oldini oladi.
+    sw.js cache v70. Build OK, 105 test, race.js node -c sintaksis OK.
   - [2026-06-18] XAVFSIZLIK 2-bosqich — xona kodi brute-force qulflash + server qattiqlashtirish:
     (1) BRUTE-FORCE QULFLASH (kod 4 xonali = 10 000 variant, enumeratsiyaga ochiq edi):
     yangi IBruteForceGuard (Application) + BruteForceGuard (Infrastructure, Redis) — bir amal +
