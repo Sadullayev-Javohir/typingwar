@@ -1,0 +1,389 @@
+/* ════════════════════════════════════════════════════════════════════
+   theme-pro.css — TypingWar.uz PREMIUM DIZAYN QATLAMI
+   ────────────────────────────────────────────────────────────────────
+   Bu fayl site.css dan KEYIN yuklanadi va uni ustidan qoplaydi.
+   Maqsad: butun sayt bo'ylab YAGONA tipografiya ierarxiyasi, izchil
+   shrift o'lchamlari va premium vizual polish berish.
+
+   Qoidalar:
+   • Faqat vizual (tipografiya, rang, oraliq, soya, animatsiya) — layout
+     (grid ustunlari, flex yo'nalishi) o'zgartirilmaydi => responsivlik
+     va JS ilgaklari buzilmaydi.
+   • Barcha o'zgaruvchilar --twp- prefiksi bilan (site.css bilan to'qnashmasin).
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+    /* ─── Display shrifti (katta sarlavhalar uchun geometrik, kuchli) ─── */
+    --twp-display: 'Space Grotesk', 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --twp-ui: 'Geist', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+    /* ─── Fluid tipografiya scale (Perfect Fourth ~1.25) ─── */
+    --twp-fs-hero:  clamp(3rem, 3.2vw + 1.8rem, 5.25rem);   /* landing/hero H1 */
+    --twp-fs-h1:    clamp(2.1rem, 1.6vw + 1.4rem, 3.15rem); /* sahifa sarlavhasi */
+    --twp-fs-h2:    clamp(1.55rem, 1vw + 1.1rem, 2.15rem);  /* bo'lim sarlavhasi */
+    --twp-fs-h3:    clamp(1.2rem, .4vw + 1.05rem, 1.45rem); /* karta sarlavhasi */
+    --twp-fs-h4:    clamp(1.02rem, .2vw + .95rem, 1.15rem);
+    --twp-fs-lead:  clamp(1.05rem, .5vw + .95rem, 1.25rem); /* kirish paragrafi */
+    --twp-fs-body:  1rem;
+    --twp-fs-sm:    .875rem;
+    --twp-fs-xs:    .78rem;
+    --twp-fs-label: .72rem;                                  /* uppercase yorliqlar */
+
+    /* ─── Ritm & yumaloqlik ─── */
+    --twp-lh-tight: 1.06;
+    --twp-lh-snug:  1.28;
+    --twp-lh-body:  1.68;
+    --twp-r-sm: 10px;
+    --twp-r-md: 14px;
+    --twp-r-lg: 20px;
+
+    /* ─── Premium soyalar ─── */
+    --twp-shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+    --twp-shadow-md: 0 8px 24px -8px rgba(0,0,0,.55);
+    --twp-shadow-lg: 0 24px 60px -16px rgba(0,0,0,.6);
+    --twp-shadow-glow: 0 10px 40px -12px color-mix(in srgb, var(--tw-gold) 45%, transparent);
+
+    /* ─── Silliq o'tishlar ─── */
+    --twp-ease: cubic-bezier(.22, 1, .36, 1);
+    --twp-t: .22s var(--twp-ease);
+}
+
+/* ══════════════════ 1. GLOBAL TIPOGRAFIYA ══════════════════ */
+
+body {
+    font-family: var(--twp-ui);
+    font-size: var(--twp-fs-body);
+    line-height: var(--twp-lh-body);
+    letter-spacing: -.011em;
+    font-feature-settings: "cv01", "cv02", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Sarlavhalar — yagona ierarxiya (barcha sahifalarda bir xil) */
+h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, h6 {
+    font-family: var(--twp-ui);
+    color: var(--tw-text);
+    text-wrap: balance;
+    margin-top: 0;
+}
+h1, .h1 {
+    font-family: var(--twp-display);
+    font-size: var(--twp-fs-h1);
+    font-weight: 700;
+    line-height: var(--twp-lh-tight);
+    letter-spacing: -.03em;
+    margin-bottom: .6rem;
+}
+h2, .h2 {
+    font-size: var(--twp-fs-h2);
+    font-weight: 700;
+    line-height: var(--twp-lh-snug);
+    letter-spacing: -.022em;
+    margin-bottom: .7rem;
+}
+h3, .h3 {
+    font-size: var(--twp-fs-h3);
+    font-weight: 650;
+    line-height: 1.3;
+    letter-spacing: -.016em;
+    margin-bottom: .5rem;
+}
+h4, .h4 { font-size: var(--twp-fs-h4); font-weight: 600; letter-spacing: -.01em; }
+h5 { font-size: 1rem; font-weight: 600; }
+h6 { font-size: .875rem; font-weight: 600; letter-spacing: .02em; }
+
+p { line-height: var(--twp-lh-body); }
+small, .small { font-size: var(--twp-fs-sm); }
+
+/* Muted / ikkilamchi matn izchilligi */
+.text-muted, .tw-muted { color: var(--tw-muted) !important; }
+
+/* Linklar */
+a { text-underline-offset: 3px; transition: color var(--twp-t); }
+
+/* Matn tanlash rangi = tema accent */
+::selection {
+    background: color-mix(in srgb, var(--tw-gold) 32%, transparent);
+    color: var(--tw-text);
+}
+
+/* ── Premium scrollbar ── */
+* { scrollbar-width: thin; scrollbar-color: var(--tw-border-strong) transparent; }
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: var(--tw-border-strong);
+    border-radius: 999px;
+    border: 3px solid var(--tw-bg);
+}
+::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--tw-gold) 55%, var(--tw-border-strong)); }
+
+/* ── Yagona focus halqasi (accessibility) ── */
+a:focus-visible, button:focus-visible, .btn:focus-visible,
+input:focus-visible, select:focus-visible, textarea:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--tw-gold) 70%, transparent);
+    outline-offset: 2px;
+    border-radius: var(--twp-r-sm);
+}
+
+/* ══════════════════ 2. NAVBAR & FOOTER ══════════════════ */
+
+.tw-navbar {
+    background-color: color-mix(in srgb, var(--tw-bg) 72%, transparent);
+    backdrop-filter: saturate(180%) blur(22px);
+    -webkit-backdrop-filter: saturate(180%) blur(22px);
+    position: sticky; top: 0; z-index: 1030;
+    transition: background-color var(--twp-t), box-shadow var(--twp-t);
+}
+.tw-brand {
+    font-family: var(--twp-display);
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: -.03em;
+}
+.tw-nav-link {
+    font-size: var(--twp-fs-sm);
+    font-weight: 500;
+    letter-spacing: -.01em;
+    border-radius: 8px;
+    padding: .4rem .6rem !important;
+    position: relative;
+    transition: color var(--twp-t), background var(--twp-t), transform var(--twp-t);
+}
+.tw-nav-link:hover { background: color-mix(in srgb, var(--tw-gold) 10%, transparent); }
+/* Aktiv sahifa uchun accent chizig'i */
+.tw-nav-link.active,
+.nav-item .tw-nav-link[aria-current="page"] { color: var(--tw-gold) !important; }
+
+.footer {
+    border-top: 1px solid var(--tw-border) !important;
+    color: var(--tw-muted);
+    font-size: var(--twp-fs-sm);
+    backdrop-filter: blur(6px);
+}
+.footer .tw-accent { font-weight: 500; }
+
+/* ══════════════════ 3. TUGMALAR ══════════════════ */
+
+.btn {
+    font-family: var(--twp-ui);
+    font-weight: 550;
+    letter-spacing: -.01em;
+    border-radius: var(--twp-r-sm);
+    transition: background var(--twp-t), border-color var(--twp-t),
+                transform .12s var(--twp-ease), box-shadow var(--twp-t), opacity var(--twp-t);
+}
+.btn:active { transform: translateY(1px) scale(.99); }
+.btn-lg { font-size: 1.02rem; padding: .7rem 1.5rem; border-radius: var(--twp-r-md); }
+
+/* Asosiy (oq) tugma — nozik ko'tarilish */
+.btn-tw:hover { transform: translateY(-2px); box-shadow: var(--twp-shadow-md); }
+
+/* Gold accent tugma */
+.tw-rbtn--gold, .btn-gold {
+    background: linear-gradient(135deg, var(--tw-gold), var(--tw-accent));
+    border: none; color: #14100a; font-weight: 650;
+    box-shadow: var(--twp-shadow-glow);
+}
+.tw-rbtn--gold:hover, .btn-gold:hover { transform: translateY(-2px); filter: brightness(1.06); }
+
+.tw-btn-ghost { border-radius: var(--twp-r-sm); transition: all var(--twp-t); }
+.tw-btn-ghost:hover { transform: translateY(-2px); }
+
+/* ══════════════════ 4. KARTALAR / PANELLAR ══════════════════
+   Umumiy karta klasslarini izchil ko'rinishga keltiramiz. */
+
+.tw-feature, .tw-rcard, .tw-settings-card, .tw-board-card,
+.tw-admin-panel, .tw-config-group, .tw-pwm-card, .tw-author,
+.card, .tw-panel, .tw-region {
+    border-radius: var(--twp-r-lg);
+    transition: transform var(--twp-t), border-color var(--twp-t), box-shadow var(--twp-t);
+}
+
+/* Feature kartalari — premium hover + accent chiziq */
+.tw-feature {
+    position: relative; overflow: hidden;
+    border: 1px solid var(--tw-border);
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--tw-gold) 4%, transparent), transparent 40%),
+        var(--tw-surface);
+}
+.tw-feature::before {
+    content: ''; position: absolute; inset: 0 0 auto 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--tw-gold), transparent);
+    opacity: 0; transition: opacity var(--twp-t);
+}
+.tw-feature:hover {
+    transform: translateY(-6px);
+    border-color: color-mix(in srgb, var(--tw-gold) 45%, var(--tw-border));
+    box-shadow: var(--twp-shadow-lg);
+}
+.tw-feature:hover::before { opacity: 1; }
+.tw-feature h3 {
+    font-size: var(--twp-fs-h4);
+    font-weight: 650;
+    letter-spacing: -.015em;
+    margin-bottom: .4rem;
+}
+.tw-feature p { font-size: var(--twp-fs-sm); color: var(--tw-muted); line-height: 1.55; }
+.tw-feature-ic {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tw-gold) 22%, transparent);
+    transition: transform var(--twp-t);
+}
+.tw-feature:hover .tw-feature-ic { transform: scale(1.08) rotate(-3deg); }
+
+/* ══════════════════ 5. HERO / LANDING ══════════════════ */
+
+.tw-home-title {
+    font-family: var(--twp-display);
+    font-size: var(--twp-fs-hero);
+    font-weight: 700;
+    line-height: var(--twp-lh-tight);
+    letter-spacing: -.045em;
+}
+.tw-home-badge {
+    font-size: var(--twp-fs-xs);
+    font-weight: 600;
+    letter-spacing: .01em;
+    backdrop-filter: blur(8px);
+    box-shadow: var(--twp-shadow-sm);
+}
+.tw-home-tagline {
+    font-family: var(--twp-display);
+    font-size: clamp(1.2rem, 1vw + 1rem, 1.5rem);
+    font-weight: 500;
+    letter-spacing: -.02em;
+}
+.tw-home-lead {
+    font-size: var(--twp-fs-lead);
+    line-height: 1.62;
+    color: var(--tw-muted);
+}
+.tw-home-h2, .tw-contest-title, .tw-rooms-hero h1,
+.tw-page-title, .tw-section-title {
+    font-family: var(--twp-display);
+    letter-spacing: -.025em;
+}
+.tw-home-h2 { font-size: var(--twp-fs-h2); font-weight: 700; margin-bottom: 1.5rem; }
+
+/* Metrikalar / hero statistika — kuchli raqamlar */
+.tw-metric-num, .tw-hero-val, .tw-stat .tw-num, .tw-team-score span {
+    font-family: var(--tw-code-font);
+    font-weight: 700;
+    letter-spacing: -.02em;
+    font-variant-numeric: tabular-nums;
+}
+.tw-metric-num {
+    font-size: clamp(1.8rem, 1.5vw + 1.2rem, 2.4rem);
+    background: linear-gradient(135deg, var(--tw-gold), var(--tw-accent));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.tw-metric-lbl, .tw-author-tag, .tw-home-badge,
+.tw-tlabel, .tw-config-label, .tw-settings-label {
+    font-size: var(--twp-fs-label);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    font-weight: 600;
+}
+
+/* Muallif kartasi */
+.tw-author {
+    border-color: color-mix(in srgb, var(--tw-gold) 18%, var(--tw-border));
+    box-shadow: var(--twp-shadow-md);
+}
+.tw-author-name { font-family: var(--twp-display); font-size: var(--twp-fs-h2); font-weight: 700; letter-spacing: -.02em; }
+.tw-author-bio { color: var(--tw-muted); line-height: var(--twp-lh-body); }
+a.tw-author-link { transition: all var(--twp-t); }
+a.tw-author-link:hover { transform: translateY(-2px); }
+
+/* ══════════════════ 6. INPUTLAR / FORMALAR ══════════════════ */
+
+input, select, textarea,
+.form-control, .form-select,
+.tw-tinput, .tw-input, .tw-config input, .tw-config select {
+    font-family: var(--twp-ui);
+    font-size: var(--twp-fs-sm);
+    border-radius: var(--twp-r-sm);
+    transition: border-color var(--twp-t), box-shadow var(--twp-t), background var(--twp-t);
+}
+input:focus, select:focus, textarea:focus,
+.form-control:focus, .form-select:focus,
+.tw-tinput:focus, .tw-input:focus {
+    border-color: var(--tw-gold) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--tw-gold) 18%, transparent) !important;
+    outline: none;
+}
+::placeholder { color: color-mix(in srgb, var(--tw-muted) 75%, transparent); }
+
+/* ══════════════════ 7. BADGE / PILL / TAB ══════════════════ */
+
+.tw-contest-badge, .tw-rooms-badge, .badge {
+    font-size: var(--twp-fs-xs);
+    font-weight: 600;
+    letter-spacing: .01em;
+    border-radius: 999px;
+}
+.tw-tab, .tw-admin-tab {
+    font-weight: 550;
+    font-size: var(--twp-fs-sm);
+    letter-spacing: -.01em;
+    transition: color var(--twp-t), border-color var(--twp-t), background var(--twp-t);
+}
+
+/* ══════════════════ 8. JADVALLAR / REYTING ══════════════════ */
+
+table, .table {
+    font-size: var(--twp-fs-sm);
+}
+.table th, table th {
+    font-size: var(--twp-fs-xs);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    font-weight: 600;
+    color: var(--tw-muted);
+}
+tbody tr, .table tbody tr { transition: background var(--twp-t); }
+tbody tr:hover, .table tbody tr:hover {
+    background: color-mix(in srgb, var(--tw-gold) 6%, transparent);
+}
+
+/* ══════════════════ 9. MODALLAR ══════════════════ */
+
+.tw-pwm-card, .modal-content {
+    border-radius: var(--twp-r-lg);
+    box-shadow: var(--twp-shadow-lg);
+}
+
+/* ══════════════════ 10. MICRO-ANIMATSIYA (sticky feel) ══════════════════ */
+
+@keyframes twp-rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.tw-home-copy > *,
+.tw-home-section > .tw-home-h2 {
+    animation: twp-rise .6s var(--twp-ease) both;
+}
+.tw-home-copy > *:nth-child(2) { animation-delay: .05s; }
+.tw-home-copy > *:nth-child(3) { animation-delay: .1s; }
+.tw-home-copy > *:nth-child(4) { animation-delay: .15s; }
+.tw-home-copy > *:nth-child(5) { animation-delay: .2s; }
+.tw-home-copy > *:nth-child(6) { animation-delay: .25s; }
+
+.tw-feature { animation: twp-rise .5s var(--twp-ease) both; }
+.tw-feature-grid .tw-feature:nth-child(2) { animation-delay: .04s; }
+.tw-feature-grid .tw-feature:nth-child(3) { animation-delay: .08s; }
+.tw-feature-grid .tw-feature:nth-child(4) { animation-delay: .12s; }
+.tw-feature-grid .tw-feature:nth-child(5) { animation-delay: .16s; }
+.tw-feature-grid .tw-feature:nth-child(6) { animation-delay: .2s; }
+.tw-feature-grid .tw-feature:nth-child(7) { animation-delay: .24s; }
+.tw-feature-grid .tw-feature:nth-child(8) { animation-delay: .28s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .tw-home-copy > *, .tw-feature, .tw-home-section > .tw-home-h2 { animation: none; }
+    * { scroll-behavior: auto !important; }
+}
+
+html { scroll-behavior: smooth; }
