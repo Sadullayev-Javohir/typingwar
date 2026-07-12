@@ -64,15 +64,13 @@
         </div>
 
         <div class="tw-cheetah-stage">
-            <div id="tw-cheetah-3d" class="tw-cheetah-3d" aria-label="3D yuguruvchi Tai Lung">
-                <img src="~/img/typingwar-logo.png" alt="TypingWar Tai Lung" class="tw-cheetah-fallback" />
-                <div id="tw-cheetah-loader" class="tw-cheetah-loader" role="status" aria-live="polite">
-                    <span class="tw-cheetah-spinner" aria-hidden="true"></span>
-                    <span class="tw-cheetah-loadtxt">Tai Lung yuklanmoqda…</span>
-                </div>
+            <div class="tw-hero-video-wrap" aria-label="TypingWar tanishtiruv videosi">
+                <video class="tw-hero-video" muted loop playsinline autoplay preload="auto" poster="~/img/typingwar-logo.png">
+                    <source src="~/videos/typingfast.mp4" type="video/mp4" />
+                </video>
             </div>
             <div class="tw-cheetah-caption">
-                <i class="bi bi-lightning-charge-fill"></i> 3D — to'liq tezlikda chopayotgan Tai Lung
+                <i class="bi bi-lightning-charge-fill"></i> TypingWar — eng tez barmoqlar g'alaba qozonadi
             </div>
         </div>
     </div>
@@ -157,29 +155,24 @@
 </section>
 
 @section Scripts {
-    <script type="module" src="~/js/tai-lung.js" asp-append-version="true"></script>
     <script nonce="@cspNonce">
-        // ─── VIDEO ORQA FON AUTOPLAY MENEJMENTI ───
+        // ─── VIDEO AUTOPLAY MENEJMENTI (orqa fon + hero) ───
         // Brauzerlar autoplay'ni bloklashi mumkin — bir necha nuqtada qayta urinamiz.
         (function () {
-            var v = document.querySelector('.tw-bg-video');
-            if (!v || v.tagName !== 'VIDEO') return;
-            v.muted = true;                       // autoplay siyosati uchun majburiy
+            var vids = document.querySelectorAll('.tw-bg-video, .tw-hero-video');
+            if (!vids.length) return;
             var tryPlay = function () {
-                var p = v.play();
-                if (p && p.catch) p.catch(function () { }); // bloklansa jimgina gradient fallback qoladi
+                vids.forEach(function (v) {
+                    if (v.tagName !== 'VIDEO') return;
+                    v.muted = true;               // autoplay siyosati uchun majburiy
+                    var p = v.play();
+                    if (p && p.catch) p.catch(function () { }); // bloklansa jimgina fallback qoladi
+                });
             };
-            v.addEventListener('loadeddata', tryPlay);
+            vids.forEach(function (v) { v.addEventListener('loadeddata', tryPlay); });
             document.addEventListener('DOMContentLoaded', tryPlay);
             document.addEventListener('click', tryPlay, { once: true });
             tryPlay();
         })();
-    </script>
-    <script nonce="@cspNonce">
-        // Xavfsizlik to'ri: 3D modul yuklanmasa ham loader cheksiz qolmasin
-        // (module import muvaffaqiyatsiz bo'lsa tai-lung.js ishlamaydi).
-        setTimeout(function () {
-            document.getElementById("tw-cheetah-loader")?.classList.add("tw-hide");
-        }, 12000);
     </script>
 }

@@ -181,9 +181,23 @@ body.tw-landing-page .tw-metric-num {
 }
 body.tw-landing-page .tw-metric-lbl { color: var(--lx-fg-muted); }
 
-/* 3D gepard sahna — glass ichida shaffof */
-body.tw-landing-page .tw-cheetah-3d {
+/* Hero tanishtiruv videosi — glass ichida */
+.tw-hero-video-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--lx-line);
     background: radial-gradient(ellipse at 50% 80%, rgba(255,255,255,0.06), transparent 65%);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+}
+.tw-hero-video {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    border: 0;
 }
 body.tw-landing-page .tw-cheetah-caption { color: var(--lx-fg-muted); }
 body.tw-landing-page .tw-cheetah-caption i { color: var(--lx-fg); }
