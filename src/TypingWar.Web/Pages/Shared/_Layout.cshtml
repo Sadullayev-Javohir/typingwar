@@ -100,8 +100,9 @@
     }
     </script>
     @await RenderSectionAsync("StructuredData", required: false)
+    @await RenderSectionAsync("Head", required: false)
 </head>
-<body>
+<body class="@(ViewData["BodyClass"])">
     <header>
         <nav class="navbar navbar-expand-sm border-bottom tw-navbar">
             <div class="container">
@@ -236,7 +237,7 @@
         // Versiyalangan URL: Cloudflare bare "/sw.js"ni eski cache'lagan bo'lsa ham
         // "?v=69" yangi URL => edge BYPASS => yangi worker darhol o'rnatiladi (o'z-o'zini tuzatadi).
         if ("serviceWorker" in navigator)
-            window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js?v=69").catch(() => { }));
+            window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js?v=71").catch(() => { }));
     </script>
     <script src="~/js/tw-offline.js" asp-append-version="true"></script>
 

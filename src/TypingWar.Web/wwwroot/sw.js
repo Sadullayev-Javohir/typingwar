@@ -1,9 +1,10 @@
 /* TypingWar — Service Worker (offline app shell) */
-const CACHE = "tw-cache-v70";
+const CACHE = "tw-cache-v71";
 const SHELL = [
     "/",
     "/Practice",
     "/css/site.css",
+    "/css/landing.css",
     "/js/site.js",
     "/js/tw-sound.js",
     "/js/typing-settings.js",

@@ -4,8 +4,20 @@
     ViewData["Title"] = "Bosh sahifa";
     ViewData["FullTitle"] = "TypingWar.uz — O'zbekistondagi #1 typing tezligi va musobaqa platformasi";
     ViewData["Description"] = "TypingWar.uz — O'zbek va ingliz tilida yozish tezligingizni (WPM) va aniqligingizni o'lchang. AI raqib, real-time poygalar, do'stlar va jamoaviy musobaqalar, turnirlar, kunlik musobaqa va O'zbekiston bo'ylab reyting. Bepul typing testi!";
+    ViewData["BodyClass"] = "tw-landing-page";
     var cspNonce = ViewContext.HttpContext.Items["csp-nonce"];
 }
+
+@section Head {
+    <link rel="stylesheet" href="~/css/landing.css" asp-append-version="true" />
+}
+
+@* ═══════════ ⭐ VIDEO ORQA FON (3 qatlam) ═══════════ *@
+<div class="tw-bg-fallback" aria-hidden="true"></div>
+<video class="tw-bg-video" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1" poster="">
+    <source src="~/videos/background.mp4" type="video/mp4" />
+</video>
+<div class="tw-bg-overlay" aria-hidden="true"></div>
 
 <section class="tw-home-hero">
     <div class="tw-home-glow"></div>
@@ -146,6 +158,23 @@
 
 @section Scripts {
     <script type="module" src="~/js/tai-lung.js" asp-append-version="true"></script>
+    <script nonce="@cspNonce">
+        // ─── VIDEO ORQA FON AUTOPLAY MENEJMENTI ───
+        // Brauzerlar autoplay'ni bloklashi mumkin — bir necha nuqtada qayta urinamiz.
+        (function () {
+            var v = document.querySelector('.tw-bg-video');
+            if (!v || v.tagName !== 'VIDEO') return;
+            v.muted = true;                       // autoplay siyosati uchun majburiy
+            var tryPlay = function () {
+                var p = v.play();
+                if (p && p.catch) p.catch(function () { }); // bloklansa jimgina gradient fallback qoladi
+            };
+            v.addEventListener('loadeddata', tryPlay);
+            document.addEventListener('DOMContentLoaded', tryPlay);
+            document.addEventListener('click', tryPlay, { once: true });
+            tryPlay();
+        })();
+    </script>
     <script nonce="@cspNonce">
         // Xavfsizlik to'ri: 3D modul yuklanmasa ham loader cheksiz qolmasin
         // (module import muvaffaqiyatsiz bo'lsa tai-lung.js ishlamaydi).

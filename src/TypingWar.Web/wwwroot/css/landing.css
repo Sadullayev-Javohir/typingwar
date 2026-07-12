@@ -1,0 +1,250 @@
+/* ════════════════════════════════════════════════════════════════════
+   landing.css — TypingWar.uz LANDING (bosh sahifa) DIZAYNI
+   ────────────────────────────────────────────────────────────────────
+   Manba: EXAMPLE.html (Next.js / Geist monoxrom GLASS panellar + VIDEO
+   ORQA FON). Faqat bosh sahifada yuklanadi (@section Head) va
+   body.tw-landing-page bilan qamrab olinadi — boshqa sahifalarga
+   ta'sir qilmaydi.
+
+   Qatlam ierarxiyasi (z-index):
+     .tw-bg-fallback  → -3  (jonli gradient — video bo'lmasa)
+     .tw-bg-video     → -2  (to'liq ekran video)
+     .tw-bg-overlay   → -1  (qorong'ilashtirish, matn o'qilishi uchun)
+     kontent          →  0
+     glass kartalar   →  1
+     navbar           → 1030
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+    /* Geist monoxrom glass tokenlar */
+    --lx-fg:          #EDEDED;
+    --lx-fg-muted:    #A1A1A1;
+    --lx-glass:       rgba(18,18,18,0.42);
+    --lx-glass-2:     rgba(28,28,28,0.34);
+    --lx-glass-hover: rgba(28,28,28,0.56);
+    --lx-line:        rgba(255,255,255,0.10);
+    --lx-line-strong: rgba(255,255,255,0.22);
+
+    --lx-blur:   blur(22px) saturate(135%);
+    --lx-blur-2: blur(14px) saturate(130%);
+
+    /* Video ustidagi qorong'ilik (0 = yorug', 1 = qora) */
+    --lx-bg-dim: 0.42;
+}
+
+/* ════════════════ 1. BODY — landing rejimida shaffof ════════════════ */
+/* Video/gradient fon ko'rinishi uchun body foni va sayt to'ri o'chiriladi */
+body.tw-landing-page {
+    background-color: #0a0a0a;
+}
+body.tw-landing-page::before,
+body.tw-landing-page::after { display: none !important; }
+
+
+/* ════════════════ 2. ⭐ VIDEO ORQA FON (3 qatlam) ════════════════ */
+
+.tw-bg-video {
+    position: fixed; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    pointer-events: none;
+    border: 0;
+    background: #0a0a0a;
+}
+
+/* Jonli gradient fallback — background.mp4 ulanmaguncha ko'rinadi */
+.tw-bg-fallback {
+    position: fixed; inset: 0;
+    z-index: -3;
+    pointer-events: none;
+    background:
+        radial-gradient(1200px 800px at 15% 10%, #1c2431 0%, transparent 55%),
+        radial-gradient(1000px 700px at 85% 90%, #241c2b 0%, transparent 55%),
+        linear-gradient(135deg, #0b0d12 0%, #121016 50%, #0a0b10 100%);
+    background-size: 200% 200%;
+    animation: tw-bg-drift 24s ease-in-out infinite;
+}
+@keyframes tw-bg-drift {
+    0%,100% { background-position: 0% 0%, 100% 100%, 0% 0%; }
+    50%     { background-position: 40% 30%, 60% 70%, 100% 100%; }
+}
+
+/* Qorong'ilashtirish overlay */
+.tw-bg-overlay {
+    position: fixed; inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse at 50% 0%,
+            rgba(8,8,8, calc(var(--lx-bg-dim) * 0.9)) 0%,
+            rgba(8,8,8, calc(var(--lx-bg-dim) * 1.4)) 60%),
+        linear-gradient(180deg,
+            rgba(8,8,8, calc(var(--lx-bg-dim) * 1.0)) 0%,
+            rgba(8,8,8, calc(var(--lx-bg-dim) * 1.7)) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tw-bg-fallback { animation: none; }
+}
+
+
+/* ════════════════ 3. NAVBAR (landing — glass monoxrom) ════════════════ */
+body.tw-landing-page .tw-navbar {
+    background-color: rgba(16,16,16,0.55);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border-bottom: 1px solid var(--lx-line);
+}
+body.tw-landing-page .footer {
+    background: rgba(10,10,10,0.4);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid var(--lx-line) !important;
+}
+
+
+/* ════════════════ 4. HERO — glass panel ════════════════ */
+.tw-home-hero {
+    position: relative;
+    padding: 3.5rem 0 1.5rem;
+    overflow: visible;
+}
+/* Eski ko'k glow o'chiriladi (monoxrom uslub) */
+body.tw-landing-page .tw-home-glow { display: none; }
+
+.tw-home-grid {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: 1.05fr .95fr;
+    gap: 2rem; align-items: center;
+    background: var(--lx-glass);
+    -webkit-backdrop-filter: var(--lx-blur);
+    backdrop-filter: var(--lx-blur);
+    border: 1px solid var(--lx-line);
+    border-radius: 24px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+    padding: 2.5rem;
+}
+@media (max-width: 900px) {
+    .tw-home-grid { grid-template-columns: 1fr; text-align: center; padding: 1.75rem; }
+}
+
+/* Badge */
+body.tw-landing-page .tw-home-badge {
+    display: inline-flex; align-items: center; gap: .45rem;
+    background: rgba(255,255,255,0.06);
+    color: var(--lx-fg);
+    border: 1px solid var(--lx-line-strong);
+    border-radius: 999px;
+    padding: .4rem 1rem; font-size: .8rem; font-weight: 600;
+    margin-bottom: 1.1rem;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+body.tw-landing-page .tw-home-badge i { color: var(--lx-fg); }
+
+/* Sarlavha — oq monoxrom, .uz nozik kulrang */
+body.tw-landing-page .tw-home-title {
+    color: #fff;
+    letter-spacing: -.045em;
+}
+body.tw-landing-page .tw-home-title .tw-accent {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: var(--lx-fg-muted);
+}
+body.tw-landing-page .tw-home-tagline { color: #fff; }
+body.tw-landing-page .tw-home-lead { color: var(--lx-fg-muted); }
+
+/* CTA tugmalar — Geist (oq primary + ghost) */
+body.tw-landing-page .tw-home-cta .btn-tw,
+body.tw-landing-page .tw-home-cta .btn-tw:link {
+    background: #EDEDED; color: #0A0A0A; border: 1px solid #EDEDED;
+    font-weight: 600;
+}
+body.tw-landing-page .tw-home-cta .btn-tw:hover {
+    background: #fff; border-color: #fff; transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+body.tw-landing-page .tw-home-cta .tw-btn-ghost {
+    background: rgba(255,255,255,0.05); color: var(--lx-fg);
+    border: 1px solid var(--lx-line-strong);
+}
+body.tw-landing-page .tw-home-cta .tw-btn-ghost:hover {
+    background: rgba(255,255,255,0.12); border-color: var(--lx-line-strong);
+    color: #fff; transform: translateY(-2px);
+}
+
+/* Metrikalar — oq raqamlar */
+body.tw-landing-page .tw-metric-num {
+    background: none; -webkit-text-fill-color: initial;
+    color: #fff;
+}
+body.tw-landing-page .tw-metric-lbl { color: var(--lx-fg-muted); }
+
+/* 3D gepard sahna — glass ichida shaffof */
+body.tw-landing-page .tw-cheetah-3d {
+    background: radial-gradient(ellipse at 50% 80%, rgba(255,255,255,0.06), transparent 65%);
+}
+body.tw-landing-page .tw-cheetah-caption { color: var(--lx-fg-muted); }
+body.tw-landing-page .tw-cheetah-caption i { color: var(--lx-fg); }
+
+
+/* ════════════════ 5. BO'LIM SARLAVHALARI ════════════════ */
+body.tw-landing-page .tw-home-h2 { color: #fff; }
+body.tw-landing-page .tw-home-h2 i { color: var(--lx-fg); }
+
+
+/* ════════════════ 6. IMKONIYATLAR — glass kartalar ════════════════ */
+body.tw-landing-page .tw-feature {
+    background: var(--lx-glass);
+    -webkit-backdrop-filter: var(--lx-blur-2);
+    backdrop-filter: var(--lx-blur-2);
+    border: 1px solid var(--lx-line);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.28);
+    color: var(--lx-fg);
+}
+body.tw-landing-page .tw-feature::before {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent);
+}
+body.tw-landing-page .tw-feature:hover {
+    background: var(--lx-glass-hover);
+    border-color: var(--lx-line-strong);
+    box-shadow: 0 18px 44px rgba(0,0,0,0.4);
+    transform: translateY(-6px);
+}
+body.tw-landing-page .tw-feature-ic {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    box-shadow: inset 0 0 0 1px var(--lx-line);
+}
+body.tw-landing-page .tw-feature h3 { color: #fff; }
+body.tw-landing-page .tw-feature p { color: var(--lx-fg-muted); }
+
+
+/* ════════════════ 7. MUALLIF — glass panel ════════════════ */
+body.tw-landing-page .tw-author {
+    background: var(--lx-glass);
+    -webkit-backdrop-filter: var(--lx-blur);
+    backdrop-filter: var(--lx-blur);
+    border: 1px solid var(--lx-line);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.28);
+}
+body.tw-landing-page .tw-author-avatar {
+    background: rgba(255,255,255,0.10);
+    color: #fff;
+    box-shadow: inset 0 0 0 1px var(--lx-line-strong);
+}
+body.tw-landing-page .tw-author-tag { color: var(--lx-fg); }
+body.tw-landing-page .tw-author-tag i { color: var(--lx-fg); }
+body.tw-landing-page .tw-author-name { color: #fff; }
+body.tw-landing-page .tw-author-role { color: var(--lx-fg-muted); }
+body.tw-landing-page .tw-author-bio { color: var(--lx-fg-muted); }
+body.tw-landing-page .tw-author-link {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--lx-line);
+    color: var(--lx-fg-muted);
+}
+body.tw-landing-page a.tw-author-link:hover {
+    border-color: var(--lx-line-strong); color: #fff;
+}
+body.tw-landing-page .tw-author-link i { color: var(--lx-fg); }
