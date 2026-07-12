@@ -339,6 +339,24 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-07-07] BARCHA SAHIFA landing (bosh sahifa) dizayniga keltirildi — umumiy video
+    orqa fon + glass panellar + landing shriftlari:
+    (1) VIDEO ORQA FON HAR SAHIFADA: avval background.mp4 faqat bosh sahifada (Index) edi.
+    3 qatlamli video fon markup'i (.tw-bg-fallback/.tw-bg-video/.tw-bg-overlay) va autoplay
+    skripti Index'dan _Layout.cshtml'ga ko'chirildi — endi Practice/Race/Leaderboard/Rooms/
+    Teams/Contest/Tournaments/Map/Settings/Admin/Profile/Login va boshqa BARCHA sahifada
+    background.mp4 orqa fon ko'rinadi. Index'dagi dublikat markup/skript olib tashlandi.
+    (2) Yangi css/global-theme.css (site.css + theme-pro.css'DAN KEYIN, landing.css'DAN OLDIN
+    yuklanadi — bosh sahifa monoxromini buzmaydi): eski to'r (grid) + gold glow foni
+    (body::before/::after) o'chirildi (video o'rnini bosadi); umumiy karta/panel klasslari
+    (.tw-feature/.tw-rcard/.tw-settings-card/.card/.tw-panel/.tw-region/.tw-map/.tw-profile2 va h.k.)
+    shaffof GLASS bo'ldi (rgba + backdrop-filter blur) — video ular ortidan ko'rinadi; inputlar/
+    tablar yengil glass; navbar/footer kuchli glass (landing bilan mos). Landing tipografiyasi
+    butun saytga: barcha sarlavhalar Space Grotesk (--tw-display), matn Geist.
+    (3) CSP media-src 'self' — video same-origin, ruxsat bor. sw.js cache v74 (+theme-pro.css/
+    global-theme.css shellga), _Layout SW register ?v=74. Build OK (0 warning). ⚠️ Bu muhitda
+    Docker soketiga ruxsat yo'q (postgres/redis ko'tarilmadi) — jonli brauzer tekshiruvi
+    foydalanuvchi tomonidan qilinishi kerak (`docker compose up -d` keyin `dotnet run`).
   - [2026-06-20] /Race ADAPTIV AI raqib (jonli) + Tab orqali qaytadan boshlash:
     (1) ADAPTIV AI: avval AI butun poyga davomida O'ZGARMAS targetWpm (tarix avg+delta) jadvali
     bilan yozardi. Endi AI foydalanuvchining JORIY tezligini kuzatadi va doim undan biroz USTUN

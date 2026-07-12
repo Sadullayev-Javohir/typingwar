@@ -1,0 +1,144 @@
+/* ════════════════════════════════════════════════════════════════════
+   global-theme.css — TypingWar.uz UMUMIY (BARCHA SAHIFA) DIZAYN QATLAMI
+   ────────────────────────────────────────────────────────────────────
+   Maqsad: BARCHA sahifalar landing (bosh sahifa) dizaynini olsin —
+     • orqa fon = background.mp4 (video, har sahifada)
+     • glass (shaffof, blur) panellar — video ko'rinib tursin
+     • landing tipografiyasi: Space Grotesk (sarlavha) + Geist (matn)
+
+   Bu fayl site.css + theme-pro.css DAN KEYIN yuklanadi (ularni qoplaydi),
+   lekin landing.css (faqat bosh sahifa) DAN OLDIN — shuning uchun bosh
+   sahifaning o'ziga xos monoxrom uslubi buzilmaydi.
+
+   Qatlam ierarxiyasi (z-index):
+     .tw-bg-fallback  → -3  (jonli gradient — video yuklanmaguncha)
+     .tw-bg-video     → -2  (to'liq ekran video)
+     .tw-bg-overlay   → -1  (qorong'ilashtirish — matn o'qilishi uchun)
+     kontent          →  0+
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ════════════ 1. GLASS TOKENLAR (landing --lx bilan mos) ════════════ */
+:root {
+    --tw-glass:        rgba(18,18,20,0.46);
+    --tw-glass-2:      rgba(28,28,32,0.36);
+    --tw-glass-hover:  rgba(30,30,36,0.60);
+    --tw-glass-blur:   blur(20px) saturate(140%);
+    --tw-glass-blur-2: blur(13px) saturate(130%);
+
+    /* Landing display shrifti — barcha sarlavhalar shu bilan */
+    --tw-display: 'Space Grotesk', 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/* ════════════ 2. BODY — video ko'rinishi uchun shaffof ════════════ */
+/* Eski to'r (grid) + gold glow foni o'chiriladi; video ularning o'rnini bosadi. */
+body {
+    background-color: #0a0a0a !important;
+}
+body::before,
+body::after {
+    display: none !important;
+}
+/* Gorizontal scrollbar oldini olish (to'liq ekran video + glow) */
+html, body { overflow-x: hidden; max-width: 100%; }
+
+/* ════════════ 3. ⭐ VIDEO ORQA FON (3 qatlam) — har sahifada ════════════ */
+.tw-bg-video {
+    position: fixed; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    pointer-events: none;
+    border: 0;
+    background: #0a0a0a;
+}
+/* Jonli gradient fallback — background.mp4 ulanmaguncha ko'rinadi */
+.tw-bg-fallback {
+    position: fixed; inset: 0;
+    z-index: -3;
+    pointer-events: none;
+    background:
+        radial-gradient(1200px 800px at 15% 10%, #1c2431 0%, transparent 55%),
+        radial-gradient(1000px 700px at 85% 90%, #241c2b 0%, transparent 55%),
+        linear-gradient(135deg, #0b0d12 0%, #121016 50%, #0a0b10 100%);
+    background-size: 200% 200%;
+    animation: tw-bg-drift 24s ease-in-out infinite;
+}
+@keyframes tw-bg-drift {
+    0%,100% { background-position: 0% 0%, 100% 100%, 0% 0%; }
+    50%     { background-position: 40% 30%, 60% 70%, 100% 100%; }
+}
+/* Qorong'ilashtirish overlay — matn/panel o'qilishi uchun */
+.tw-bg-overlay {
+    position: fixed; inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse at 50% 0%,
+            rgba(8,8,8,0.42) 0%, rgba(8,8,8,0.62) 60%),
+        linear-gradient(180deg, rgba(8,8,8,0.46) 0%, rgba(8,8,8,0.72) 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+    .tw-bg-fallback { animation: none; }
+}
+
+/* ════════════ 4. TIPOGRAFIYA — landing shriftlari (butun sayt) ════════════ */
+h1, .h1, h2, .h2, h3, .h3,
+.tw-page-title, .tw-section-title, .tw-home-h2, .tw-brand,
+.tw-rooms-hero h1, .tw-contest-title, .tw-author-name,
+.tw-feature h3, .tw-settings-title, .tw-admin-hero h1 {
+    font-family: var(--tw-display) !important;
+    letter-spacing: -.025em;
+}
+
+/* ════════════ 5. GLASS PANELLAR — video ko'rinib tursin ════════════
+   Butun sayt bo'ylab umumiy karta/panel klasslari shaffof glass bo'ladi.
+   backdrop-filter blur video foniga landing hissini beradi. */
+.tw-feature, .tw-rcard, .tw-settings-card, .tw-board-card,
+.tw-admin-panel, .tw-admin-stats, .tw-config-group, .tw-pwm-card,
+.tw-author, .card, .tw-panel, .tw-region, .tw-map, .tw-detail,
+.tw-rank, .tw-growth, .tw-profile2, .tw-stat, .tw-pb-group,
+.tw-recent, .tw-cp, .tw-gauth, .tw-locked, .tw-home-grid,
+.tw-rooms-hero, .tw-contest-hero, .tw-admin-hero, .tw-hero,
+.tw-tr-chartbox, .tw-rr-chart, .modal-content, .tw-config,
+.tw-side-pick, .tw-rules, .tw-kbd, .tw-fp-card {
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--tw-gold) 4%, transparent), transparent 42%),
+        var(--tw-glass) !important;
+    -webkit-backdrop-filter: var(--tw-glass-blur);
+    backdrop-filter: var(--tw-glass-blur);
+    border: 1px solid var(--tw-border);
+    box-shadow: 0 8px 34px rgba(0,0,0,0.34);
+}
+
+/* Ikkilamchi / ichki yuzalar — yengilroq glass */
+.tw-config input, .tw-config select, .form-control, .form-select,
+.tw-tinput, .tw-input, input, select, textarea,
+.tw-tab, .tw-admin-tab, .tw-side-btn, .tw-join-input {
+    background: var(--tw-glass-2) !important;
+    -webkit-backdrop-filter: var(--tw-glass-blur-2);
+    backdrop-filter: var(--tw-glass-blur-2);
+}
+
+/* Hover holatida glassni biroz quyuqlashtirish */
+.tw-feature:hover, .tw-rcard:hover, .tw-region:hover {
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--tw-gold) 6%, transparent), transparent 42%),
+        var(--tw-glass-hover) !important;
+}
+
+/* ════════════ 6. NAVBAR / FOOTER — kuchli glass (landing bilan mos) ════════════ */
+.tw-navbar {
+    background-color: rgba(14,14,16,0.55) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    backdrop-filter: blur(24px) saturate(160%);
+    border-bottom: 1px solid var(--tw-border);
+}
+.footer {
+    background: rgba(10,10,10,0.42);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border-top: 1px solid var(--tw-border) !important;
+}
+
+/* ════════════ 7. Jadval / kontent shaffofligi ════════════ */
+.table, table { background: transparent !important; }

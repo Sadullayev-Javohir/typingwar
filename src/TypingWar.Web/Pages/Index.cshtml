@@ -12,12 +12,7 @@
     <link rel="stylesheet" href="~/css/landing.css" asp-append-version="true" />
 }
 
-@* ═══════════ ⭐ VIDEO ORQA FON (3 qatlam) ═══════════ *@
-<div class="tw-bg-fallback" aria-hidden="true"></div>
-<video class="tw-bg-video" muted loop playsinline autoplay preload="auto" aria-hidden="true" tabindex="-1" poster="~/img/typingwar-logo.png">
-    <source src="~/videos/background.mp4" type="video/mp4" />
-</video>
-<div class="tw-bg-overlay" aria-hidden="true"></div>
+@* ⭐ VIDEO ORQA FON (background.mp4) endi _Layout'da — barcha sahifada umumiy *@
 
 <section class="tw-home-hero">
     <div class="tw-home-glow"></div>
@@ -154,25 +149,4 @@
     </div>
 </section>
 
-@section Scripts {
-    <script nonce="@cspNonce">
-        // ─── VIDEO AUTOPLAY MENEJMENTI (orqa fon + hero) ───
-        // Brauzerlar autoplay'ni bloklashi mumkin — bir necha nuqtada qayta urinamiz.
-        (function () {
-            var vids = document.querySelectorAll('.tw-bg-video, .tw-hero-video');
-            if (!vids.length) return;
-            var tryPlay = function () {
-                vids.forEach(function (v) {
-                    if (v.tagName !== 'VIDEO') return;
-                    v.muted = true;               // autoplay siyosati uchun majburiy
-                    var p = v.play();
-                    if (p && p.catch) p.catch(function () { }); // bloklansa jimgina fallback qoladi
-                });
-            };
-            vids.forEach(function (v) { v.addEventListener('loadeddata', tryPlay); });
-            document.addEventListener('DOMContentLoaded', tryPlay);
-            document.addEventListener('click', tryPlay, { once: true });
-            tryPlay();
-        })();
-    </script>
-}
+@* Video autoplay menejmenti (orqa fon + hero) endi _Layout'da umumiy *@
