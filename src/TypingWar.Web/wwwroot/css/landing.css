@@ -28,6 +28,10 @@
     --lx-blur:   blur(22px) saturate(135%);
     --lx-blur-2: blur(14px) saturate(130%);
 
+    /* Landing tipografiyasi — sarlavhalar uchun display shrift, matn uchun Geist */
+    --lx-display: 'Space Grotesk', 'Geist', system-ui, -apple-system, sans-serif;
+    --lx-body:    'Geist', 'Inter', system-ui, -apple-system, sans-serif;
+
     /* Video ustidagi qorong'ilik (0 = yorug', 1 = qora) */
     --lx-bg-dim: 0.42;
 }
@@ -36,7 +40,10 @@
 /* Video/gradient fon ko'rinishi uchun body foni va sayt to'ri o'chiriladi */
 body.tw-landing-page {
     background-color: #0a0a0a;
+    overflow-x: hidden;          /* to'liq ekranli fon + glow gorizontal scrollbar hosil qilmasin */
+    max-width: 100%;
 }
+html:has(body.tw-landing-page) { overflow-x: hidden; }
 body.tw-landing-page::before,
 body.tw-landing-page::after { display: none !important; }
 
@@ -108,7 +115,7 @@ body.tw-landing-page .footer {
 .tw-home-hero {
     position: relative;
     padding: 3.5rem 0 1.5rem;
-    overflow: visible;
+    overflow-x: clip;   /* gorizontal toshishni kesadi, vertikal ochiq qoladi */
 }
 /* Eski ko'k glow o'chiriladi (monoxrom uslub) */
 body.tw-landing-page .tw-home-glow { display: none; }
@@ -145,15 +152,32 @@ body.tw-landing-page .tw-home-badge i { color: var(--lx-fg); }
 /* Sarlavha — oq monoxrom, .uz nozik kulrang */
 body.tw-landing-page .tw-home-title {
     color: #fff;
-    letter-spacing: -.045em;
+    font-family: var(--lx-display);
+    font-size: clamp(2.9rem, 6.5vw, 5rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -.05em;
 }
 body.tw-landing-page .tw-home-title .tw-accent {
     background: none;
     -webkit-text-fill-color: initial;
     color: var(--lx-fg-muted);
+    font-weight: 500;
 }
-body.tw-landing-page .tw-home-tagline { color: #fff; }
-body.tw-landing-page .tw-home-lead { color: var(--lx-fg-muted); }
+body.tw-landing-page .tw-home-tagline {
+    color: #fff;
+    font-family: var(--lx-display);
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    margin: .7rem 0 .35rem;
+}
+body.tw-landing-page .tw-home-lead {
+    color: var(--lx-fg-muted);
+    font-family: var(--lx-body);
+    font-size: 1.02rem;
+    line-height: 1.65;
+}
 
 /* CTA tugmalar — Geist (oq primary + ghost) */
 body.tw-landing-page .tw-home-cta .btn-tw,
@@ -198,13 +222,29 @@ body.tw-landing-page .tw-metric-lbl { color: var(--lx-fg-muted); }
     object-fit: cover;
     display: block;
     border: 0;
+    filter: brightness(.78) contrast(1.03) saturate(1.04);
+}
+/* Video ustidagi qorong'i tus — matn/panel bilan uyg'unlashadi */
+.tw-hero-video-wrap::after {
+    content: "";
+    position: absolute; inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+        linear-gradient(180deg, rgba(0,0,0,.30) 0%, rgba(0,0,0,.10) 45%, rgba(0,0,0,.58) 100%),
+        radial-gradient(ellipse at 50% 42%, transparent 42%, rgba(0,0,0,.38) 100%);
 }
 body.tw-landing-page .tw-cheetah-caption { color: var(--lx-fg-muted); }
 body.tw-landing-page .tw-cheetah-caption i { color: var(--lx-fg); }
 
 
 /* ════════════════ 5. BO'LIM SARLAVHALARI ════════════════ */
-body.tw-landing-page .tw-home-h2 { color: #fff; }
+body.tw-landing-page .tw-home-h2 {
+    color: #fff;
+    font-family: var(--lx-display);
+    font-weight: 600;
+    letter-spacing: -.03em;
+}
 body.tw-landing-page .tw-home-h2 i { color: var(--lx-fg); }
 
 
@@ -231,7 +271,12 @@ body.tw-landing-page .tw-feature-ic {
     color: #fff;
     box-shadow: inset 0 0 0 1px var(--lx-line);
 }
-body.tw-landing-page .tw-feature h3 { color: #fff; }
+body.tw-landing-page .tw-feature h3 {
+    color: #fff;
+    font-family: var(--lx-display);
+    font-weight: 600;
+    letter-spacing: -.02em;
+}
 body.tw-landing-page .tw-feature p { color: var(--lx-fg-muted); }
 
 
@@ -250,7 +295,12 @@ body.tw-landing-page .tw-author-avatar {
 }
 body.tw-landing-page .tw-author-tag { color: var(--lx-fg); }
 body.tw-landing-page .tw-author-tag i { color: var(--lx-fg); }
-body.tw-landing-page .tw-author-name { color: #fff; }
+body.tw-landing-page .tw-author-name {
+    color: #fff;
+    font-family: var(--lx-display);
+    font-weight: 600;
+    letter-spacing: -.02em;
+}
 body.tw-landing-page .tw-author-role { color: var(--lx-fg-muted); }
 body.tw-landing-page .tw-author-bio { color: var(--lx-fg-muted); }
 body.tw-landing-page .tw-author-link {

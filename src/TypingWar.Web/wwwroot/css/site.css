@@ -235,6 +235,18 @@ body[data-tw-bg="mono"]::after { display: none; }
 .tw-nav-link i { font-size: 1rem; }
 .tw-nav-link:hover { transform: translateY(-1px); }
 
+/* Faqat ikonli navbar — matnsiz, kattaroq ikon + kengroq oraliq */
+.tw-nav-icons .tw-nav-link {
+    padding: .5rem .6rem;
+    border-radius: 10px;
+    justify-content: center;
+}
+.tw-nav-icons .tw-nav-link i { font-size: 1.25rem; }
+.tw-nav-icons .tw-nav-link:hover { background: rgba(255,255,255,.06); }
+@media (min-width: 576px) {
+    .tw-nav-icons { gap: .12rem; }
+}
+
 /* Vercel primary button — solid white, dark text */
 .btn-tw {
     background: #ededed;

@@ -12,9 +12,14 @@
         </span>
         <h1>Boshqaruv markazi</h1>
         <p>Foydalanuvchilar, turnirlar va kontentni boshqaring.</p>
-        <a href="/hangfire" class="tw-rbtn tw-rbtn--outline tw-rbtn--sm mt-3" target="_blank" rel="noopener">
-            <i class="bi bi-gear-wide-connected"></i> Fon vazifalari (Hangfire)
-        </a>
+        <div class="d-flex flex-wrap gap-2 justify-content-center mt-3">
+            <a href="/hangfire" class="tw-rbtn tw-rbtn--outline tw-rbtn--sm" target="_blank" rel="noopener">
+                <i class="bi bi-gear-wide-connected"></i> Fon vazifalari (Hangfire)
+            </a>
+            <a asp-page="/TournamentDemo" class="tw-rbtn tw-rbtn--outline tw-rbtn--sm">
+                <i class="bi bi-cpu"></i> Simulyatsiya
+            </a>
+        </div>
     </div>
 
     <div id="tw-admin-err" class="tw-rcard-err text-center mb-3"></div>

@@ -115,60 +115,57 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
-                    <ul class="navbar-nav me-auto">
+                    <ul class="navbar-nav me-auto tw-nav-icons">
                         <li class="nav-item">
-                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Index"><i class="bi bi-house-fill"></i><span>Bosh</span></a>
+                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Index" title="Bosh" aria-label="Bosh"><i class="bi bi-house-fill"></i></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Practice"><i class="bi bi-keyboard"></i><span>Mashq</span></a>
+                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Practice" title="Mashq" aria-label="Mashq"><i class="bi bi-keyboard"></i></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Race"><i class="bi bi-flag-fill"></i><span>Poyga</span></a>
+                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Race" title="Poyga" aria-label="Poyga"><i class="bi bi-flag-fill"></i></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Rooms"><i class="bi bi-people-fill"></i><span>Xona</span></a>
+                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Rooms" title="Xona" aria-label="Xona"><i class="bi bi-people-fill"></i></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Teams"><i class="bi bi-shield-fill"></i><span>Jamoa</span></a>
+                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Teams" title="Jamoa" aria-label="Jamoa"><i class="bi bi-shield-fill"></i></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Contest"><i class="bi bi-calendar-check-fill"></i><span>Kunlik</span></a>
+                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Contest" title="Kunlik" aria-label="Kunlik"><i class="bi bi-calendar-check-fill"></i></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Tournaments"><i class="bi bi-trophy-fill"></i><span>Turnir</span></a>
+                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Tournaments" title="Turnir" aria-label="Turnir"><i class="bi bi-trophy-fill"></i></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Map"><i class="bi bi-map-fill"></i><span>Xarita</span></a>
+                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Map" title="Xarita" aria-label="Xarita"><i class="bi bi-map-fill"></i></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Leaderboard"><i class="bi bi-bar-chart-fill"></i><span>Reyting</span></a>
+                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Leaderboard" title="Reyting" aria-label="Reyting"><i class="bi bi-bar-chart-fill"></i></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Settings"><i class="bi bi-gear-fill"></i><span>Sozlama</span></a>
+                            <a class="nav-link tw-nav-link" asp-area="" asp-page="/Settings" title="Sozlama" aria-label="Sozlama"><i class="bi bi-gear-fill"></i></a>
                         </li>
                     </ul>
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav tw-nav-icons">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link tw-nav-link tw-accent" asp-area="" asp-page="/Admin"><i class="bi bi-shield-lock-fill"></i><span>Admin</span></a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link tw-nav-link tw-accent" asp-area="" asp-page="/TournamentDemo"><i class="bi bi-cpu"></i><span>Simulyatsiya</span></a>
+                                    <a class="nav-link tw-nav-link tw-accent" asp-area="" asp-page="/Admin" title="Admin" aria-label="Admin"><i class="bi bi-shield-lock-fill"></i></a>
                                 </li>
                             }
                             <li class="nav-item">
-                                <a class="nav-link tw-nav-link" asp-area="" asp-page="/Profile"><i class="bi bi-person-circle"></i><span>@User.Identity!.Name</span></a>
+                                <a class="nav-link tw-nav-link" asp-area="" asp-page="/Profile" title="@User.Identity!.Name" aria-label="Profil"><i class="bi bi-person-circle"></i></a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link tw-nav-link" href="#" id="tw-logout"><i class="bi bi-box-arrow-right"></i><span>Chiqish</span></a>
+                                <a class="nav-link tw-nav-link" href="#" id="tw-logout" title="Chiqish" aria-label="Chiqish"><i class="bi bi-box-arrow-right"></i></a>
                             </li>
                         }
                         else
                         {
-                            <li class="nav-item"><a class="nav-link tw-nav-link tw-accent" asp-page="/Login"><i class="bi bi-google"></i><span>Kirish</span></a></li>
+                            <li class="nav-item"><a class="nav-link tw-nav-link tw-accent" asp-page="/Login" title="Kirish" aria-label="Kirish"><i class="bi bi-google"></i></a></li>
                         }
                     </ul>
                 </div>
