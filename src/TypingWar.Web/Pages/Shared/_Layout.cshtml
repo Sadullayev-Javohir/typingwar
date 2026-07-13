@@ -182,7 +182,23 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
-            @RenderBody()
+            @{
+                // Har sahifa kontenti bitta glass KARTA ichida (Race + boshqa sahifalar).
+                // Landing (bosh sahifa) va NoPageCard=true bo'lgan sahifalar (masalan
+                // Practice — o'zining bo'lim kartalarini beradi) bundan mustasno.
+                var noPageCard = (ViewData["NoPageCard"] as bool?) ?? false;
+                var isLanding = (ViewData["BodyClass"] as string)?.Contains("tw-landing-page") == true;
+            }
+            @if (noPageCard || isLanding)
+            {
+                @RenderBody()
+            }
+            else
+            {
+                <div class="tw-page-card">
+                    @RenderBody()
+                </div>
+            }
         </main>
     </div>
 
@@ -242,7 +258,7 @@
         // Versiyalangan URL: Cloudflare bare "/sw.js"ni eski cache'lagan bo'lsa ham
         // "?v=69" yangi URL => edge BYPASS => yangi worker darhol o'rnatiladi (o'z-o'zini tuzatadi).
         if ("serviceWorker" in navigator)
-            window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js?v=75").catch(() => { }));
+            window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js?v=77").catch(() => { }));
 
         // ─── VIDEO ORQA FON AUTOPLAY (barcha sahifa) ───
         // Brauzerlar autoplay'ni bloklashi mumkin — bir necha nuqtada qayta urinamiz.

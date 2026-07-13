@@ -3,11 +3,13 @@
 @{
     ViewData["Title"] = "Typing mashqi — yozish tezligi testi";
     ViewData["Description"] = "Bepul typing testi: o'zbek va ingliz tilida so'z, jumla, raqam va kod rejimida yozish tezligingizni (WPM) va aniqligingizni o'lchang. 10s/15s/30s/60s/120s vaqt rejimlari va batafsil natija grafigi.";
+    // Practice o'zining BO'LIM kartalarini beradi — umumiy sahifa kartasi kerak emas.
+    ViewData["NoPageCard"] = true;
 }
 
 <div id="tw-practice" class="tw-practice" tabindex="0">
 
-    <div class="tw-config">
+    <div class="tw-config tw-card">
         <div class="tw-config-group" data-group="language">
             <span class="tw-config-label"><i class="bi bi-translate"></i>Til:</span>
             <button class="tw-opt" data-key="language" data-value="Uzbek">uz</button>
@@ -49,6 +51,7 @@
         </div>
     </div>
 
+    <div class="tw-card tw-arena">
     <div class="tw-stats">
         <div class="tw-stat" id="tw-stat-wpm">
             <span id="tw-wpm">0</span>
@@ -109,11 +112,12 @@
         </button>
         <span class="tw-hint"><i class="bi bi-mouse2 me-1"></i>Yozishni boshlash uchun shu yerga bosing va yozing</span>
     </div>
+    </div><!-- /tw-arena -->
 
     <!-- Ekran klaviaturasi — keyingi bosiladigan tugmani yoritib turadi -->
-    <div id="tw-keyboard" class="tw-keyboard" aria-hidden="true"></div>
+    <div id="tw-keyboard" class="tw-keyboard tw-card" aria-hidden="true"></div>
 
-    <div id="tw-result" class="tw-result-screen d-none">
+    <div id="tw-result" class="tw-result-screen tw-card d-none">
         <div class="tw-result-top">
             <div class="tw-result-hero">
                 <div class="tw-hero-stat">

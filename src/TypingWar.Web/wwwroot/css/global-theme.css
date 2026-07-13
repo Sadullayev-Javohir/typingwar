@@ -142,3 +142,47 @@ h1, .h1, h2, .h2, h3, .h3,
 
 /* ════════════ 7. Jadval / kontent shaffofligi ════════════ */
 .table, table { background: transparent !important; }
+
+/* ════════════ 8. ⭐ UMUMIY SAHIFA KARTASI (BARCHA SAHIFA) ════════════
+   Har sahifa kontenti bitta glass KARTA ichida ko'rinadi (Race = bitta
+   bo'lim karta; boshqa sahifalar ham shunday). _Layout @RenderBody() ni
+   .tw-page-card ichiga o'raydi (landing/opt-out bundan mustasno).
+   Ichki panellar (allaqachon glass) ustida yengil idish bo'lib turadi —
+   shuning uchun page-card ATAYIN yengilroq (shaffofroq). */
+.tw-page-card {
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--tw-gold) 3%, transparent), transparent 46%),
+        rgba(14,14,16,0.30);
+    -webkit-backdrop-filter: blur(16px) saturate(135%);
+    backdrop-filter: blur(16px) saturate(135%);
+    border: 1px solid var(--tw-border);
+    border-radius: 22px;
+    box-shadow: 0 14px 48px rgba(0,0,0,0.38);
+    padding: clamp(1rem, 3vw, 2rem);
+    margin: 1.25rem 0 2rem;
+    width: 100%;
+}
+
+/* Bo'lim (section) kartasi — Practice sahifasi har bo'limni alohida karta
+   qiladi. Bir xil glass tokenlar bilan (uslub butun sayt bo'ylab bir xil). */
+.tw-card {
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--tw-gold) 4%, transparent), transparent 42%),
+        var(--tw-glass);
+    -webkit-backdrop-filter: var(--tw-glass-blur);
+    backdrop-filter: var(--tw-glass-blur);
+    border: 1px solid var(--tw-border);
+    border-radius: 18px;
+    box-shadow: 0 8px 34px rgba(0,0,0,0.30);
+    padding: clamp(.9rem, 2.4vw, 1.4rem);
+    margin-bottom: 1.1rem;
+}
+.tw-card:last-child { margin-bottom: 0; }
+
+/* Kartadagi allaqachon-glass bo'lim (masalan .tw-config) — ikki qavat
+   glass muddy ko'rinmasin uchun ichkaridagi fon yengillashtiriladi. */
+.tw-page-card .tw-config,
+.tw-card .tw-config {
+    background: var(--tw-glass-2) !important;
+    box-shadow: none !important;
+}

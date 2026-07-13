@@ -339,6 +339,23 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-07-07] BARCHA SAHIFA kontenti glass KARTA (card) ichiga olindi:
+    (1) UMUMIY SAHIFA KARTASI (Race + boshqa barcha sahifa = bitta bo'lim karta):
+    _Layout.cshtml @RenderBody() endi .tw-page-card ichida o'raladi — landing (bosh sahifa,
+    BodyClass=tw-landing-page) va NoPageCard=true bo'lgan sahifalar (Practice) bundan mustasno.
+    Natijada /Race sahifasi "Poyga" sarlavhasi + config + yoziladigan matn + natija BITTA glass
+    karta ichida ko'rinadi; Leaderboard/Rooms/Teams/Contest/Tournaments/Map/Settings/Admin/Profile
+    va boshqa barcha sahifa ham shunday bitta karta ichida.
+    (2) PRACTICE — har bo'lim ALOHIDA karta: NoPageCard=true (umumiy karta o'rniga o'z bo'lim
+    kartalari). .tw-config→karta, stats+track+words+actions→bitta "arena" (.tw-card.tw-arena)
+    karta, klaviatura→karta, natija→karta. Arena DOM tartibi (stats→track→words→actions) fokus/
+    minimal rejim flex-order maqsadiga aynan mos — shu sabab wrapper qo'shilsa ham fokus/minimal
+    rejim ko'rinishi buzilmaydi.
+    (3) global-theme.css yangi bloklar: .tw-page-card (yengil glass idish, blur 16px, radius 22px),
+    .tw-card (bo'lim kartasi, radius 18px, umumiy glass tokenlar), va ichki .tw-config softening
+    (.tw-page-card .tw-config / .tw-card .tw-config → glass-2, shadow yo'q — ikki qavat glass muddy
+    bo'lmasin). sw.js cache v77, _Layout SW register ?v=77. Build OK (0 warning).
+    ⚠️ Jonli brauzer ko'rinishi foydalanuvchi tomonidan tekshirilsin (bu muhitda Docker/DB yo'q).
   - [2026-07-07] Sariq (amber) matn olib tashlandi + standart shrift 50px + qalin (bold) shrift sozlamasi:
     (1) SARIQSIZ (neytral): standart tema (Monokai) tanlovdan olib tashlangani sabab butun sayt
     amber/sariq accentda edi. THEME_MAP.Monokai gold '#f5a623'→'#e5e5ea', accent '#ffd24d'→'#a5abb8'
