@@ -1,5 +1,6 @@
 /* TypingWar — Service Worker (offline app shell) */
-const CACHE = "tw-cache-v78";
+const CACHE = "tw-cache-v79";
+const MEDIA_CACHE = "tw-media-v79";     // video/media — alohida (katta, kamdan-kam o'zgaradi)
 const SHELL = [
     "/",
     "/Practice",
@@ -28,8 +29,9 @@ self.addEventListener("install", (e) => {
 
 self.addEventListener("activate", (e) => {
     e.waitUntil(
-        caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
-            .then(() => self.clients.claim())
+        caches.keys().then(keys => Promise.all(
+            keys.filter(k => k !== CACHE && k !== MEDIA_CACHE).map(k => caches.delete(k))
+        )).then(() => self.clients.claim())
     );
 });
 
@@ -42,6 +44,13 @@ self.addEventListener("fetch", (e) => {
     // (CSP connect-src emas, balki style-src/font-src/script-src qo'llaniladi).
     if (url.origin !== self.location.origin) return;
     if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/hubs/")) return;
+
+    // Video/media — cache-first + Range so'rovlarini qo'llab-quvvatlash.
+    // Video BIR MARTA to'liq yuklanadi, keyin har sahifada cache'dan darhol o'ynaydi.
+    if (/\.(mp4|webm|ogg)$/.test(url.pathname)) {
+        e.respondWith(mediaResponse(req, url));
+        return;
+    }
 
     // Statik resurslar — cache-first; sahifalar — network-first + cache fallback
     const isStatic = /\.(css|js|png|ico|webmanifest|woff2?)$/.test(url.pathname);
@@ -60,4 +69,58 @@ function fetchAndCache(req) {
 }
 function putCache(req, res) {
     if (res && res.ok) caches.open(CACHE).then(c => c.put(req, res));
+}
+
+// ─── Video/media: to'liq faylni bir marta cache'ga oladi, Range so'rovga
+//     cache'dagi to'liq body'dan 206 (partial) javob yasaydi ───
+async function mediaResponse(req, url) {
+    const cache = await caches.open(MEDIA_CACHE);
+    // Diapazonsiz kalit bilan qidiramiz (Range header cache kalitiga kirmasin)
+    const keyReq = new Request(url.href, { method: "GET" });
+    let full = await cache.match(keyReq);
+
+    if (!full) {
+        try {
+            // To'liq faylni (Range'siz) yuklab, cache'ga saqlaymiz
+            const netRes = await fetch(keyReq);
+            if (netRes && netRes.ok && netRes.status === 200) {
+                cache.put(keyReq, netRes.clone());
+                full = netRes;
+            } else {
+                // Server 206/boshqa qaytarsa — to'g'ridan-to'g'ri original so'rovni bajaramiz
+                return fetch(req);
+            }
+        } catch (_) {
+            return fetch(req).catch(() => new Response("", { status: 504 }));
+        }
+    }
+
+    const range = req.headers.get("range");
+    if (!range) return full.clone();
+
+    // Range so'rovi: cache'dagi to'liq body'dan kerakli bo'lakni kesib beramiz
+    const buf = await full.clone().arrayBuffer();
+    const total = buf.byteLength;
+    const m = /bytes=(\d*)-(\d*)/.exec(range);
+    let start = m && m[1] ? parseInt(m[1], 10) : 0;
+    let end = m && m[2] ? parseInt(m[2], 10) : total - 1;
+    if (isNaN(start)) start = 0;
+    if (isNaN(end) || end >= total) end = total - 1;
+    if (start > end || start >= total) {
+        return new Response(null, {
+            status: 416,
+            headers: { "Content-Range": `bytes */${total}` }
+        });
+    }
+    const chunk = buf.slice(start, end + 1);
+    return new Response(chunk, {
+        status: 206,
+        statusText: "Partial Content",
+        headers: {
+            "Content-Type": full.headers.get("Content-Type") || "video/mp4",
+            "Content-Range": `bytes ${start}-${end}/${total}`,
+            "Content-Length": String(chunk.byteLength),
+            "Accept-Ranges": "bytes"
+        }
+    });
 }

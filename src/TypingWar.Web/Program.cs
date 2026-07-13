@@ -259,6 +259,16 @@ app.UseStaticFiles(new StaticFileOptions
             ctx.Context.Response.Headers["Pragma"] = "no-cache";
             ctx.Context.Response.Headers["Expires"] = "0";
         }
+        else if (path.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) ||
+                 path.EndsWith(".webm", StringComparison.OrdinalIgnoreCase) ||
+                 path.EndsWith(".woff2", StringComparison.OrdinalIgnoreCase) ||
+                 path.EndsWith(".woff", StringComparison.OrdinalIgnoreCase))
+        {
+            // Katta media/shrift fayllari o'zgarmaydi — brauzer 1 yil cache qilsin
+            // (immutable => revalidatsiya so'rovi ham yubormaydi). Natijada video
+            // faqat BIR MARTA yuklanadi, keyingi sahifalarda darhol ochiladi.
+            ctx.Context.Response.Headers["Cache-Control"] = "public, max-age=31536000, immutable";
+        }
     }
 });
 

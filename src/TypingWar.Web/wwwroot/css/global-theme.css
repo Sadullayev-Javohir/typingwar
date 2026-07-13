@@ -49,8 +49,12 @@ html, body { overflow-x: hidden; max-width: 100%; }
     z-index: -2;
     pointer-events: none;
     border: 0;
-    background: #0a0a0a;
+    background: transparent;   /* orqada gradient fallback ko'rinsin (frozen kadr yo'q) */
+    opacity: 0;                /* video HAQIQATAN o'ynaguncha ko'rinmaydi — muzlagan kadr yo'q */
+    transition: opacity 1.1s ease;
 }
+/* Video "playing" bo'lganda JS shu klassni qo'shadi → silliq paydo bo'ladi */
+.tw-bg-video.tw-video-on { opacity: 1; }
 /* Jonli gradient fallback — background.mp4 ulanmaguncha ko'rinadi */
 .tw-bg-fallback {
     position: fixed; inset: 0;
@@ -212,4 +216,51 @@ h1, .h1, h2, .h2, h3, .h3,
 .tw-wordswrap:focus-visible {
     outline: none !important;
     box-shadow: none !important;
+}
+
+/* ════════════ 12. YUKLANISH EKRANI (loader) — barcha sahifada ════════════
+   Sahifa + orqa fon video yuklanguncha ko'rsatiladi; tayyor bo'lgach silliq
+   yo'qoladi. Keyingi sahifalar (video/CSS/JS cache'da) darhol ochilgani sabab
+   loader deyarli ko'rinmaydi — navigatsiya tez his etiladi. */
+#tw-loader {
+    position: fixed; inset: 0; z-index: 99999;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 20px;
+    background: radial-gradient(1200px 800px at 50% 32%, #14161d 0%, #0a0b10 72%);
+    transition: opacity .45s ease, visibility .45s ease;
+}
+#tw-loader.tw-loader-hide {
+    opacity: 0; visibility: hidden; pointer-events: none;
+}
+.tw-loader-logo {
+    width: 82px; height: 82px; object-fit: contain;
+    animation: tw-loader-pulse 1.4s ease-in-out infinite;
+    filter: drop-shadow(0 8px 26px rgba(0,0,0,.55));
+}
+@keyframes tw-loader-pulse {
+    0%,100% { transform: scale(1);    opacity: .82; }
+    50%     { transform: scale(1.09); opacity: 1;   }
+}
+.tw-loader-bar {
+    width: 190px; height: 4px; border-radius: 4px;
+    background: rgba(255,255,255,.10); overflow: hidden;
+}
+.tw-loader-bar::after {
+    content: ""; display: block; height: 100%; width: 42%; border-radius: 4px;
+    background: linear-gradient(90deg, transparent, #e5e5ea, transparent);
+    animation: tw-loader-slide 1.05s ease-in-out infinite;
+}
+@keyframes tw-loader-slide {
+    0%   { transform: translateX(-130%); }
+    100% { transform: translateX(320%);  }
+}
+.tw-loader-text {
+    font-family: var(--tw-display, system-ui, sans-serif);
+    letter-spacing: .03em;
+    color: rgba(255,255,255,.70);
+    font-size: 13.5px;
+}
+@media (prefers-reduced-motion: reduce) {
+    .tw-loader-logo, .tw-loader-bar::after { animation: none; }
 }

@@ -104,9 +104,16 @@
     @await RenderSectionAsync("Head", required: false)
 </head>
 <body class="@(ViewData["BodyClass"])">
+    @* ═══════════ YUKLANISH EKRANI (loader) — sahifa+video tayyor bo'lguncha ═══════════ *@
+    <div id="tw-loader" aria-hidden="true">
+        <img class="tw-loader-logo" src="~/img/typingwar-logo.png" alt="TypingWar" />
+        <div class="tw-loader-bar"></div>
+        <div class="tw-loader-text">Yuklanmoqda…</div>
+    </div>
+
     @* ═══════════ ⭐ VIDEO ORQA FON (3 qatlam) — BARCHA SAHIFADA ═══════════ *@
     <div class="tw-bg-fallback" aria-hidden="true"></div>
-    <video class="tw-bg-video" muted loop playsinline autoplay preload="auto" aria-hidden="true" tabindex="-1" poster="~/img/typingwar-logo.png">
+    <video class="tw-bg-video" muted loop playsinline autoplay preload="auto" aria-hidden="true" tabindex="-1">
         <source src="~/videos/background.mp4" type="video/mp4" />
     </video>
     <div class="tw-bg-overlay" aria-hidden="true"></div>
@@ -256,24 +263,50 @@
         });
         // PWA — service worker (offline app shell + natija navbati)
         // Versiyalangan URL: Cloudflare bare "/sw.js"ni eski cache'lagan bo'lsa ham
-        // "?v=69" yangi URL => edge BYPASS => yangi worker darhol o'rnatiladi (o'z-o'zini tuzatadi).
+        // "?v=79" yangi URL => edge BYPASS => yangi worker darhol o'rnatiladi (o'z-o'zini tuzatadi).
         if ("serviceWorker" in navigator)
-            window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js?v=78").catch(() => { }));
+            window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js?v=79").catch(() => { }));
 
-        // ─── VIDEO ORQA FON AUTOPLAY (barcha sahifa) ───
+        // ─── YUKLANISH EKRANINI YASHIRISH ───
+        // Sahifa tayyor bo'lgach loader silliq yo'qoladi. Bir necha signal:
+        //   • window "load" (barcha resurs) • hard-cap taymer (hech qachon osilib qolmasin)
+        (function () {
+            var loader = document.getElementById('tw-loader');
+            if (!loader) return;
+            var hidden = false;
+            var hide = function () {
+                if (hidden) return; hidden = true;
+                loader.classList.add('tw-loader-hide');
+                setTimeout(function () { if (loader.parentNode) loader.parentNode.removeChild(loader); }, 600);
+            };
+            if (document.readyState === 'complete') { hide(); return; }
+            window.addEventListener('load', function () { setTimeout(hide, 120); });
+            // Kafolat: 4s dan keyin qanday bo'lmasin yashiramiz (video sekin bo'lsa ham)
+            setTimeout(hide, 4000);
+        })();
+
+        // ─── VIDEO ORQA FON AUTOPLAY + SILLIQ PAYDO BO'LISH (barcha sahifa) ───
         // Brauzerlar autoplay'ni bloklashi mumkin — bir necha nuqtada qayta urinamiz.
+        // Video HAQIQATAN o'ynay boshlaganda "tw-video-on" klassi qo'shiladi →
+        // muzlagan birinchi kadr KO'RINMAYDI, video silliq fade bilan chiqadi.
         (function () {
             var vids = document.querySelectorAll('.tw-bg-video, .tw-hero-video');
             if (!vids.length) return;
+            var reveal = function (v) { v.classList.add('tw-video-on'); };
             var tryPlay = function () {
                 vids.forEach(function (v) {
                     if (v.tagName !== 'VIDEO') return;
                     v.muted = true;
                     var p = v.play();
-                    if (p && p.catch) p.catch(function () { });
+                    if (p && p.then) p.then(function () { reveal(v); }).catch(function () { });
                 });
             };
-            vids.forEach(function (v) { v.addEventListener('loadeddata', tryPlay); });
+            vids.forEach(function (v) {
+                v.addEventListener('playing', function () { reveal(v); });
+                v.addEventListener('loadeddata', tryPlay);
+                // Agar video allaqachon o'ynayotgan bo'lsa (cache'dan tez) — darhol ko'rsat
+                if (v.readyState >= 3 && !v.paused) reveal(v);
+            });
             document.addEventListener('DOMContentLoaded', tryPlay);
             document.addEventListener('click', tryPlay, { once: true });
             tryPlay();

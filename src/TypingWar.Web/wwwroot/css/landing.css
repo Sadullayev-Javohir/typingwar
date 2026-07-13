@@ -223,6 +223,15 @@ body.tw-landing-page .tw-metric-lbl { color: var(--lx-fg-muted); }
     display: block;
     border: 0;
     filter: brightness(.78) contrast(1.03) saturate(1.04);
+    opacity: 0;                       /* video o'ynaguncha ko'rinmaydi (muzlagan kadr yo'q) */
+    transition: opacity 1s ease;
+}
+.tw-hero-video.tw-video-on { opacity: 1; }
+/* Video yuklanayotganda idish ichida yengil jonli fon (bo'sh qora emas) */
+.tw-hero-video-wrap {
+    background:
+        radial-gradient(ellipse at 50% 80%, rgba(255,255,255,0.06), transparent 65%),
+        linear-gradient(135deg, #14161d 0%, #0d0e13 100%);
 }
 /* Video ustidagi qorong'i tus — matn/panel bilan uyg'unlashadi */
 .tw-hero-video-wrap::after {
