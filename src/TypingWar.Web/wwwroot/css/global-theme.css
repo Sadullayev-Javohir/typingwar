@@ -186,3 +186,30 @@ h1, .h1, h2, .h2, h3, .h3,
     background: var(--tw-glass-2) !important;
     box-shadow: none !important;
 }
+
+/* ════════════ 9. ⭐ OQ "KVADRAT CHIZIQ" (box outline) TUZATISHI ════════════
+   Ikki manba oq to'rtburchak chiziq hosil qilardi:
+   (1) Karta ROMLARI — .tw-page-card/.tw-card border+shadow har bo'limni
+       ko'rinadigan "quti" (box) qilib o'rab qo'yardi. Chiziqni (ROM) olib
+       tashlaymiz, lekin yengil glass fon qoladi (dizayn buzilmaydi). */
+.tw-page-card,
+.tw-card {
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+/* (2) FOKUS RAMKASI — .tw-words (Race/Room/Team/Contest'da tabindex="0")
+   va Practice ildizi fokus olganda brauzer STANDART oq/ko'k fokus ramkasini
+   (outline) chizardi — yozish boshlanganda yoki undan oldin ham. Fokus
+   holati jimirlab turgan KARET orqali ko'rsatiladi, outline kerak emas. */
+.tw-words:focus,
+.tw-words:focus-visible,
+.tw-practice:focus,
+.tw-practice:focus-visible,
+#tw-practice:focus,
+#tw-practice:focus-visible,
+.tw-wordswrap:focus,
+.tw-wordswrap:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
