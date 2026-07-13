@@ -339,6 +339,23 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-07-07] Sariq (amber) matn olib tashlandi + standart shrift 50px + qalin (bold) shrift sozlamasi:
+    (1) SARIQSIZ (neytral): standart tema (Monokai) tanlovdan olib tashlangani sabab butun sayt
+    amber/sariq accentda edi. THEME_MAP.Monokai gold '#f5a623'→'#e5e5ea', accent '#ffd24d'→'#a5abb8'
+    (bg/surface ham neytral #0a0a0a/#141414) — natijada var(--tw-gold)/var(--tw-accent) bilan
+    bo'yalgan ~100 matn qatori (WPM raqamlari, sarlavhalar, linklar, tablar) neytral oq/kulrangga
+    aylandi, rangli urg'u qolmadi. site.css'dagi hardcoded gold matnlar (trophy #e8a020/#ffcc55 +
+    amber glow'lar) neytrallashtirildi. site.css:1988 .tw-rbtn--gold matni #fff→#14100a (neytral
+    fon ustida o'qilishi uchun). settings-page.js THEMES Monokai ham neytral (vestigial grid).
+    (2) STANDART FONT-SIZE 50px: DEFAULTS.fontSize 18→50, UserSettings.FontSize=50, UserSettingsDto=50,
+    site.css :root --tw-fontsize 18px→50px, Settings.cshtml fsVal 18→50. Diapazon 14–60 o'zgarmadi.
+    (3) QALIN (BOLD) SHRIFT: yangi boolean sozlama boldText. typing-settings.js DEFAULTS boldText:false +
+    apply()'da --tw-fontweight (bold→700/400); .tw-words font-weight: var(--tw-fontweight). Settings
+    "Shrift" kartasiga "Qalin shrift (bold)" toggle (data-tw=boldText). Backend: UserSettings.BoldText +
+    UserSettingsDto.BoldText (Mapster nom bo'yicha map qiladi), migration AddBoldTextSetting (boolean
+    default false). Yangi AppDbContextFactory (IDesignTimeDbContextFactory) — migratsiya Docker'siz
+    (Redis eager-connect'siz) generatsiya qilinadi. sw.js cache v76. Build OK (0 warning), 105 test.
+    ⚠️ Migration deploy'da startupda avtomatik qo'llanadi (bu muhitda Docker/DB yo'q).
   - [2026-07-07] BARCHA SAHIFA landing (bosh sahifa) dizayniga keltirildi — umumiy video
     orqa fon + glass panellar + landing shriftlari:
     (1) VIDEO ORQA FON HAR SAHIFADA: avval background.mp4 faqat bosh sahifada (Index) edi.

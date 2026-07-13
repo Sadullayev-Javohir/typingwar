@@ -11,7 +11,7 @@
         { id: 'Light',     name: 'Light',  bg: '#fafafa', surface: '#ffffff', text: '#111111', gold: '#0070f3' },
         { id: 'Sepia',     name: 'Sand',   bg: '#faf8f4', surface: '#ffffff', text: '#1a1410', gold: '#c2410c' },
         { id: 'Nord',      name: 'Blue',   bg: '#00040d', surface: '#0b1322', text: '#ededed', gold: '#0070f3' },
-        { id: 'Monokai',   name: 'Amber',  bg: '#0d0900', surface: '#171206', text: '#ededed', gold: '#f5a623' },
+        { id: 'Monokai',   name: 'Neytral', bg: '#0a0a0a', surface: '#141414', text: '#ededed', gold: '#e5e5ea' },
         { id: 'Solarized', name: 'Teal',   bg: '#00090b', surface: '#0a181c', text: '#ededed', gold: '#00bfa5' },
         { id: 'Ocean',     name: 'Cyan',   bg: '#00060d', surface: '#0a1420', text: '#ededed', gold: '#00dfd8' },
         { id: 'Forest',    name: 'Green',  bg: '#000d06', surface: '#0a1a10', text: '#ededed', gold: '#00c853' },
@@ -313,6 +313,7 @@
         if (p) {
             p.style.fontFamily = `'${S.get('fontFamily')}', monospace`;
             p.style.fontSize   = S.get('fontSize') + 'px';
+            p.style.fontWeight = S.get('boldText') ? '700' : '400';
         }
         if (fLabel) fLabel.textContent = S.get('fontFamily');
         if (sLabel) sLabel.textContent = S.get('fontSize') + 'px';

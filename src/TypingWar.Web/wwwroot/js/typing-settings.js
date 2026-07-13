@@ -7,7 +7,8 @@
         textMode: "Words", wordCount: 25, timedMode: false, timeLimitSeconds: 30,
         quoteLength: "all",
         difficulty: "Normal", language: "Uzbek",
-        theme: "Monokai", fontFamily: "JetBrains Mono", fontSize: 18,
+        theme: "Monokai", fontFamily: "JetBrains Mono", fontSize: 50,
+        boldText: false,
         caretStyle: "Line", smoothCaret: true,
         background: "nextjs",
         showLiveWpm: true, showLiveAcc: true, showLiveTimer: true,
@@ -23,7 +24,7 @@
         Light:     { bg: '#fafafa', surface: '#ffffff', text: '#111111', sub: '#999999', gold: '#0070f3', accent: '#7928ca' }, // Light
         Sepia:     { bg: '#faf8f4', surface: '#ffffff', text: '#1a1410', sub: '#a08c78', gold: '#c2410c', accent: '#f5a623' }, // Sand
         Nord:      { bg: '#00040d', surface: '#0b1322', text: '#ededed', sub: '#56607a', gold: '#0070f3', accent: '#00c8ff' }, // Blue
-        Monokai:   { bg: '#0d0900', surface: '#171206', text: '#ededed', sub: '#6a5f4a', gold: '#f5a623', accent: '#ffd24d' }, // Amber
+        Monokai:   { bg: '#0a0a0a', surface: '#141414', text: '#ededed', sub: '#8a8a92', gold: '#e5e5ea', accent: '#a5abb8' }, // Neytral (sariqsiz)
         Solarized: { bg: '#00090b', surface: '#0a181c', text: '#ededed', sub: '#4a6065', gold: '#00bfa5', accent: '#22d3ee' }, // Teal
         Ocean:     { bg: '#00060d', surface: '#0a1420', text: '#ededed', sub: '#54648a', gold: '#00dfd8', accent: '#0070f3' }, // Cyan
         Forest:    { bg: '#000d06', surface: '#0a1a10', text: '#ededed', sub: '#5a7a60', gold: '#00c853', accent: '#50e3c2' }, // Green
@@ -99,6 +100,7 @@
             // Shrift
             root.style.setProperty('--tw-font',       '"' + s.fontFamily + '", monospace');
             root.style.setProperty('--tw-fontsize',    s.fontSize + 'px');
+            root.style.setProperty('--tw-fontweight',  s.boldText ? '700' : '400');
             root.style.setProperty('--tw-caret-anim', s.smoothCaret ? '0.1s' : '0s');
             document.body.dataset.twCaret = s.caretStyle;
 

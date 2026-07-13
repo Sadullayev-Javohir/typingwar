@@ -297,7 +297,7 @@ body[data-tw-bg="mono"]::after { display: none; }
 .tw-hero .lead { color: var(--tw-muted); }
 
 /* ───── Typing engine ───── */
-:root { --tw-font: 'JetBrains Mono', monospace; --tw-fontsize: 18px; --tw-caret-anim: .1s; }
+:root { --tw-font: 'JetBrains Mono', monospace; --tw-fontsize: 50px; --tw-fontweight: 400; --tw-caret-anim: .1s; }
 
 .tw-practice { outline: none; max-width: 980px; margin: 1.5rem auto; }
 
@@ -361,6 +361,7 @@ body[data-tw-bg="mono"]::after { display: none; }
     position: relative;
     font-family: var(--tw-font);
     font-size: var(--tw-fontsize);
+    font-weight: var(--tw-fontweight, 400);
     line-height: 1.9;
     white-space: pre-wrap;
     word-break: break-word;
@@ -1985,7 +1986,7 @@ a.tw-author-link:hover { border-color: rgba(0,112,243,.5); color: var(--tw-gold)
 .tw-cboard-prof:hover { color: var(--tw-gold); border-color: var(--tw-gold); }
 
 /* ═══════════════ Turnirlar (playoff) ═══════════════ */
-.tw-rbtn--gold { background: var(--tw-gold); border-color: var(--tw-gold); color: #fff; }
+.tw-rbtn--gold { background: var(--tw-gold); border-color: var(--tw-gold); color: #14100a; }
 .tw-rbtn--sm { width: auto; margin-top: 0; padding: .5rem .85rem; font-size: .85rem; }
 
 /* Yaratish formasi */
@@ -2237,8 +2238,8 @@ body.tw-bk-full-open { overflow: hidden; }
 .tw-trophy-3d canvas { display: block; width: 100% !important; height: 100% !important; }
 .tw-trophy-fallback {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    font-size: 5rem; color: #e8a020;
-    filter: drop-shadow(0 0 22px rgba(232, 160, 32, .6));
+    font-size: 5rem; color: #e5e5ea;
+    filter: drop-shadow(0 0 22px rgba(255, 255, 255, .35));
     animation: twTrophySpin 6s linear infinite;
 }
 @keyframes twTrophySpin { to { transform: rotateY(360deg); } }
@@ -2246,13 +2247,13 @@ body.tw-bk-full-open { overflow: hidden; }
     margin-top: -.4rem; font-size: .98rem; color: var(--tw-muted);
     display: flex; align-items: center; gap: .4rem; text-align: center;
 }
-.tw-trophy-caption i { color: #e8a020; }
+.tw-trophy-caption i { color: #e5e5ea; }
 .tw-trophy-caption.tw-trophy-won {
     color: #fff; font-size: 1.2rem; font-weight: 800;
-    text-shadow: 0 0 18px rgba(232, 160, 32, .7);
+    text-shadow: 0 0 18px rgba(255, 255, 255, .5);
     animation: twTrophyWon .8s ease;
 }
-.tw-trophy-caption.tw-trophy-won b { color: #ffcc55; }
+.tw-trophy-caption.tw-trophy-won b { color: #ffffff; }
 @keyframes twTrophyWon { 0% { transform: scale(.7); opacity: 0; } 60% { transform: scale(1.12); } 100% { transform: scale(1); opacity: 1; } }
 .tw-trophy-celebrate .tw-trophy-3d { filter: drop-shadow(0 14px 60px rgba(255, 204, 85, .65)); }
 .tw-rbtn--danger { background: #2a1414; border-color: #5a2020; color: #ff6b6b; }

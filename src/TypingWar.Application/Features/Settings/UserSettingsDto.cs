@@ -14,7 +14,8 @@ public record UserSettingsDto
 
     public Theme Theme { get; init; } = Theme.Monokai;
     public string FontFamily { get; init; } = "JetBrains Mono";
-    public int FontSize { get; init; } = 18;
+    public int FontSize { get; init; } = 50;
+    public bool BoldText { get; init; }
     public CaretStyle CaretStyle { get; init; } = CaretStyle.Line;
     public bool SmoothCaret { get; init; } = true;
     public string Background { get; init; } = "nextjs";

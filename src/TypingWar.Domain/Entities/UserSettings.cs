@@ -18,7 +18,8 @@ public class UserSettings
     // Ko'rinish
     public Theme Theme { get; set; } = Theme.Monokai;
     public string FontFamily { get; set; } = "JetBrains Mono";
-    public int FontSize { get; set; } = 18;             // 14–60 px
+    public int FontSize { get; set; } = 50;             // 14–60 px
+    public bool BoldText { get; set; } = false;         // qalin (bold) shrift
     public CaretStyle CaretStyle { get; set; } = CaretStyle.Line;
     public bool SmoothCaret { get; set; } = true;
     public string Background { get; set; } = "nextjs";  // sahifa foni varianti
