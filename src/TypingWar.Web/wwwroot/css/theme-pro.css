@@ -99,8 +99,14 @@ small, .small { font-size: var(--twp-fs-sm); }
 /* Muted / ikkilamchi matn izchilligi */
 .text-muted, .tw-muted { color: var(--tw-muted) !important; }
 
-/* Linklar */
-a { text-underline-offset: 3px; transition: color var(--twp-t); }
+/* Linklar — Bootstrap standart ko'k rangini bekor qilamiz */
+a {
+    color: inherit;
+    text-underline-offset: 3px;
+    transition: color var(--twp-t);
+}
+a:hover, a:focus { color: var(--tw-gold); }
+a:visited { color: inherit; }
 
 /* Matn tanlash rangi = tema accent */
 ::selection {
