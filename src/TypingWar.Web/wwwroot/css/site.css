@@ -811,11 +811,12 @@ body.tw-record {
 .tw-rbtn {
     display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
     width: 100%; margin-top: .5rem; padding: .75rem 1rem;
-    background: var(--tw-gold); color: #fff; border: 1px solid var(--tw-gold);
+    background: rgba(255, 255, 255, .08); color: #fff; border: 1px solid rgba(255, 255, 255, .18);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
     border-radius: 10px; font-family: var(--tw-ui-font); font-weight: 600; font-size: .95rem;
-    cursor: pointer; transition: filter .2s, transform .1s, opacity .2s;
+    cursor: pointer; transition: background .2s, border-color .2s, transform .1s, opacity .2s;
 }
-.tw-rbtn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.tw-rbtn:hover { background: rgba(255, 255, 255, .16); border-color: rgba(255, 255, 255, .3); transform: translateY(-1px); }
 .tw-rbtn:disabled { opacity: .55; cursor: default; transform: none; }
 .tw-rbtn--outline {
     background: transparent; color: var(--tw-text); border-color: var(--tw-border-strong);
@@ -2465,10 +2466,12 @@ body.tw-bk-full-open { overflow: hidden; }
 .tw-google-btn {
     display: flex; align-items: center; justify-content: center; gap: .7rem;
     width: 100%; padding: .85rem 1rem; border-radius: 10px;
-    background: #fff; color: #1f1f1f; font-weight: 600; font-size: 1rem;
-    text-decoration: none; border: 1px solid #dadce0; transition: filter .15s, transform .15s;
+    background: rgba(255, 255, 255, .08); color: #fff; font-weight: 600; font-size: 1rem;
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    text-decoration: none; border: 1px solid rgba(255, 255, 255, .18);
+    transition: background .15s, border-color .15s, transform .15s;
 }
-.tw-google-btn:hover { filter: brightness(.97); transform: translateY(-1px); color: #1f1f1f; }
+.tw-google-btn:hover { background: rgba(255, 255, 255, .16); border-color: rgba(255, 255, 255, .3); transform: translateY(-1px); color: #fff; }
 .tw-google-ic { display: inline-flex; }
 .tw-gauth-hint { color: var(--tw-muted); font-size: .82rem; margin: 1.3rem 0 0; line-height: 1.5; }
 
