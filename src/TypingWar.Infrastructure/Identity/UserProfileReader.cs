@@ -30,4 +30,14 @@ public class UserProfileReader : IUserProfileReader
             .Select(u => new UserPublicProfile(
                 u.Id, u.UserName!, u.EloRating, u.RegionCode, u.AvatarUrl, u.CreatedAt))
             .FirstOrDefaultAsync(ct);
+
+    public async Task<double> GetAvgWpmAsync(Guid userId, CancellationToken ct = default)
+    {
+        if (!await _db.RaceResults.AnyAsync(r => r.UserId == userId, ct))
+            return 0;
+        return await _db.RaceResults
+            .Where(r => r.UserId == userId)
+            .Select(r => r.Wpm)
+            .AverageAsync(ct);
+    }
 }

@@ -1,0 +1,38 @@
+@page
+@model TypingWar.Web.Pages.OnlineModel
+@{
+    ViewData["Title"] = "Onlayn foydalanuvchilar";
+    ViewData["Description"] = "Hozir typingwar.uz da onlayn bo'lgan foydalanuvchilar. Do'stlaringizni duelga chaqiring va birga musobaqalashing.";
+    ViewData["Robots"] = "noindex, follow";
+    ViewData["NoPageCard"] = true;
+}
+
+<div class="tw-online-wrap">
+    <div class="tw-online-head">
+        <div>
+            <h2 class="tw-online-title"><i class="bi bi-people-fill"></i> Onlayn foydalanuvchilar</h2>
+            <p class="tw-online-sub">Hozir saytda faol bo'lgan foydalanuvchilar. Kimdirga <b>Invite</b> bosib uni o'zingizning partiyangizga (hangout) chaqiring.</p>
+        </div>
+        <div class="tw-online-count" id="tw-online-count">0</div>
+    </div>
+
+    <div class="tw-online-grid" id="tw-online-grid">
+        <div class="tw-online-empty" id="tw-online-empty">
+            <i class="bi bi-hourglass-split"></i> Hozircha hech kim onlayn emas.
+        </div>
+    </div>
+
+    <div class="tw-online-rules">
+        <h5><i class="bi bi-info-circle"></i> Qanday ishlaydi?</h5>
+        <ul>
+            <li><i class="bi bi-1-circle"></i> Ro'yxatdan biror foydalanuvchiga <b>Invite</b> bosing — unga past-o'ng burchakda xabar keladi.</li>
+            <li><i class="bi bi-2-circle"></i> U qabul qilsa — sizning partiyangizga (hangout sahifasi) o'tadi.</li>
+            <li><i class="bi bi-3-circle"></i> Partiyada umumiy chat bo'ladi va bir-biringizni <b>duelga</b> chaqirishingiz mumkin.</li>
+            <li><i class="bi bi-4-circle"></i> Siz avval 4 ta do'stingizni chaqirgan bo'lsangiz, ular ham partiyada ko'rinadi.</li>
+        </ul>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/online.js" asp-append-version="true"></script>
+}

@@ -49,10 +49,17 @@ public static class DependencyInjection
         // Leaderboard (Redis Sorted Set)
         services.AddScoped<ILeaderboardService, Leaderboard.LeaderboardService>();
 
+        // Landing (bosh sahifa) statistikasi
+        services.AddScoped<ILandingStatsService, Stats.LandingStatsService>();
+
         // Real-time holat (in-memory singletonlar)
         services.AddSingleton<Realtime.RoomLiveState>();
         services.AddSingleton<Realtime.TeamRaceLiveState>();
         services.AddSingleton<Realtime.TournamentLiveState>();
+        // Onlayn foydalanuvchilar + do'stlar partiyasi (presence / duel lobby)
+        services.AddSingleton<Realtime.OnlineUserService>();
+        services.AddSingleton<Realtime.PartyService>();
+        services.AddSingleton<IOnlineUserProvider, Realtime.OnlineUserService>();
 
         // Adaptiv AI raqib
         services.AddScoped<IAiOpponentService, Ai.AiOpponentService>();

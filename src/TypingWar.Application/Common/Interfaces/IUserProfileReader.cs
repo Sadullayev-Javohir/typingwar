@@ -14,6 +14,9 @@ public interface IUserProfileReader
 
     /// <summary>Username bo'yicha ommaviy profil (Identity) — yo'q bo'lsa null. Username katta-kichik harfga sezgir emas.</summary>
     Task<UserPublicProfile?> GetByUsernameAsync(string username, CancellationToken ct = default);
+
+    /// <summary>Foydalanuvchining o'rtacha WPM darajasi (RaceResults o'rtachasi). Natija yo'q bo'lsa 0.</summary>
+    Task<double> GetAvgWpmAsync(Guid userId, CancellationToken ct = default);
 }
 
 /// <summary>Identity dan o'qilgan profil ma'lumoti.</summary>

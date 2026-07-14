@@ -920,7 +920,28 @@ DEPLOY (jonli):
     o'tkazildi; HTTPS redirect sozlanadigan (Hosting:UseHttpsRedirection, prod=false, nginx redirect).
     QOLDI: (1) DNS typingwar.uz -> 89.167.74.156, (2) bash deploy/init-ssl.sh (SSL), (3) Google OAuth
     (.env GOOGLE_CLIENT_ID/SECRET + redirect URI https://typingwar.uz/signin-google).
-Oxirgi git commit: Deploy: ADMIN_EMAIL va Let's Encrypt emailini to'g'ri emailga o'zgartirish
+  - [2026-07-11] ONLAYN FOYDALANUVCHILAR + DO'STLAR PARTIYASI (Duel/Hangout) yangi bo'limi:
+    (1) YANGI SAHIFA /Online — faqat onlayn foydalanuvchilar ro'yxati (glass karta grid),
+    har birida username + o'rtacha WPM + hudud + Invite tugmasi. Backend: OnlineUserService
+    (in-memory singleton, foydalanuvchi→ulanishlar) + GetOnlineUsersQuery + OnlineController
+    (GET /api/online). AvgWpm IUserProfileReader.GetAvgWpmAsync orqali (RaceResults o'rtachasi).
+    (2) YANGI SAHIFA /Duel — do'stlar partiyasi (hangout): PresenceHub orqali partiya
+    a'zolari (egasi + uning invite qilgan do'stlari — masalan 4 ta) bitta sahifada,
+    umumiy chat (SendPartyMessage → guruhga broadcast) va har a'zo uchun "Duel" tugmasi.
+    PartyService (in-memory singleton, owner→code map) partiyani boshqaradi.
+    (3) GLOBAL NOTIFICATION (barcha sahifada, /Tournament dan tashqari): PresenceHub
+    InviteReceived/DuelInvite xabarlarini PAST-O'NG burchakda glass toast ko'rsatadi —
+    kimdan kelgani, profil o'rtacha WPM i, hudud ko'rinadi; "Qabul qilish" → /Duel?code=
+    yoki /Room?code= ga o'tadi. tw-presence.js (_Layout da yuklanadi, signalr cdnjs + nonce
+    TWAuth global). (4) INVITE OQIMI: /Online da Invite → PresenceHub.Invite → nishonga
+    notification (partyCode bilan) → qabul → /Duel da JoinParty (SignalR guruh party-{code})
+    → PartyMembers broadcast → barcha a'zolar (egasi + avvalgi do'stlar) ko'rinadi. (5) DUEL
+    OQIMI: /Duel da Duel tugmasi → PresenceHub.InviteToDuel → CreateRoomCommand (host=chaqiruvchi)
+    → nishonga DuelInvite (roomCode) + chaqiruvchiga DuelCreated → ikkalasi ham /Room?code= ga
+    o'tadi (mavjud xona tizimi bilan birga poyga). (6) Navbar ga "Onlayn" (bi-people) link
+    qo'shildi. Build OK (0 warning), 105 test o'tadi, JS sintaksis (node -c) OK.
+    ⚠️ Jonli brauzerda (Docker/DB yo'q muhitda) real-time oqim qo'lda sinalishi kerak.
+Oxirgi git commit: Online foydalanuvchilar + do'stlar partiyasi (Duel/Hangout) yangi bo'limi
 ```
 
 > ⚠️ Har bosqich tugagach FAQAT shu "JORIY HOLAT" qismini yangilang.

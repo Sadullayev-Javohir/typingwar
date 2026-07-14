@@ -290,6 +290,7 @@ app.MapHub<TypingWar.Web.Hubs.RaceHub>("/hubs/race");
 app.MapHub<TypingWar.Web.Hubs.TeamRaceHub>("/hubs/teamrace");
 app.MapHub<TypingWar.Web.Hubs.TournamentHub>("/hubs/tournament");
 app.MapHub<TypingWar.Web.Hubs.UzMapHub>("/hubs/uzmap");
+app.MapHub<TypingWar.Web.Hubs.PresenceHub>("/hubs/presence");
 
 // ── Hangfire dashboard (/hangfire) — faqat Admin roli (JWT cookie) ──
 app.UseHangfireDashboard("/hangfire", new DashboardOptions

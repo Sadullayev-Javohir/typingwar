@@ -1,0 +1,41 @@
+@page
+@model TypingWar.Web.Pages.DuelModel
+@{
+    ViewData["Title"] = "Do'stlar partiyasi";
+    ViewData["Description"] = "Do'stlar partiyasi — umumiy chat va birga duel qilish. Eng kim zo'ri typingda deb bahslashing!";
+    ViewData["Robots"] = "noindex, follow";
+    ViewData["NoPageCard"] = true;
+}
+
+<div class="tw-duel-wrap" id="tw-duel">
+    <div class="tw-duel-head">
+        <div>
+            <h2 class="tw-duel-title"><i class="bi bi-collection-play-fill"></i> Do'stlar partiyasi</h2>
+            <p class="tw-duel-sub">Bu yerda siz va do'stlaringiz birga. Chatda gaplashing, eng zo'ringizni bahslashing va bir-biringizni duelga chaqiring.</p>
+        </div>
+        <a class="tw-rbtn tw-rbtn--sm" asp-page="/Online"><i class="bi bi-arrow-left"></i> Onlayn ro'yxat</a>
+    </div>
+
+    <div class="tw-duel-body">
+        <div class="tw-duel-members tw-card">
+            <h5 class="tw-duel-h">Partiya a'zolari</h5>
+            <div class="tw-duel-member-list" id="tw-duel-members">
+                <div class="tw-duel-empty">Yuklanmoqda…</div>
+            </div>
+        </div>
+
+        <div class="tw-duel-chat tw-card">
+            <h5 class="tw-duel-h">Umumiy chat</h5>
+            <div class="tw-duel-msgs" id="tw-duel-msgs"></div>
+            <form class="tw-duel-form" id="tw-duel-form" autocomplete="off">
+                <input type="text" id="tw-duel-input" class="tw-duel-input" maxlength="280"
+                       placeholder="Xabar yozing… (masalan: 'Men typingda eng zoriman!')" />
+                <button type="submit" class="tw-rbtn tw-rbtn--sm"><i class="bi bi-send"></i></button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/duel.js" asp-append-version="true"></script>
+}
