@@ -127,9 +127,16 @@
     window.TWPresence = {
         get connection() { return me.conn; },
         getOnline: () => me.online.slice(),
-        onOnlineChange: (cb) => { me.listeners.push(cb); return () => {
-            const i = me.listeners.indexOf(cb); if (i >= 0) me.listeners.splice(i, 1);
-        }; },
+        onOnlineChange: (cb) => {
+            me.listeners.push(cb);
+            // Darhol joriy ro'yxat bilan chaqiramiz — agar OnlineList ulanish
+            // boshlang'ichda (listener ro'yxatga yozilishidan oldin) kelgan bo'lsa
+            // ham, ro'yxat bo'sh qolib ketmaydi (race oldini oladi).
+            try { cb(me.online.slice()); } catch (e) { }
+            return () => {
+                const i = me.listeners.indexOf(cb); if (i >= 0) me.listeners.splice(i, 1);
+            };
+        },
         invite: (userId) => me.conn && me.conn.invoke("Invite", String(userId)),
         startDuel: (userId, partyCode) => me.conn && me.conn.invoke("InviteToDuel", String(userId), partyCode),
         init

@@ -2,7 +2,7 @@
 (function () {
     "use strict";
     const grid = document.getElementById("tw-online-grid");
-    if (!grid || !window.TWPresence) return;
+    if (!grid) return;
 
     const countEl = document.getElementById("tw-online-count");
     const emptyEl = document.getElementById("tw-online-empty");
@@ -63,7 +63,7 @@
         const prev = btn.innerHTML;
         btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Yuborildi…';
         try {
-            await window.TWPresence.invite(btn.dataset.uid);
+            if (window.TWPresence) await window.TWPresence.invite(btn.dataset.uid);
             btn.innerHTML = '<i class="bi bi-check-lg"></i> Yuborildi';
             setTimeout(() => { btn.innerHTML = prev; btn.disabled = false; }, 2500);
         } catch {
@@ -71,7 +71,22 @@
         }
     });
 
-    // Global presence'dan joriy ro'yxat + o'zgarishlar
-    render(window.TWPresence.getOnline());
-    window.TWPresence.onOnlineChange(render);
+    // ── REST zaxira: hub broadcast uzog'i kelsa ham ro'yxat ko'rinsin ──
+    async function loadFromApi() {
+        try {
+            const r = await fetch("/api/online", { credentials: "same-origin" });
+            if (!r.ok) return;
+            const data = await r.json();
+            render(data);
+        } catch { }
+    }
+    loadFromApi();
+    // Har 8s da bir zaxira yangilash (realtime uzilib qolsa ham ishlaydi)
+    setInterval(loadFromApi, 8000);
+
+    // ── Hub (realtime): ulanish bo'lsa joriy ro'yxat + o'zgarishlar ──
+    if (window.TWPresence) {
+        render(window.TWPresence.getOnline());
+        window.TWPresence.onOnlineChange(render);
+    }
 })();

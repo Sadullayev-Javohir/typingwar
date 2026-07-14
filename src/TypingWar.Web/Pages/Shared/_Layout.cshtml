@@ -360,7 +360,7 @@
         (function () {
             var vids = document.querySelectorAll('.tw-bg-video, .tw-hero-video');
             if (!vids.length) return;
-            var reveal = function (v) { v.classList.add('tw-video-on'); };
+            var reveal = function (v) { if (v) v.classList.add('tw-video-on'); };
             var tryPlay = function () {
                 vids.forEach(function (v) {
                     if (v.tagName !== 'VIDEO') return;
@@ -370,9 +370,14 @@
                 });
             };
             vids.forEach(function (v) {
+                // Video ma'lumotlari yuklangani bilanoq (avtoplay bloklansa ham)
+                // birinchi kadr KO'RINADI — shunda fon hech qachon "yo'qolmaydi".
+                v.addEventListener('loadeddata', function () { reveal(v); tryPlay(); });
+                v.addEventListener('canplay', function () { reveal(v); });
                 v.addEventListener('playing', function () { reveal(v); });
-                v.addEventListener('loadeddata', tryPlay);
+                v.addEventListener('error', function () { reveal(v); });
                 // Agar video allaqachon o'ynayotgan bo'lsa (cache'dan tez) — darhol ko'rsat
+                if (v.readyState >= 2) reveal(v);
                 if (v.readyState >= 3 && !v.paused) reveal(v);
             });
             document.addEventListener('DOMContentLoaded', tryPlay);
