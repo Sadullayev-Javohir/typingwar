@@ -339,6 +339,30 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-07-07] TURNIR BRACKET yangi arxitektura (raund navigatsiya) + /Tournaments qayta dizayn +
+    fullscreen KATTALASHTIRISH (64 o'yinchi muammosi hal qilindi):
+    (1) FULLSCREEN BUG: avval bracket zoom/pan "xarita" edi — "Butun ekran" bosilganda fit() butun
+    bracketni ekranga sig'dirib KICHRAYTIRARDI (64 o'yinchida ~0.12 masshtab, o'qib bo'lmasdi).
+    Endi zoom/pan butunlay olib tashlandi (tw-bracket-zoom.js/tw-bracket-layout.js Tournament.cshtml'dan
+    o'chirildi — fayllar TournamentDemo uchun qoladi). Yangi fullscreen (toggleBracketFull) faqat
+    bo'limni butun ekranga yoyadi va kartalarni KATTALASHTIRADI (grid minmax 258→320px, font/avatar
+    kattaroq) — kichraytirmaydi. × yoki Esc bilan chiqiladi.
+    (2) YANGI BRACKET ARXITEKTURASI — RAUND NAVIGATSIYA (tournament.js renderBracket qayta yozildi):
+    daraxt o'rniga bosqich (raund) tablari (1/32 final … Final; jonli raund qizil nuqta + "jonli",
+    tugagan raund "yakunlandi"). Tanlangan raund o'yinlari TO'LIQ o'lchamli kartalar gridida
+    (auto-fill minmax 258px) — 64 o'yinchida ham (1/32 = 32 o'yin) hammasi o'qilishi oson, hech narsa
+    kichrayib ketmaydi. Jonli poyga boshlanganda avtomatik faol raundga o'tadi (roundPinned=false),
+    foydalanuvchi qo'lda tab tanlasa o'sha raund saqlanadi. matchHtml o'zgarmadi (live updateBracketMatch
+    ishlashda davom etadi), byelar filterlanadi. Markazda 3D gepard kubogi (tw-trophy-3d/caption) saqlandi.
+    (3) /TOURNAMENTS QAYTA DIZAYN (yangi arxitektura): eski 2-karta (yaratish+ro'yxat) → hero + statistika
+    chiplari (jami/jonli/ochiq) + holat filtrlari (Barchasi/Ro'yxat/Jonli/Tugagan, sonlar bilan) +
+    "Yangi turnir" tugmasi bosilganda ochiladigan yaratish paneli (tw-tcreate-panel, 2-ustunli grid) +
+    turnirlar KARTALAR gridi (tw-tgrid/tw-tcard: trophy ikoni, holat badge, sig'im bari+foiz, CTA).
+    tournaments.js: allItems + filter + renderList + renderStats, panel toggle, card grid.
+    (4) site.css: tw-round-tabs/tab/livedot/grid + tw-bk-full yangi qoidalar; tw-tourns/tstat/tf/tcard/
+    tcp bloklari. sw.js cache v82, _Layout SW ?v=82. Build OK (0 warning), JS sintaksis OK.
+    Headless Chrome bilan tasdiqlandi: /tournaments kartalar+filtr+stats, 64-o'yinchi 1/32 raund = 32
+    o'yin to'liq o'lchamda o'qilishi mumkin (skrinshot). ⚠️ Jonli oqim foydalanuvchi tomonidan tekshirilsin.
   - [2026-07-07] Ko'rinish sozlamalari modali (yorug'lik/karta) + barcha tugma glass +
     landing muallif matni:
     (1) HEADER SUN IKONI + MODAL: navbar o'ng tarafida (user/kirish ikonining CHAP tomonida)

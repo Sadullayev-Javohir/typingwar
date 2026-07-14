@@ -89,6 +89,36 @@
 
     const isAuth = root.dataset.authenticated === "true";
 
+    // ── "Yangi turnir" paneli (kerak bo'lganda ochiladi) ──
+    const newBtn = document.getElementById("tw-t-newbtn");
+    const newClose = document.getElementById("tw-t-newclose");
+    const createPanel = document.getElementById("tw-t-createpanel");
+    function toggleCreatePanel(open) {
+        if (!createPanel) return;
+        const show = open === undefined ? createPanel.classList.contains("d-none") : open;
+        createPanel.classList.toggle("d-none", !show);
+        if (newBtn) newBtn.classList.toggle("tw-active", show);
+        if (show) {
+            createPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            setTimeout(() => nameEl && nameEl.focus(), 250);
+        }
+    }
+    if (newBtn) newBtn.addEventListener("click", () => toggleCreatePanel());
+    if (newClose) newClose.addEventListener("click", () => toggleCreatePanel(false));
+
+    // ── Filtr (holat bo'yicha) ──
+    let allItems = [];
+    let filter = "all";
+    const filtersEl = document.getElementById("tw-tourn-filters");
+    if (filtersEl) {
+        filtersEl.querySelectorAll(".tw-tf").forEach(b =>
+            b.addEventListener("click", () => {
+                filter = b.dataset.filter;
+                filtersEl.querySelectorAll(".tw-tf").forEach(x => x.classList.toggle("tw-active", x === b));
+                renderList();
+            }));
+    }
+
     function actionFor(t) {
         const full = t.playerCount >= t.capacity;
         const pv = t.isPrivate ? ' data-private="1"' : '';
@@ -178,36 +208,75 @@
         return ov;
     }
 
+    // Bitta turnir kartasi
+    function cardHtml(t) {
+        const when = new Date(t.startAt).toLocaleString();
+        const sc = STATUS_CLASS[t.status] || "";
+        const pct = Math.min(100, Math.round((t.playerCount / Math.max(1, t.capacity)) * 100));
+        const lock = t.isPrivate ? ' <i class="bi bi-shield-lock-fill tw-tcard-lock" title="Shaxsiy turnir"></i>' : '';
+        return `<article class="tw-tcard tw-tcard--s${t.status}${t.isPrivate ? " tw-tcard--private" : ""}">
+            <div class="tw-tcard-top">
+                <span class="tw-tcard-trophy"><i class="bi bi-trophy-fill"></i></span>
+                <span class="tw-tbadge ${sc}">${STATUS[t.status] || t.status}</span>
+            </div>
+            <a class="tw-tcard-name" href="/Tournament?id=${t.id}">${esc(t.name)}${lock}</a>
+            <div class="tw-tcard-meta">
+                <span><i class="bi bi-people-fill"></i> ${t.playerCount}/${t.capacity} ishtirokchi</span>
+                <span><i class="bi bi-clock"></i> ${esc(when)}</span>
+            </div>
+            <div class="tw-tcard-capwrap">
+                <div class="tw-tcard-cap"><span style="width:${pct}%"></span></div>
+                <span class="tw-tcard-cappct">${pct}%</span>
+            </div>
+            <div class="tw-tcard-action">${actionFor(t)}</div>
+        </article>`;
+    }
+
+    function renderStats() {
+        const counts = { all: allItems.length, 0: 0, 1: 0, 2: 0 };
+        allItems.forEach(t => { counts[t.status] = (counts[t.status] || 0) + 1; });
+        // Filtr tablaridagi sonlar
+        if (filtersEl) filtersEl.querySelectorAll(".tw-tf-count").forEach(el => {
+            el.textContent = counts[el.dataset.count] || 0;
+        });
+        // Hero statistika
+        const statsEl = document.getElementById("tw-tourn-stats");
+        if (statsEl) statsEl.innerHTML = `
+            <div class="tw-tstat"><span>${counts.all}</span><label><i class="bi bi-trophy"></i> Jami turnir</label></div>
+            <div class="tw-tstat tw-tstat--live"><span>${counts[1]}</span><label><i class="bi bi-broadcast"></i> Jonli</label></div>
+            <div class="tw-tstat"><span>${counts[0]}</span><label><i class="bi bi-hourglass-split"></i> Ro'yxat ochiq</label></div>`;
+    }
+
+    function renderList() {
+        renderStats();
+        if (!allItems.length) {
+            listEl.innerHTML = `<div class="tw-tgrid-empty">
+                <i class="bi bi-trophy"></i>
+                <p>Hali turnir yo'q. Birinchi bo'lib yarating!</p>
+            </div>`;
+            return;
+        }
+        const items = filter === "all" ? allItems : allItems.filter(t => t.status === Number(filter));
+        if (!items.length) {
+            listEl.innerHTML = `<div class="tw-tgrid-empty">
+                <i class="bi bi-funnel"></i>
+                <p>Bu holatda turnir topilmadi.</p>
+            </div>`;
+            return;
+        }
+        listEl.innerHTML = items.map(cardHtml).join("");
+        listEl.querySelectorAll("[data-join]").forEach(b =>
+            b.addEventListener("click", e => { e.preventDefault(); joinTournament(b.dataset.join, b.dataset.private === "1"); }));
+    }
+
     async function load() {
         try {
             const r = await fetch("/api/tournaments", { credentials: "same-origin" });
             if (!r.ok) return;
             const items = await r.json();
-            if (!items.length) { listEl.innerHTML = `<li class="tw-tlist-empty">Hali turnir yo'q. Birinchi bo'lib yarating!</li>`; return; }
-            listEl.innerHTML = items.map(t => {
-                t.status = statusKey(t.status);
-                const when = new Date(t.startAt).toLocaleString();
-                const sc = STATUS_CLASS[t.status] || "";
-                const pct = Math.min(100, Math.round((t.playerCount / Math.max(1, t.capacity)) * 100));
-                const lock = t.isPrivate ? ' <i class="bi bi-shield-lock-fill tw-titem-lock" title="Shaxsiy turnir"></i>' : '';
-                return `<li class="tw-titem${t.isPrivate ? " tw-titem--private" : ""}">
-                    <a class="tw-titem-link" href="/Tournament?id=${t.id}">
-                        <span class="tw-titem-top">
-                            <span class="tw-titem-name"><i class="bi bi-trophy"></i> ${esc(t.name)}${lock}</span>
-                            <span class="tw-tbadge ${sc}">${STATUS[t.status] || t.status}</span>
-                        </span>
-                        <span class="tw-titem-meta">
-                            <span><i class="bi bi-people"></i> ${t.playerCount}/${t.capacity}</span>
-                            <span><i class="bi bi-clock"></i> ${esc(when)}</span>
-                        </span>
-                        <span class="tw-titem-cap"><span style="width:${pct}%"></span></span>
-                    </a>
-                    <div class="tw-titem-action">${actionFor(t)}</div>
-                </li>`;
-            }).join("");
-
-            listEl.querySelectorAll("[data-join]").forEach(b =>
-                b.addEventListener("click", e => { e.preventDefault(); joinTournament(b.dataset.join, b.dataset.private === "1"); }));
+            items.forEach(t => { t.status = statusKey(t.status); });
+            allItems = items;
+            renderList();
         } catch { /* jim */ }
     }
 

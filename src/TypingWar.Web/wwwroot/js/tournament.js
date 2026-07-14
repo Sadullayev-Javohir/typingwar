@@ -19,14 +19,9 @@
     const STATUS = { 0: "Ro'yxat ochiq", 1: "Davom etmoqda", 2: "Tugagan" };
     const STATUS_CLASS = { 0: "tw-st-reg", 1: "tw-st-live", 2: "tw-st-done" };
 
-    // Bracket zoom/pan (Google Maps uslubi) — bir marta ulanadi, render orasida saqlanadi
-    let bracketZoom = null;
-    function ensureBracketZoom() {
-        if (bracketZoom || !window.TWBracketZoom) return;
-        const vp = $("tw-bracket-viewport"), cv = $("tw-bracket-canvas");
-        if (!vp || !cv) return;
-        bracketZoom = window.TWBracketZoom.attach(vp, cv, { tools: $("tw-bracket-tools") });
-    }
+    // Bracket bosqich (raund) navigatsiyasi holati
+    let selectedRound = null;   // hozir ko'rsatilayotgan raund raqami
+    let roundPinned = false;     // foydalanuvchi qo'lda raund tanladimi (avtomatik ergashishni to'xtatadi)
     // Backend enumni STRING ("Registration"/"InProgress"/"Finished") qaytaradi — raqamga normallashtiramiz
     const statusKey = s => typeof s === "number" ? s
         : ({ Registration: 0, InProgress: 1, Finished: 2 }[s] ?? -1);
@@ -251,35 +246,89 @@
             ? "Raund davom etmoqda…" : "Keyingi raundni boshlashga tayyor";
     }
 
-    // ── Bracket (kuchli playoff xaritasi) ──
+    // ── Bracket (raund navigatsiyali playoff) ──
+    // Raqibsiz avtomatik o'tgan ("bye") o'yin — bitta o'yinchi + g'olib allaqachon belgilangan.
+    function isBye(m) {
+        const hasP1 = !!m.player1Id, hasP2 = !!m.player2Id;
+        return (hasP1 !== hasP2) && !!m.winnerId;
+    }
+    // Raundda hal qilinmagan haqiqiy o'yin bormi (ikkala o'yinchi bor, g'olib yo'q)
+    function roundUndecided(list) {
+        return list.some(m => m.player1Id && m.player2Id && !m.winnerId);
+    }
+
     function renderBracket(info) {
         const wrap = $("tw-bracket-wrap");
-        const matches = detail.matches || [];
-        const r = window.TWBracketLayout.build(matches, (m, isFinal) => matchHtml(m, isFinal), esc);
-        wrap.classList.toggle("d-none", !r.has);
-        const canvas = $("tw-bracket-canvas");
-        if (!r.has) {
-            $("tw-bracket-left").innerHTML = "";
-            $("tw-bracket-right").innerHTML = "";
-            $("tw-bracket-final").innerHTML = "";
+        const matches = (detail.matches || []).filter(m => !isBye(m));   // byelar keyingi raundda chiqadi
+        if (!matches.length) {
+            wrap.classList.add("d-none");
+            $("tw-round-tabs").innerHTML = "";
+            $("tw-round-body").innerHTML = "";
             return;
         }
-        $("tw-bracket-left").innerHTML = r.left;
-        $("tw-bracket-right").innerHTML = r.right;
-        $("tw-bracket-final").innerHTML = r.final;
-        // Bir tomonlama bracket (masalan 3 kishilik turnir): o'ng yarm umuman ko'rinmaydi.
-        $("tw-bracket-right").classList.toggle("d-none", !r.twoSided);
-        if (canvas) canvas.classList.toggle("tw-bk2--single", !r.twoSided);
+        wrap.classList.remove("d-none");
 
-        // Zoom/pan — birinchi marta ekranga sig'diradi, keyin foydalanuvchi holatini saqlaydi
-        ensureBracketZoom();
-        if (bracketZoom) bracketZoom.refresh();
+        // Raundlarga guruhlash
+        const byRound = {};
+        matches.forEach(m => (byRound[m.round] = byRound[m.round] || []).push(m));
+        const rounds = Object.keys(byRound).map(Number).sort((a, b) => a - b);
+        rounds.forEach(r => byRound[r].sort((a, b) => a.slot - b.slot));
+        const maxRound = rounds[rounds.length - 1];
+
+        // Faol (hozir yoziladigan) raund — birinchi hal qilinmagan raund
+        const activeRound = rounds.find(r => roundUndecided(byRound[r]));
+
+        // Standart tanlov: tugagan bo'lsa → final; jonli bo'lsa → faol raund; aks holda → faol/final
+        let def;
+        if (info.status === 2) def = maxRound;
+        else if (roundActive && activeRound != null) def = activeRound;
+        else def = (activeRound != null) ? activeRound : maxRound;
+
+        // Foydalanuvchi qo'lda tanlagan raundni saqlaymiz (agar hali mavjud bo'lsa)
+        const effective = (roundPinned && rounds.includes(selectedRound)) ? selectedRound : def;
+        selectedRound = effective;
+
+        // Bosqich tablari
+        $("tw-round-tabs").innerHTML = rounds.map(r => {
+            const list = byRound[r];
+            const nm = esc(list[0].roundName || `Raund ${r}`);
+            const live = r === activeRound && roundActive;
+            const done = list.every(m => !!m.winnerId);
+            const cls = "tw-round-tab" + (r === effective ? " tw-active" : "") + (live ? " tw-round-tab--live" : "");
+            const sub = live ? "jonli" : (done ? "yakunlandi" : `${list.length} o'yin`);
+            return `<button type="button" class="${cls}" data-round="${r}" role="tab">
+                ${live ? '<span class="tw-round-livedot"></span>' : ''}${nm}<small>${sub}</small>
+            </button>`;
+        }).join("");
+
+        // Tanlangan raund o'yinlari — to'liq o'lchamli kartalar gridi
+        const cur = byRound[effective] || [];
+        const isFinalRound = effective === maxRound;
+        $("tw-round-body").innerHTML = `<div class="tw-round-grid${isFinalRound && cur.length === 1 ? " tw-round-grid--final" : ""}">`
+            + cur.map(m => matchHtml(m, effective === maxRound)).join("") + `</div>`;
+
+        // Tab bosilishi
+        $("tw-round-tabs").querySelectorAll("[data-round]").forEach(b =>
+            b.addEventListener("click", () => {
+                selectedRound = Number(b.dataset.round);
+                roundPinned = true;
+                renderBracket(detail.info);
+            }));
 
         // Host force-winner tugmalari (faol round, hal qilinmagan o'yinlar)
         if (isHost && info.status === 1) {
-            $("tw-bracket-wrap").querySelectorAll(".tw-bk-force").forEach(b =>
+            $("tw-round-body").querySelectorAll(".tw-bk-force").forEach(b =>
                 b.addEventListener("click", () => forceWinner(b.dataset.match, b.dataset.uid)));
         }
+    }
+
+    // ── Butun ekran (fullscreen) — bracketni KATTALASHTIRADI (kichraytirmaydi) ──
+    function toggleBracketFull(force) {
+        const wrap = $("tw-bracket-wrap");
+        if (!wrap) return;
+        const on = force === undefined ? !wrap.classList.contains("tw-bk-full") : force;
+        wrap.classList.toggle("tw-bk-full", on);
+        document.body.classList.toggle("tw-bk-full-open", on);
     }
 
     function matchHtml(m, isFinal) {
@@ -561,6 +610,7 @@
     function onRoundStarting(d) {
         roundActive = true;
         eliminated = false;
+        roundPinned = false;   // yangi raund boshlanganda avtomatik ravishda faol raundga o'tamiz
         // live progress'ni tozalash
         d.matches.forEach(m => { live[m.matchId] = { p1: { prog: 0, wpm: 0, fin: false }, p2: { prog: 0, wpm: 0, fin: false } }; });
 
@@ -728,6 +778,13 @@
         setTimeout(() => b.innerHTML = old, 1800);
     });
     $("tw-elim-watch").addEventListener("click", () => $("tw-elim-overlay").classList.add("d-none"));
+
+    // Bracket butun ekran (kattalashtirish)
+    $("tw-bk-fs").addEventListener("click", () => toggleBracketFull());
+    $("tw-bk-fsclose").addEventListener("click", () => toggleBracketFull(false));
+    document.addEventListener("keydown", e => {
+        if (e.key === "Escape" && $("tw-bracket-wrap").classList.contains("tw-bk-full")) toggleBracketFull(false);
+    });
 
     wordsEl.addEventListener("click", () => wordsEl.focus());
     wordsEl.addEventListener("keydown", onKey);
