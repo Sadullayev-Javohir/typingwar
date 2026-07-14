@@ -851,6 +851,15 @@ Yaxshilanishlar:
     PracticeTextDto'ga Source qo'shildi, natija ekranida "Manba: ..." ko'rsatiladi
     (typing-engine.js + .tw-r-source CSS). Build OK, 70 test, endpoint sinaldi.
 Tuzatilgan xatolar:
+  - [2026-07-07] Eski akkauntda matn KO'K bo'lib qotib qolishi (tema): tema tanlagichi
+    Sozlamalardan olib tashlangan (tw-theme-grid yo'q, settings-page.js o'lik kod), lekin
+    ba'zi akkauntlarda (masalan javohirsadullayev836@gmail.com) DBda eski "Blue" (Nord) tema
+    saqlanib qolgan — u --tw-gold ni #0070f3 (ko'k) qilib, sarlavha/WPM/havola matnini ko'k
+    qilardi va qaytaruvchi UI yo'q edi. Tuzatildi (typing-settings.js): NEUTRAL_THEME="Monokai";
+    apply() endi saqlangan temadan qat'i nazar HAR DOIM neytral (oq/kulrang) temani qo'llaydi va
+    s.theme'ni neytralga tekislaydi; syncFromServer server eski rangli tema qaytarsa neytralni
+    qaytarib yuboradi (DB o'z-o'zini tuzatadi). Endi barcha akkaunt hammaga o'xshab oq matnli.
+    sw.js cache v83, _Layout SW ?v=83. Build OK (0 warning), JS sintaksis OK.
   - [2026-06-17] /Room poyga VAQTGA qarab hisoblanadi (umumiy soat): avval
     har o'yinchining soati BIRINCHI tugma bosilganda boshlanardi (startIfNeeded
     → startTime null), shuning uchun kech boshlagan (masalan 1 daqiqa keyin)

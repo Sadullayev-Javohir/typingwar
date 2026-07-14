@@ -16,6 +16,12 @@
         blindMode: false, stopOnError: false, soundOnClick: "Off"
     };
 
+    /* Tema tanlagichi Sozlamalardan olib tashlangan — sayt endi yagona neytral
+       (oq/kulrang) ko'rinishda. Eski akkauntlarda saqlanib qolgan rangli tema
+       (masalan "Blue" = Nord) sarlavha/WPM/havola matnini ko'k qilib qo'yardi va
+       uni qaytaruvchi UI yo'q edi. Shuning uchun har doim shu neytral tema qo'llanadi. */
+    const NEUTRAL_THEME = "Monokai";
+
     /* Vercel-style themes — every background near-black tinted toward its accent
        (or a clean light), with a distinct Vercel accent color. The page glow
        (body::after) follows `gold`, so each theme glows in its own color. */
@@ -84,7 +90,10 @@
         apply() {
             const s = this.current;
             const root = document.documentElement;
-            const theme = THEME_MAP[s.theme] || THEME_MAP.Monokai;
+            // Tema tanlash yo'q — har doim neytral (oq) tema. Eski rangli temani
+            // (masalan ko'k) e'tiborsiz qoldiramiz, holatni ham neytralga tekislaymiz.
+            s.theme = NEUTRAL_THEME;
+            const theme = THEME_MAP[NEUTRAL_THEME];
 
             // Tema CSS o'zgaruvchilari (:root ga o'rnatiladi)
             root.style.setProperty('--tw-bg',          theme.bg);
@@ -114,7 +123,12 @@
                 if (r.status === 200) {
                     // Serverda saqlangan sozlamalar bor — ularni qo'llaymiz
                     const dto = await r.json();
-                    if (dto && typeof dto === "object") this.setAll(dto, false);
+                    if (dto && typeof dto === "object") {
+                        const hadOldTheme = dto.theme && dto.theme !== NEUTRAL_THEME;
+                        this.setAll(dto, false); // apply() temani neytralga tekislaydi
+                        // DB'da eski rangli tema saqlangan bo'lsa — neytralga tuzatib qo'yamiz
+                        if (hadOldTheme) this.pushToServer();
+                    }
                 } else if (r.status === 204) {
                     // Kirgan, lekin hali saqlanmagan — LocalStorage ni serverga yuboramiz
                     this.pushToServer();
