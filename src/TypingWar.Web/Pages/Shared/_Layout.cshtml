@@ -65,6 +65,18 @@
     <link rel="stylesheet" href="~/css/theme-pro.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/global-theme.css" asp-append-version="true" />
 
+    @* Ko'rinish sozlamalari (yorug'lik / karta) — saqlangan qiymatlarni PAINT'dan OLDIN qo'llaymiz (miltillash yo'q) *@
+    <script nonce="@ViewContext.HttpContext.Items["csp-nonce"]">
+        (function () {
+            try {
+                var d = document.documentElement, s = localStorage;
+                var v = s.getItem('tw-video-scale'); if (v !== null) d.style.setProperty('--tw-video-scale', v);
+                var b = s.getItem('tw-card-bright'); if (b !== null) d.style.setProperty('--tw-card-bright', b);
+                var a = s.getItem('tw-card-alpha'); if (a !== null) d.style.setProperty('--tw-card-alpha', a);
+            } catch (e) { }
+        })();
+    </script>
+
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
@@ -163,6 +175,9 @@
                         </li>
                     </ul>
                     <ul class="navbar-nav tw-nav-icons">
+                        <li class="nav-item">
+                            <a class="nav-link tw-nav-link" href="#" id="tw-appr-open" title="Ko'rinish" aria-label="Ko'rinish sozlamalari"><i class="bi bi-brightness-high-fill"></i></a>
+                        </li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             @if (User.IsInRole("Admin"))
@@ -207,6 +222,31 @@
                 </div>
             }
         </main>
+    </div>
+
+    @* ═══════════ KO'RINISH SOZLAMALARI MODALI (blur fon) ═══════════ *@
+    <div id="tw-appr-modal" class="tw-appr-backdrop" hidden>
+        <div class="tw-appr-modal" role="dialog" aria-modal="true" aria-labelledby="tw-appr-title">
+            <div class="tw-appr-head">
+                <h3 id="tw-appr-title"><i class="bi bi-sliders"></i> Ko'rinish sozlamalari</h3>
+                <button type="button" class="tw-appr-close" id="tw-appr-close" aria-label="Yopish"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="tw-appr-body">
+                <div class="tw-appr-row">
+                    <label>Yorug'lik <span class="tw-appr-val" id="tw-appr-video-val">40%</span></label>
+                    <input type="range" id="tw-appr-video" min="0" max="100" step="1" value="40" />
+                </div>
+                <div class="tw-appr-row">
+                    <label>Karta xiralashuvi <span class="tw-appr-val" id="tw-appr-alpha-val">0.50</span></label>
+                    <input type="range" id="tw-appr-alpha" min="0" max="1" step="0.01" value="0.5" />
+                </div>
+                <div class="tw-appr-row">
+                    <label>Fon yorug'ligi <span class="tw-appr-val" id="tw-appr-bright-val">0.50</span></label>
+                    <input type="range" id="tw-appr-bright" min="0" max="1" step="0.01" value="0.5" />
+                </div>
+                <button type="button" class="tw-rbtn tw-rbtn--sm" id="tw-appr-reset"><i class="bi bi-arrow-counterclockwise"></i> Standartga qaytarish</button>
+            </div>
+        </div>
     </div>
 
     <footer class="border-top footer">
@@ -255,6 +295,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/tw-sound.js" asp-append-version="true"></script>
     <script src="~/js/typing-settings.js" asp-append-version="true"></script>
+    <script src="~/js/tw-appearance.js" asp-append-version="true"></script>
     <script nonce="@ViewContext.HttpContext.Items["csp-nonce"]">
         document.getElementById("tw-logout")?.addEventListener("click", async (e) => {
             e.preventDefault();
@@ -265,7 +306,7 @@
         // Versiyalangan URL: Cloudflare bare "/sw.js"ni eski cache'lagan bo'lsa ham
         // "?v=79" yangi URL => edge BYPASS => yangi worker darhol o'rnatiladi (o'z-o'zini tuzatadi).
         if ("serviceWorker" in navigator)
-            window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js?v=80").catch(() => { }));
+            window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js?v=81").catch(() => { }));
 
         // ─── YUKLANISH EKRANINI YASHIRISH ───
         // Sahifa tayyor bo'lgach loader silliq yo'qoladi. Bir necha signal:

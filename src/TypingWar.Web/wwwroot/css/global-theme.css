@@ -19,9 +19,18 @@
 
 /* ════════════ 1. GLASS TOKENLAR (landing --lx bilan mos) ════════════ */
 :root {
-    --tw-glass:        rgba(18,18,20,0.46);
-    --tw-glass-2:      rgba(28,28,32,0.36);
-    --tw-glass-hover:  rgba(30,30,36,0.60);
+    /* ⭐ Ko'rinish sozlamalari (tw-appearance.js modali boshqaradi):
+       --tw-video-scale : video fon yorug'ligi 0–1 (0.4=standart, 1=asl video)
+       --tw-card-bright : karta yorug'ligi 0–1 (0=qora, 0.5=standart)
+       --tw-card-alpha  : karta xiralashuvi (fon zichligi) 0–1 (0=shaffof, 0.5=standart) */
+    --tw-video-scale:  0.4;
+    --tw-card-bright:  0.5;
+    --tw-card-alpha:   0.5;
+
+    /* Glass tokenlari karta yorug'ligi + xiralashuvidan hosil bo'ladi */
+    --tw-glass:        rgb(calc(var(--tw-card-bright) * 40)  calc(var(--tw-card-bright) * 40)  calc(var(--tw-card-bright) * 44)  / var(--tw-card-alpha));
+    --tw-glass-2:      rgb(calc(var(--tw-card-bright) * 58)  calc(var(--tw-card-bright) * 58)  calc(var(--tw-card-bright) * 66)  / calc(var(--tw-card-alpha) * 0.78));
+    --tw-glass-hover:  rgb(calc(var(--tw-card-bright) * 64)  calc(var(--tw-card-bright) * 64)  calc(var(--tw-card-bright) * 76)  / calc(var(--tw-card-alpha) * 1.3));
     --tw-glass-blur:   blur(20px) saturate(140%);
     --tw-glass-blur-2: blur(13px) saturate(130%);
 
@@ -71,11 +80,15 @@ html, body { overflow-x: hidden; max-width: 100%; }
     0%,100% { background-position: 0% 0%, 100% 100%, 0% 0%; }
     50%     { background-position: 40% 30%, 60% 70%, 100% 100%; }
 }
-/* Qorong'ilashtirish overlay — matn/panel o'qilishi uchun */
+/* Qorong'ilashtirish overlay — matn/panel o'qilishi uchun.
+   Qorong'iligi --tw-video-scale bilan boshqariladi: scale 1 => overlay 0
+   (asl video, qorong'ilashtirishsiz), scale 0.4 => overlay 0.6 (standart),
+   scale 0 => overlay 1 (video ko'rinmaydi). */
 .tw-bg-overlay {
     position: fixed; inset: 0;
     z-index: -1;
     pointer-events: none;
+    opacity: calc(1 - var(--tw-video-scale));
     background:
         radial-gradient(ellipse at 50% 0%,
             rgba(8,8,8,0.42) 0%, rgba(8,8,8,0.62) 60%),
@@ -156,7 +169,7 @@ h1, .h1, h2, .h2, h3, .h3,
 .tw-page-card {
     background:
         linear-gradient(180deg, color-mix(in srgb, var(--tw-gold) 3%, transparent), transparent 46%),
-        rgba(14,14,16,0.30);
+        rgb(calc(var(--tw-card-bright) * 28) calc(var(--tw-card-bright) * 28) calc(var(--tw-card-bright) * 32) / calc(var(--tw-card-alpha) * 0.6));
     -webkit-backdrop-filter: blur(16px) saturate(135%);
     backdrop-filter: blur(16px) saturate(135%);
     border: 1px solid var(--tw-border);
@@ -264,3 +277,106 @@ h1, .h1, h2, .h2, h3, .h3,
 @media (prefers-reduced-motion: reduce) {
     .tw-loader-logo, .tw-loader-bar::after { animation: none; }
 }
+
+/* ════════════ 11. ⭐ BARCHA TUGMALAR — glass (blur) fon + OQ matn ════════════
+   Sayt bo'ylab har qanday tugma xira (blur) glass fon va oq matnga ega bo'ladi.
+   (navbar-toggler / modal close bundan mustasno — ular ikonli boshqaruv.) */
+button:not(.navbar-toggler):not(.btn-close):not(.tw-appr-close),
+.btn, .tw-rbtn, .tw-btn,
+.tw-growth-tab, .tw-act-year,
+.tw-tab, .tw-admin-tab, .tw-side-btn, .tw-mini-btn,
+.tw-titem-btn, .tw-seed-btn, .tw-pw-btn {
+    background: var(--tw-glass) !important;
+    -webkit-backdrop-filter: var(--tw-glass-blur);
+    backdrop-filter: var(--tw-glass-blur);
+    color: #fff !important;
+    border: 1px solid var(--tw-border) !important;
+}
+button:not(.navbar-toggler):not(.btn-close):not(.tw-appr-close):hover,
+.btn:hover, .tw-rbtn:hover, .tw-btn:hover,
+.tw-growth-tab:hover, .tw-act-year:hover,
+.tw-tab:hover, .tw-admin-tab:hover, .tw-side-btn:hover, .tw-mini-btn:hover {
+    background: var(--tw-glass-hover) !important;
+    color: #fff !important;
+    border-color: rgba(255,255,255,0.3) !important;
+}
+/* Faol (tanlangan) holat — biroz quyuqroq glass, oq matn (avval sariq edi) */
+.tw-growth-tab--on, .tw-act-year--on,
+.tw-tab--on, .tw-tab.active, .tw-side-btn--on, .tw-side-btn.active,
+.tw-admin-tab--on, .tw-admin-tab.active {
+    background: var(--tw-glass-hover) !important;
+    color: #fff !important;
+    border-color: rgba(255,255,255,0.38) !important;
+}
+/* Faol tugmalar disabled/opacity holati saqlanadi */
+.tw-rbtn:disabled, .btn:disabled, button:disabled { opacity: .55 !important; }
+
+/* ════════════ 12. ⭐ KO'RINISH SOZLAMALARI MODALI (blur fon) ════════════ */
+.tw-appr-backdrop {
+    position: fixed; inset: 0; z-index: 3000;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem;
+    background: rgba(6,6,8,0.45);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    backdrop-filter: blur(14px) saturate(120%);
+    animation: tw-appr-fade .18s ease;
+}
+.tw-appr-backdrop[hidden] { display: none; }
+@keyframes tw-appr-fade { from { opacity: 0; } to { opacity: 1; } }
+.tw-appr-modal {
+    width: 100%; max-width: 400px;
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--tw-gold) 5%, transparent), transparent 42%),
+        rgba(18,18,22,0.72);
+    -webkit-backdrop-filter: blur(26px) saturate(150%);
+    backdrop-filter: blur(26px) saturate(150%);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 20px;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.5);
+    color: #fff;
+    overflow: hidden;
+}
+.tw-appr-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: .6rem; padding: 1.1rem 1.3rem .8rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.tw-appr-head h3 {
+    margin: 0; font-size: 1.05rem; font-weight: 700; color: #fff;
+    display: inline-flex; align-items: center; gap: .5rem;
+}
+.tw-appr-close {
+    background: transparent; border: 0; color: rgba(255,255,255,0.7);
+    font-size: 1.05rem; cursor: pointer; line-height: 1;
+    padding: .3rem; border-radius: 8px; transition: color .15s, background .15s;
+}
+.tw-appr-close:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.tw-appr-body { padding: 1.1rem 1.3rem 1.3rem; display: flex; flex-direction: column; gap: 1.25rem; }
+.tw-appr-row { display: flex; flex-direction: column; gap: .5rem; }
+.tw-appr-row label {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: .9rem; font-weight: 600; color: rgba(255,255,255,0.9);
+}
+.tw-appr-val {
+    font-family: var(--tw-mono, monospace); font-weight: 700;
+    color: #fff; background: rgba(255,255,255,0.12);
+    padding: .1rem .5rem; border-radius: 7px; font-size: .8rem; min-width: 3rem; text-align: center;
+}
+.tw-appr-row input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 6px; border-radius: 6px;
+    background: rgba(255,255,255,0.18); outline: none; cursor: pointer;
+}
+.tw-appr-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--tw-gold, #e5e5ea);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4); cursor: pointer;
+}
+.tw-appr-row input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--tw-gold, #e5e5ea);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4); cursor: pointer;
+}
+.tw-appr-body .tw-rbtn { margin-top: .3rem; }
+body.tw-appr-open { overflow: hidden; }

@@ -339,6 +339,28 @@ Tugallangan:
     (GetAdminStats/AddRaceText, role seed+Admin:Email, /Admin), Profil
     (GetProfile, /Profile). 70 test o'tadi.
 Yaxshilanishlar:
+  - [2026-07-07] Ko'rinish sozlamalari modali (yorug'lik/karta) + barcha tugma glass +
+    landing muallif matni:
+    (1) HEADER SUN IKONI + MODAL: navbar o'ng tarafida (user/kirish ikonining CHAP tomonida)
+    "bi-brightness-high-fill" tugmasi (#tw-appr-open). Bosilganda blur (glass) fonli modal
+    (#tw-appr-modal, backdrop-filter blur) 3 slayder bilan: "Yorug'lik" (0–100%, standart 40%,
+    100%=asl video), "Karta xiralashuvi" (0–1, standart 0.5, 0=shaffof), "Fon yorug'ligi"
+    (karta yorug'ligi 0–1, standart 0.5, 0=qora karta) + "Standartga qaytarish". Qiymatlar
+    localStorage'da (tw-video-scale/tw-card-alpha/tw-card-bright) — _Layout head'idagi inline
+    nonce skript paint'dan OLDIN qo'llaydi (miltillash yo'q), yangi tw-appearance.js modalni
+    boshqaradi.
+    (2) CSS O'ZGARUVCHILARI: global-theme :root'ga --tw-video-scale/--tw-card-bright/--tw-card-alpha
+    qo'shildi. Glass tokenlari (--tw-glass/-2/-hover) va .tw-page-card foni endi shu o'zgaruvchilardan
+    hosil bo'ladi (rgb(calc(bright*N ...) / alpha) — Color 4). .tw-bg-overlay opacity=calc(1-scale)
+    (scale 1→overlay 0=asl video, 0.4→0.6 standart, 0→1 qora). Standartlar avvalgi ko'rinishga mos.
+    (3) BARCHA TUGMA GLASS + OQ MATN: button/.btn/.tw-rbtn/.tw-growth-tab/.tw-act-year/.tw-tab/
+    .tw-side-btn va h.k. → glass (blur) fon + oq matn (!important, navbar-toggler/close bundan
+    mustasno); faol holat (--on/.active) sariq o'rniga quyuqroq glass+oq. Profile kunlik/haftalik/
+    oylik/yillik va yil tugmalari shu qoidaga kiradi. .tw-rbtn--gold ham glass+oq bo'ldi.
+    (4) LANDING MUALLIF: role matni "Backend Dasturchi · typingwar.uz, meningvaqtim.uz,
+    kitobdagimen.uz, englishai.uz, devxona.uz asoschisi".
+    sw.js cache v81 (+tw-appearance.js shellga), _Layout SW ?v=81. Build OK (0 warning), JS sintaksis OK.
+    ⚠️ Jonli brauzer ko'rinishi foydalanuvchi tomonidan tekshirilsin (bu muhitda Docker/DB yo'q).
   - [2026-07-07] BARCHA SAHIFA kontenti glass KARTA (card) ichiga olindi:
     (1) UMUMIY SAHIFA KARTASI (Race + boshqa barcha sahifa = bitta bo'lim karta):
     _Layout.cshtml @RenderBody() endi .tw-page-card ichida o'raladi — landing (bosh sahifa,

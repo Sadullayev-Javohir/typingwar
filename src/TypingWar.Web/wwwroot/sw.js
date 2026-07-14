@@ -1,6 +1,6 @@
 /* TypingWar — Service Worker (offline app shell) */
-const CACHE = "tw-cache-v80";
-const MEDIA_CACHE = "tw-media-v80";     // video/media — alohida (katta, kamdan-kam o'zgaradi)
+const CACHE = "tw-cache-v81";
+const MEDIA_CACHE = "tw-media-v81";     // video/media — alohida (katta, kamdan-kam o'zgaradi)
 const SHELL = [
     "/",
     "/Practice",
@@ -11,6 +11,7 @@ const SHELL = [
     "/js/site.js",
     "/js/tw-sound.js",
     "/js/typing-settings.js",
+    "/js/tw-appearance.js",
     "/js/typing-engine.js",
     "/js/tw-keyboard.js",
     "/js/tw-offline.js",
