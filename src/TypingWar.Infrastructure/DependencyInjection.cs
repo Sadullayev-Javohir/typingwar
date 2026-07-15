@@ -59,7 +59,9 @@ public static class DependencyInjection
         // Onlayn foydalanuvchilar + do'stlar partiyasi (presence / duel lobby)
         services.AddSingleton<Realtime.OnlineUserService>();
         services.AddSingleton<Realtime.PartyService>();
-        services.AddSingleton<IOnlineUserProvider, Realtime.OnlineUserService>();
+        // IOnlineUserProvider bitta OnlineUserService nusxasiga ulanadi — PresenceHub,
+        // REST (/api/online) va LobbyHub bir xil ma'lumotdan foydalansin (ikki nusxa bo'lmasin).
+        services.AddSingleton<IOnlineUserProvider>(sp => sp.GetRequiredService<Realtime.OnlineUserService>());
 
         // Adaptiv AI raqib
         services.AddScoped<IAiOpponentService, Ai.AiOpponentService>();

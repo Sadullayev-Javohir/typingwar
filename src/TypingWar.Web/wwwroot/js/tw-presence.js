@@ -24,7 +24,8 @@
         online: [],
         conn: null,
         started: false,
-        listeners: []
+        listeners: [],
+        connListeners: []
     };
 
     function esc(s) {
@@ -97,6 +98,9 @@
             .build();
         me.conn = conn;
 
+        // Ulanish tayyor bo'lgach kutayotgan callback'larni chaqiramiz
+        me.connListeners.splice(0).forEach(cb => { try { cb(conn); } catch (e) { } });
+
         conn.on("OnlineList", list => {
             me.online = Array.isArray(list) ? list : [];
             me.listeners.forEach(cb => { try { cb(me.online); } catch (e) {} });
@@ -149,6 +153,10 @@
         },
         invite: (userId) => me.conn && me.conn.invoke("Invite", String(userId)),
         startDuel: (userId, partyCode) => me.conn && me.conn.invoke("InviteToDuel", String(userId), partyCode),
+        onConnection: (cb) => {
+            if (me.conn) { try { cb(me.conn); } catch (e) { } }
+            else me.connListeners.push(cb);
+        },
         init
     };
 

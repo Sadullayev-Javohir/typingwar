@@ -74,11 +74,14 @@
     });
 
     // ── REST zaxira: hub broadcast uzog'i kelsa ham ro'yxat ko'rinsin ──
+    let haveRealtime = false;
     async function loadFromApi() {
         try {
             const r = await fetch("/api/online", { credentials: "same-origin" });
             if (!r.ok) return;
             const data = await r.json();
+            // Real-time to'ldirilgan ro'yxat bo'lsa, bo'sh REST javobi uni o'chirmasin
+            if (haveRealtime && (!Array.isArray(data) || data.length === 0)) return;
             render(data);
         } catch { }
     }
@@ -89,6 +92,6 @@
     // ── Hub (realtime): ulanish bo'lsa joriy ro'yxat + o'zgarishlar ──
     if (window.TWPresence) {
         render(window.TWPresence.getOnline());
-        window.TWPresence.onOnlineChange(render);
+        window.TWPresence.onOnlineChange(list => { haveRealtime = true; render(list); });
     }
 })();

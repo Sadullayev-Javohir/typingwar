@@ -72,11 +72,15 @@
     }
 
     // ── SignalR voqealari ──
-    const conn = () => window.TWPresence.connection;
-    if (conn()) {
-        conn().on("PartyMembers", renderMembers);
-        conn().on("PartyMessage", addMsg);
-        conn().on("DuelCreated", d => { window.location.href = "/Room?code=" + encodeURIComponent(d.roomCode); });
+    function wire(c) {
+        c.on("PartyMembers", renderMembers);
+        c.on("PartyMessage", addMsg);
+        c.on("DuelCreated", d => { window.location.href = "/Room?code=" + encodeURIComponent(d.roomCode); });
+        c.on("Error", msg => {
+            if (msg && /partiya/i.test(msg)) {
+                membersEl.innerHTML = '<div class="tw-duel-empty">Partiya topilmadi yoki tugatilgan.</div>';
+            }
+        });
     }
 
     membersEl.addEventListener("click", async (e) => {
@@ -92,19 +96,22 @@
         const text = input.value.trim();
         if (!text) return;
         input.value = "";
-        const c = conn();
+        const c = window.TWPresence.connection;
         if (c) await c.invoke("SendPartyMessage", code, text).catch(() => {});
     });
 
-    // ── Ulanish tayyor bo'lgach partiyaga qo'shilamiz ──
-    function joinWhenReady(tries) {
-        const c = conn();
-        if (c && c.state === "Connected") {
+    // ── Ulanish tayyor bo'lgach handlerlarni ro'yxatga olamiz va partiyaga qo'shilamiz ──
+    if (window.TWPresence) {
+        window.TWPresence.onConnection(c => {
+            wire(c);
             c.invoke("JoinParty", code).catch(() => {});
-            return;
-        }
-        if (tries > 50) return; // ~5s
-        setTimeout(() => joinWhenReady(tries + 1), 100);
+        });
+        // 5s ichida hech qanday a'zo ro'yxati kelmasa — "Yuklanmoqda…" da qotib
+        // qolmasin, aniq xabar ko'rsatamiz.
+        setTimeout(() => {
+            if (!membersEl.querySelector(".tw-duel-member")) {
+                membersEl.innerHTML = '<div class="tw-duel-empty">Partiyaga ulanib bo\'lmadi. Sahifani yangilang.</div>';
+            }
+        }, 5000);
     }
-    joinWhenReady(0);
 })();

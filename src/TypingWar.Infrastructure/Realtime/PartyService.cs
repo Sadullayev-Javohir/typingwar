@@ -56,7 +56,10 @@ public class PartyService
     {
         code = code.ToUpperInvariant();
         if (!_byCode.TryGetValue(code, out var p)) return new List<TypingWar.Application.Features.Online.PartyMemberDto>();
-        p.Members[Guid.Parse(member.UserId)] = member;
+        var userId = Guid.Parse(member.UserId);
+        // Qo'shilayotgan a'zo egaga teng bo'lsa isOwner saqlab qolinsin (hub har doim false yuboradi).
+        var m = member with { IsOwner = userId == p.OwnerId };
+        p.Members[userId] = m;
         return p.Members.Values.ToList();
     }
 
