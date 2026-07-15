@@ -179,6 +179,8 @@
     conn.on("RaceStarting", d => startCountdown(d.text, d.countdown));
     conn.on("RaceFinished", results => showResults(results));
     conn.on("RoomClosed", d => showRoomClosed(d && d.reason));
+    conn.on("RoomMessage", m => addRoomMsg(m));
+    conn.on("OpponentWantsRestart", d => showRestartRequest(d));
 
     // SignalR avto-qayta ulanish: ulanish tiklangach connId YANGI bo'ladi va eski guruh
     // obunasi yo'qoladi. Qayta JoinRoom qilmasak — o'yinchi hammaning ro'yxatidan tushib
@@ -583,10 +585,15 @@
         renderChartLegend(results);
         requestAnimationFrame(() => drawRoomChart(results)); // layoutdan keyin (clientWidth to'g'ri)
 
-        // Host uchun "qaytadan boshlash" tugmasi (yangi o'yin), boshqalarga kutish matni
-        const restartBtn = $("tw-restart"), waitMsg = $("tw-rr-wait");
+        // Host uchun "qaytadan boshlash" tugmasi (yangi o'yin), mehmonga "so'rash" tugmasi
+        const restartBtn = $("tw-restart"), waitMsg = $("tw-rr-wait"), reqBtn = $("tw-reqrestart");
         if (restartBtn) restartBtn.classList.toggle("d-none", !isHost);
-        if (waitMsg) waitMsg.classList.toggle("d-none", isHost);
+        if (reqBtn) {
+            reqBtn.classList.toggle("d-none", isHost);
+            reqBtn.disabled = false;
+            reqBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i>Qaytadan boshlash so\'rash';
+        }
+        if (waitMsg) waitMsg.classList.toggle("d-none", true); // host ham, mehmon ham tugma ko'radi
 
         cardsEl.innerHTML = results.map((r, i) => {
             const medal = r.place === 1 ? "🥇" : r.place === 2 ? "🥈" : r.place === 3 ? "🥉" : null;
@@ -755,6 +762,31 @@
             .finally(() => { restartBtn.disabled = false; });
     });
 
+    // Mehmon "qaytadan boshlash so'rash" tugmasi — host ga xabar yuboriladi
+    const reqBtn = $("tw-reqrestart");
+    if (reqBtn) reqBtn.addEventListener("click", () => {
+        reqBtn.disabled = true;
+        reqBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>So\'rov yuborildi…';
+        conn.invoke("RequestRestart", code)
+            .catch(() => { errEl.textContent = "So'rov yuborishda xatolik."; })
+            .finally(() => {
+                setTimeout(() => {
+                    reqBtn.disabled = false;
+                    reqBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i>Qaytadan boshlash so\'rash';
+                }, 3000);
+            });
+    });
+
+    // Xona ichidagi chat
+    const roomForm = $("tw-room-form"), roomInput = $("tw-room-input");
+    if (roomForm) roomForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const text = roomInput.value.trim();
+        if (!text) return;
+        roomInput.value = "";
+        conn.invoke("SendRoomMessage", code, text).catch(() => { });
+    });
+
     // Sozlamalar o'zgarsa (tema/karet/ko'rsatkichlar) — darhol qo'llash
     if (S && S.onChange) S.onChange(() => { applyStatVisibility(); moveCaret(); });
     window.addEventListener("resize", () => {
@@ -762,4 +794,62 @@
         if (lastResults && !resultEl.classList.contains("d-none")) drawRoomChart(lastResults);
     });
     applyStatVisibility();
+
+    // ── Xona chat xabari ──
+    function addRoomMsg(m) {
+        const box = $("tw-room-msgs");
+        if (!box) return;
+        const el = document.createElement("div");
+        el.className = "tw-room-msg";
+        const av = m.avatar
+            ? `<img class="tw-room-av" src="${esc(m.avatar)}" alt="" onerror="this.style.display='none'"/>`
+            : `<div class="tw-room-av tw-room-av--txt">${esc((m.name || "?").trim().charAt(0).toUpperCase())}</div>`;
+        el.innerHTML = `${av}
+            <div class="tw-room-msg-body">
+                <div class="tw-room-msg-head"><b>${esc(m.name)}</b> <span class="tw-room-msg-at">${esc(m.at)}</span></div>
+                <div class="tw-room-msg-text">${esc(m.text)}</div>
+            </div>`;
+        box.appendChild(el);
+        box.scrollTop = box.scrollHeight;
+    }
+
+    // ── Mehmon "qaytadan boshlash" so'raganida host ga ko'rsatiladigan toast ──
+    function showRestartRequest(d) {
+        if (isHost) {
+            // Host darhol boshlashi mumkin (yangi poyga)
+            const s = ensureRoomToastStack();
+            const el = document.createElement("div");
+            el.className = "tw-ntfy glass";
+            el.innerHTML = `
+                <div class="tw-ntfy-icon"><i class="bi bi-arrow-repeat"></i></div>
+                <div class="tw-ntfy-body">
+                    <div class="tw-ntfy-title">Qaytadan boshlash so'rovi</div>
+                    <div class="tw-ntfy-from"><b>${esc(d.fromName || "Raqib")}</b> qaytadan boshlashni xohlaydi</div>
+                    <div class="tw-ntfy-actions">
+                        <button type="button" class="tw-rbtn tw-rbtn--sm tw-rr-yes">Boshlash</button>
+                        <button type="button" class="tw-ntfy-x" aria-label="Yopish"><i class="bi bi-x-lg"></i></button>
+                    </div>
+                </div>`;
+            el.querySelector(".tw-rr-yes").addEventListener("click", () => {
+                conn.invoke("StartRace", code).catch(() => { });
+                el.remove();
+            });
+            el.querySelector(".tw-ntfy-x").addEventListener("click", () => el.remove());
+            s.appendChild(el);
+            setTimeout(() => { if (el.parentNode) el.remove(); }, 15000);
+        } else {
+            // Mehmon o'zi so'rov yuborganini biladi (tugma holati allaqachon ko'rsatilgan)
+        }
+    }
+
+    function ensureRoomToastStack() {
+        let st = document.getElementById("tw-room-toast");
+        if (!st) {
+            st = document.createElement("div");
+            st.id = "tw-room-toast";
+            st.className = "tw-room-toast";
+            document.body.appendChild(st);
+        }
+        return st;
+    }
 })();

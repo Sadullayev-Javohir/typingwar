@@ -24,6 +24,16 @@
             <ul id="tw-players" class="tw-players"></ul>
             <button id="tw-start" class="btn btn-tw w-100 mt-2 d-none">Boshlash (host)</button>
             <p id="tw-wait" class="text-secondary small mt-2">Host boshlashini kuting…</p>
+
+            <div class="tw-room-chat mt-3">
+                <h6 class="text-secondary">Chat</h6>
+                <div id="tw-room-msgs" class="tw-room-msgs"></div>
+                <form id="tw-room-form" class="tw-room-form" autocomplete="off">
+                    <input type="text" id="tw-room-input" class="tw-room-input" maxlength="280"
+                           placeholder="Xabar yozing…" />
+                    <button type="submit" class="tw-rbtn tw-rbtn--sm"><i class="bi bi-send"></i></button>
+                </form>
+            </div>
         </div>
 
         <div class="col-md-8">
@@ -78,6 +88,9 @@
                 <div class="tw-rr-actions">
                     <button id="tw-restart" class="btn btn-tw d-none">
                         <i class="bi bi-arrow-repeat me-1"></i>Qaytadan boshlash
+                    </button>
+                    <button id="tw-reqrestart" class="btn btn-outline-light d-none">
+                        <i class="bi bi-arrow-repeat me-1"></i>Qaytadan boshlash so'rash
                     </button>
                     <p id="tw-rr-wait" class="text-secondary small mb-0 d-none">
                         Host yangi poyga boshlashini kuting…

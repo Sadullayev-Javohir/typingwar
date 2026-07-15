@@ -54,17 +54,25 @@ public class PresenceHub : Hub
 
             // Profil + o'rtacha WPM ni yangi DI scope ichida o'qiymiz (hub singleton emas,
             // lekin scoped service'larga to'g'ridan-to'g'ri ega emas).
-            using (var scope = _scopeFactory.CreateScope())
+            try
             {
-                var reader = scope.ServiceProvider.GetRequiredService<IUserProfileReader>();
-                var info = await reader.GetProfileAsync(userId);
-                if (info is not null)
+                using (var scope = _scopeFactory.CreateScope())
                 {
-                    username ??= info.Username;
-                    avatar = info.AvatarUrl;
-                    region = info.RegionCode;
+                    var reader = scope.ServiceProvider.GetRequiredService<IUserProfileReader>();
+                    var info = await reader.GetProfileAsync(userId);
+                    if (info is not null)
+                    {
+                        username ??= info.Username;
+                        avatar = info.AvatarUrl;
+                        region = info.RegionCode;
+                    }
+                    avgWpm = await reader.GetAvgWpmAsync(userId);
                 }
-                avgWpm = await reader.GetAvgWpmAsync(userId);
+            }
+            catch
+            {
+                // Profil o'qish xatosi (masalan DB vaqtincha erishilmagan) — onlayn
+                // ro'yxatga qo'shilishni to'xtatmaymiz, standart qiymatlar bilan davom etamiz.
             }
 
             _online.Add(userId, Context.ConnectionId, username ?? "Foydalanuvchi", avgWpm, avatar, region);
@@ -116,7 +124,13 @@ public class PresenceHub : Hub
             fromRegion = from.RegionCode,
             partyCode
         });
-        await Clients.Caller.SendAsync("InviteSent", new { toName = targetInfo.Username });
+        // Chaqiruvchini ham partiyaga yo'naltiramiz — shunda u ro'yxatda qolmay,
+        // balki o'zi yaratgan partiyaga (hangout) o'tadi va chatda qatnashadi.
+        await Clients.Caller.SendAsync("InviteSent", new
+        {
+            toName = targetInfo.Username,
+            partyCode
+        });
     }
 
     /// <summary>Partiyaga qo'shilish (invite qabul qilingandan keyin chaqiriladi).</summary>

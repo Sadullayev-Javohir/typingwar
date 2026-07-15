@@ -118,6 +118,16 @@
             });
         });
 
+        conn.on("InviteSent", d => {
+            const code = d && d.partyCode;
+            if (!code) return;
+            // Chaqiruvchini o'zi yaratgan partiyaga (hangout) yo'naltiramiz.
+            // Agar allaqachon shu partiyada bo'lsa — sahifani yangilamaymiz.
+            const cur = new URLSearchParams(location.search).get("code");
+            if (location.pathname === "/Duel" && cur && cur.toUpperCase() === code.toUpperCase()) return;
+            window.location.href = "/Duel?code=" + encodeURIComponent(code);
+        });
+
         conn.on("Error", msg => console.warn("[presence]", msg));
 
         conn.start().catch(() => { me.started = false; });

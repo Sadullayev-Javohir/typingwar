@@ -45,7 +45,9 @@
     }
 
     function render(list) {
-        const arr = Array.isArray(list) ? list : [];
+        let arr = Array.isArray(list) ? list : [];
+        // O'z profilingiz ro'yxatda ko'rinmasin (lekin umumiy onlayn sonidan ham chiqaramiz)
+        if (myId) arr = arr.filter(u => u.userId !== myId);
         if (countEl) countEl.textContent = arr.length;
         if (!arr.length) {
             grid.innerHTML = "";

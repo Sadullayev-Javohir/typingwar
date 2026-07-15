@@ -28,10 +28,11 @@ public class LobbyHub : Hub
     private readonly ICacheService _cache;
     private readonly IHubContext<LobbyHub> _hub;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IOnlineUserProvider _online;
 
     public LobbyHub(RoomLiveState state, ISender mediator, ITextProvider textProvider,
         IApplicationDbContext db, ICacheService cache,
-        IHubContext<LobbyHub> hub, IServiceScopeFactory scopeFactory)
+        IHubContext<LobbyHub> hub, IServiceScopeFactory scopeFactory, IOnlineUserProvider online)
     {
         _state = state;
         _mediator = mediator;
@@ -40,6 +41,7 @@ public class LobbyHub : Hub
         _cache = cache;
         _hub = hub;
         _scopeFactory = scopeFactory;
+        _online = online;
     }
 
     private Guid? UserId =>
@@ -317,6 +319,57 @@ public class LobbyHub : Hub
         code = code.ToUpperInvariant();
         // Tugma orqali chiqish — bu aniq tark etish, darrov yopamiz (refresh emas).
         await RemoveConnection(code, Context.ConnectionId, immediate: true);
+    }
+
+    /// <summary>
+    /// Xona ichida ishtirokchilar o'rtasida umumiy chat xabari. Barcha a'zolarga
+    /// (yuboruvchi ham) <c>RoomMessage</c> sifatida yuboriladi.
+    /// </summary>
+    public async Task SendRoomMessage(string code, string text)
+    {
+        code = code.ToUpperInvariant();
+        if (!_state.TryGet(code, out var live)) return;
+        if (!live.Players.TryGetValue(Context.ConnectionId, out var me)) return;
+
+        var clean = (text ?? "").Trim();
+        if (clean.Length == 0) return;
+        if (clean.Length > 280) clean = clean[..280];
+
+        string? avatar = null;
+        if (me.UserId is Guid uid)
+            avatar = _online.Get(uid)?.AvatarUrl;
+
+        await Clients.Group(code).SendAsync("RoomMessage", new
+        {
+            userId = me.UserId?.ToString(),
+            name = me.Name,
+            avatar,
+            text = clean,
+            at = DateTime.UtcNow.ToString("HH:mm")
+        });
+    }
+
+    /// <summary>
+    /// Mehmonga (host emas) "qaytadan boshlash" so'rovi: host ga <c>OpponentWantsRestart</c>
+    /// xabari yuboriladi ("X qaytadan boshlashni xohlaydi"). Host o'zining "Boshlash"
+    /// tugmasini bosib yangi poyga boshlaydi. Hostning o'zi bu orqali emas, to'g'ridan-to'g'ri
+    /// <c>StartRace</c> chaqiradi.
+    /// </summary>
+    public async Task RequestRestart(string code)
+    {
+        code = code.ToUpperInvariant();
+        if (!_state.TryGet(code, out var live)) return;
+        if (!live.Players.TryGetValue(Context.ConnectionId, out var me)) return;
+        if (me.IsHost) return; // host o'zi boshlashi kerak
+
+        var host = live.Players.Values.FirstOrDefault(p => p.IsHost);
+        if (host is null) return;
+
+        await Clients.Client(host.ConnectionId).SendAsync("OpponentWantsRestart", new
+        {
+            fromUserId = me.UserId?.ToString(),
+            fromName = me.Name
+        });
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)

@@ -929,6 +929,25 @@ body.tw-record {
     .tw-rr-metrics { width: 100%; justify-content: space-around; }
 }
 
+/* ── Xona ichidagi chat ── */
+.tw-room-chat { background: rgba(255,255,255,.02); border: 1px solid var(--tw-border); border-radius: 12px; padding: .7rem .8rem; }
+.tw-room-chat h6 { margin-bottom: .5rem; }
+.tw-room-msgs { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: .5rem; margin-bottom: .6rem; padding-right: 2px; }
+.tw-room-msg { display: flex; gap: .5rem; align-items: flex-start; }
+.tw-room-av { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; flex: 0 0 auto; }
+.tw-room-av--txt { display: flex; align-items: center; justify-content: center; background: var(--tw-surface); color: var(--tw-text); font-weight: 700; font-size: .8rem; }
+.tw-room-msg-body { flex: 1; min-width: 0; }
+.tw-room-msg-head { font-size: .72rem; color: var(--tw-muted); }
+.tw-room-msg-head b { color: var(--tw-text); }
+.tw-room-msg-text { color: var(--tw-text); font-size: .88rem; word-break: break-word; }
+.tw-room-form { display: flex; gap: .4rem; }
+.tw-room-input { flex: 1; background: var(--tw-surface); border: 1px solid var(--tw-border); color: var(--tw-text); border-radius: 8px; padding: .4rem .6rem; font-size: .85rem; }
+.tw-room-input:focus { outline: none; border-color: color-mix(in srgb, var(--tw-gold) 50%, transparent); }
+
+/* ── Xona toast (qaytadan boshlash so'rovi) ── */
+.tw-room-toast { position: fixed; right: 1.2rem; bottom: 1.2rem; z-index: 1200; display: flex; flex-direction: column; gap: .6rem; max-width: 320px; }
+.tw-room-toast .tw-ntfy { margin: 0; }
+
 .tw-room-page { max-width: 960px; margin: 1.5rem auto; }
 .tw-room-code { font-size: 1.6rem; font-weight: 800; color: var(--tw-gold);
     letter-spacing: .25em; font-family: var(--tw-font); }
