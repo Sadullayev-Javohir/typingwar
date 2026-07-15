@@ -41,11 +41,23 @@ public class PartyService
     }
 
     /// <summary>Invite yuboruvchining partiyasini qaytaradi (yo'q bo'lsa yaratadi).</summary>
-    public string GetOrCreateCode(Guid ownerId)
+    public string GetOrCreateCode(Guid ownerId,
+        string? ownerName = null, double ownerAvgWpm = 0, string? ownerAvatar = null, string? ownerRegion = null)
     {
         var p = GetOrCreate(ownerId);
-        // Egasi har doim a'zo bo'lsin
-        p.Members.TryAdd(ownerId, new TypingWar.Application.Features.Online.PartyMemberDto(ownerId.ToString(), "(egasi)", 0, null, null, true));
+        // Egasi har doim a'zo bo'lsin — ma'lumot bo'lsa haqiqiy profil bilan
+        // (aks holda placeholder "(egasi)").
+        p.Members.AddOrUpdate(ownerId,
+            _ => new TypingWar.Application.Features.Online.PartyMemberDto(
+                ownerId.ToString(), ownerName ?? "(egasi)", ownerAvgWpm, ownerAvatar, ownerRegion, true),
+            (_, existing) => existing with
+            {
+                Username = ownerName ?? existing.Username,
+                AvgWpm = ownerName != null ? ownerAvgWpm : existing.AvgWpm,
+                AvatarUrl = ownerName != null ? ownerAvatar : existing.AvatarUrl,
+                RegionCode = ownerName != null ? ownerRegion : existing.RegionCode,
+                IsOwner = true
+            });
         return p.Code;
     }
 
@@ -75,5 +87,21 @@ public class PartyService
     {
         code = code.ToUpperInvariant();
         if (_byCode.TryGetValue(code, out var p)) p.Members.TryRemove(userId, out _);
+    }
+
+    /// <summary>
+    /// Foydalanuvchini a'zo bo'lgan BARCHA partiyalardan chiqaradi (ulanish uzilganda).
+    /// Qaytadi: har bir ta'sirlangan partiya kodi + yangilangan a'zolar ro'yxati —
+    /// hub ularni guruhga qayta broadcast qilishi uchun.
+    /// </summary>
+    public IReadOnlyList<(string Code, IReadOnlyList<TypingWar.Application.Features.Online.PartyMemberDto> Members)> RemoveEverywhere(Guid userId)
+    {
+        var affected = new List<(string, IReadOnlyList<TypingWar.Application.Features.Online.PartyMemberDto>)>();
+        foreach (var p in _byCode.Values)
+        {
+            if (p.Members.TryRemove(userId, out _))
+                affected.Add((p.Code, p.Members.Values.ToList()));
+        }
+        return affected;
     }
 }

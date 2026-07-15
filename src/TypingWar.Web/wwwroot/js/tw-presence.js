@@ -24,9 +24,21 @@
         online: [],
         conn: null,
         started: false,
+        connected: false,        // conn HAQIQATAN "Connected" holatidami
         listeners: [],
-        connListeners: []
+        connListeners: [],       // onConnection — xom conn obyekti (start'dan oldin ham) → .on ro'yxatga olish
+        readyListeners: []       // whenConnected — faqat ulanish tayyor bo'lgach (initial + reconnect)
     };
+
+    function safeCall(cb, arg) { try { cb(arg); } catch (e) { /* callback xatosi tizimni buzmasin */ } }
+
+    // Ulanish "Connected" bo'lganda (birinchi marta va HAR reconnect'da) chaqiriladi.
+    // readyListeners saqlanadi (splice qilinmaydi) — shunda reconnect'dan keyin
+    // /Duel kabi sahifalar partiyaga QAYTA qo'shila oladi.
+    function fireReady() {
+        me.connected = true;
+        me.readyListeners.forEach(cb => safeCall(cb, me.conn));
+    }
 
     function esc(s) {
         return String(s == null ? "" : s).replace(/[&<>"]/g, c =>
@@ -98,8 +110,9 @@
             .build();
         me.conn = conn;
 
-        // Ulanish tayyor bo'lgach kutayotgan callback'larni chaqiramiz
-        me.connListeners.splice(0).forEach(cb => { try { cb(conn); } catch (e) { } });
+        // Xom conn obyekti tayyor — .on handlerlarini ro'yxatga olish uchun (start'dan
+        // oldin ham xavfsiz). DIQQAT: bu yerda invoke QILMANG — ulanish hali tayyor emas.
+        me.connListeners.splice(0).forEach(cb => safeCall(cb, conn));
 
         conn.on("OnlineList", list => {
             me.online = Array.isArray(list) ? list : [];
@@ -134,12 +147,22 @@
 
         conn.on("Error", msg => console.warn("[presence]", msg));
 
-        conn.start().catch(() => { me.started = false; });
+        // Ulanish holati — reconnect'da guruh a'zoligi yo'qoladi, shuning uchun
+        // "tayyor" bo'lgach kutuvchilarni (masalan /Duel JoinParty) qayta chaqiramiz.
+        conn.onreconnected(() => fireReady());
+        conn.onclose(() => { me.connected = false; });
+
+        conn.start()
+            .then(() => fireReady())
+            .catch(() => { me.started = false; me.connected = false; });
     }
 
     // ── Public API ──
     window.TWPresence = {
         get connection() { return me.conn; },
+        get isConnected() { return me.connected; },
+        // Presence umuman ishga tushadimi (faqat tizimga kirganlar uchun)
+        get isEnabled() { return !!(window.signalR && typeof TWAuth !== "undefined" && TWAuth.isAuthenticated); },
         getOnline: () => me.online.slice(),
         onOnlineChange: (cb) => {
             me.listeners.push(cb);
@@ -153,9 +176,22 @@
         },
         invite: (userId) => me.conn && me.conn.invoke("Invite", String(userId)),
         startDuel: (userId, partyCode) => me.conn && me.conn.invoke("InviteToDuel", String(userId), partyCode),
+        // O'z partiyangizni yaratadi/oladi va kodini qaytaradi (Promise<string>).
+        createParty: () => (me.conn ? me.conn.invoke("EnsureMyParty") : Promise.reject(new Error("no-conn"))),
+        // Xom conn obyektini beradi (.on handlerlarini ro'yxatga olish uchun). start'dan
+        // oldin ham chaqirilishi mumkin — bu yerda invoke QILMANG.
         onConnection: (cb) => {
-            if (me.conn) { try { cb(me.conn); } catch (e) { } }
+            if (me.conn) { safeCall(cb, me.conn); }
             else me.connListeners.push(cb);
+        },
+        // Ulanish HAQIQATAN tayyor bo'lganda (Connected) chaqiriladi — birinchi marta
+        // va har reconnect'da. Bu yerda xavfsiz invoke qilish mumkin (masalan JoinParty).
+        whenConnected: (cb) => {
+            me.readyListeners.push(cb);
+            if (me.connected) safeCall(cb, me.conn);
+            return () => {
+                const i = me.readyListeners.indexOf(cb); if (i >= 0) me.readyListeners.splice(i, 1);
+            };
         },
         init
     };

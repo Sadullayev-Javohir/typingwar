@@ -52,6 +52,11 @@
 .tw-duel-h { font-family: var(--tw-display); margin: 0 0 14px; color: #fff; font-size: 1.05rem; }
 .tw-duel-member-list { display: grid; gap: 12px; }
 .tw-duel-empty { color: var(--tw-muted); text-align: center; padding: 24px 8px; }
+.tw-duel-empty a { color: #fff; text-decoration: underline; }
+.tw-duel-empty-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+.tw-duel-hint { color: var(--tw-muted); font-size: .82rem; background: var(--tw-glass-2); border: 1px solid var(--tw-glass-border); border-radius: 12px; padding: 8px 12px; margin-bottom: 12px; }
+.tw-duel-hint a { color: #fff; text-decoration: underline; }
+.tw-duel-hint i { color: #ffd34d; }
 .tw-duel-member { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px; background: var(--tw-glass-2); border: 1px solid var(--tw-glass-border); }
 .tw-duel-m-info { flex: 1 1 auto; min-width: 0; }
 .tw-duel-m-name { font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }

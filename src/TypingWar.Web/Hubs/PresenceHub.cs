@@ -88,6 +88,11 @@ public class PresenceHub : Hub
         {
             _online.Remove(userId, Context.ConnectionId);
             await BroadcastOnlineAsync();
+
+            // A'zo bo'lgan partiyalardan chiqaramiz va qolganlarga yangilangan ro'yxatni
+            // yuboramiz (aks holda chiqib ketgan a'zo ro'yxatda "osilib" qoladi).
+            foreach (var (code, members) in _parties.RemoveEverywhere(userId))
+                await Clients.Group("party-" + code).SendAsync("PartyMembers", members);
         }
         await base.OnDisconnectedAsync(exception);
     }
@@ -113,7 +118,7 @@ public class PresenceHub : Hub
         { await Clients.Caller.SendAsync("Error", "Foydalanuvchi hozir onlayn emas."); return; }
 
         var from = _online.Get(uid.Value)!;
-        var partyCode = _parties.GetOrCreateCode(uid.Value);
+        var partyCode = _parties.GetOrCreateCode(uid.Value, from.Username, from.AvgWpm, from.AvatarUrl, from.RegionCode);
 
         await Clients.User(target.ToString()).SendAsync("InviteReceived", new
         {
@@ -137,16 +142,35 @@ public class PresenceHub : Hub
     public async Task JoinParty(string code)
     {
         var uid = UserId;
-        if (uid is null) return;
+        if (uid is null) { await Clients.Caller.SendAsync("Error", "Partiyaga qo'shilish uchun tizimga kiring."); return; }
         code = (code ?? "").ToUpperInvariant();
         if (!_parties.Exists(code)) { await Clients.Caller.SendAsync("Error", "Partiya topilmadi."); return; }
 
-        var me = _online.Get(uid.Value)!;
-        var member = new PartyMemberDto(uid.Value.ToString(), me.Username, me.AvgWpm, me.AvatarUrl, me.RegionCode, false);
+        // Online ma'lumot bo'lmasa ham (masalan profil o'qishda xato) qo'shilishni
+        // to'xtatmaymiz — claim'lardan zaxira qiymatlar bilan davom etamiz.
+        var me = _online.Get(uid.Value);
+        var username = me?.Username ?? Context.User?.FindFirstValue(ClaimTypes.Name) ?? "Foydalanuvchi";
+        var member = new PartyMemberDto(uid.Value.ToString(), username, me?.AvgWpm ?? 0, me?.AvatarUrl, me?.RegionCode, false);
         var members = _parties.Join(code, member);
 
         await Groups.AddToGroupAsync(Context.ConnectionId, "party-" + code);
         await Clients.Group("party-" + code).SendAsync("PartyMembers", members);
+    }
+
+    /// <summary>
+    /// Chaqiruvchining o'z partiyasini yaratadi/oladi va kodini qaytaradi.
+    /// /Duel sahifasida kod bo'lmasa yoki eskirgan bo'lsa — foydalanuvchi o'z
+    /// partiyasini ochib, do'stlarini chaqira olishi uchun (dead-end bo'lmasin).
+    /// </summary>
+    public Task<string> EnsureMyParty()
+    {
+        var uid = UserId;
+        if (uid is null) return Task.FromResult("");
+        var from = _online.Get(uid.Value);
+        var code = _parties.GetOrCreateCode(uid.Value,
+            from?.Username ?? Context.User?.FindFirstValue(ClaimTypes.Name),
+            from?.AvgWpm ?? 0, from?.AvatarUrl, from?.RegionCode);
+        return Task.FromResult(code);
     }
 
     /// <summary>Partiya ichida umumiy xabar (chat).</summary>

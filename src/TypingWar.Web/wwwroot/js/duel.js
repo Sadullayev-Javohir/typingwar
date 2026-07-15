@@ -9,13 +9,42 @@
     const form = document.getElementById("tw-duel-form");
     const input = document.getElementById("tw-duel-input");
 
-    const code = (new URLSearchParams(location.search).get("code") || "").toUpperCase();
-    if (!code) {
-        membersEl.innerHTML = '<div class="tw-duel-empty">Partiya kodi ko\'rsatilmagan.</div>';
+    let code = (new URLSearchParams(location.search).get("code") || "").toUpperCase();
+    const myId = (window.TWAuth && window.TWAuth.userId) || null;
+
+    // Tizimga kirmagan bo'lsa presence umuman ulanmaydi — aniq xabar ko'rsatamiz.
+    if (!window.TWPresence.isEnabled) {
+        membersEl.innerHTML =
+            '<div class="tw-duel-empty">Partiyaga qo\'shilish uchun avval <a href="/Login">tizimga kiring</a>.</div>';
+        if (input) { input.disabled = true; input.placeholder = "Chat uchun tizimga kiring…"; }
         return;
     }
 
-    const myId = (window.TWAuth && window.TWAuth.userId) || null;
+    // Kod bo'lmasa — o'z partiyangizni yaratishni taklif qilamiz (dead-end bo'lmasin).
+    function showNoCode(msg) {
+        membersEl.innerHTML =
+            '<div class="tw-duel-empty">' + esc(msg) +
+            '<div class="tw-duel-empty-actions">' +
+            '<button type="button" class="tw-rbtn tw-rbtn--sm" id="tw-duel-create"><i class="bi bi-plus-lg"></i> Yangi partiya yaratish</button> ' +
+            '<a class="tw-rbtn tw-rbtn--ghost tw-rbtn--sm" href="/Online"><i class="bi bi-people"></i> Onlayn ro\'yxat</a>' +
+            '</div></div>';
+        const btn = document.getElementById("tw-duel-create");
+        if (btn) btn.addEventListener("click", createMyParty);
+    }
+
+    async function createMyParty() {
+        try {
+            const newCode = await window.TWPresence.createParty();
+            if (newCode) {
+                // URL ni yangilaymiz va partiyaga qo'shilamiz (sahifani qayta yuklamasdan)
+                code = String(newCode).toUpperCase();
+                history.replaceState(null, "", "/Duel?code=" + encodeURIComponent(code));
+                membersEl.innerHTML = '<div class="tw-duel-empty">Partiya tayyorlanmoqda…</div>';
+                joinAttempted = false;
+                rejoin();
+            }
+        } catch { showNoCode("Partiya yaratib bo'lmadi. Qaytadan urinib ko'ring."); }
+    }
 
     const REGIONS = {
         TASHKENT_CITY: "Toshkent sh.", TASHKENT_REGION: "Toshkent v.", ANDIJAN: "Andijon",
@@ -43,7 +72,11 @@
         }
         // Egasi birinchi, keyin WPM bo'yicha
         arr.sort((a, b) => (b.isOwner - a.isOwner) || (b.avgWpm - a.avgWpm));
-        membersEl.innerHTML = arr.map(m => {
+        const others = arr.filter(m => !(myId && m.userId === myId)).length;
+        const hint = others
+            ? '<div class="tw-duel-hint"><i class="bi bi-lightning-charge"></i> Duelni boshlash uchun a\'zo yonidagi <b>Duel</b> tugmasini bosing.</div>'
+            : '<div class="tw-duel-hint"><i class="bi bi-hourglass-split"></i> Do\'stingiz qo\'shilishini kuting yoki <a href="/Online">Onlayn ro\'yxat</a>dan chaqiring.</div>';
+        membersEl.innerHTML = hint + arr.map(m => {
             const mine = myId && m.userId === myId;
             return `<div class="tw-duel-member" data-uid="${esc(m.userId)}">
                 ${avatar(m.avatarUrl, m.username)}
@@ -78,7 +111,7 @@
         c.on("DuelCreated", d => { window.location.href = "/Room?code=" + encodeURIComponent(d.roomCode); });
         c.on("Error", msg => {
             if (msg && /partiya/i.test(msg)) {
-                membersEl.innerHTML = '<div class="tw-duel-empty">Partiya topilmadi yoki tugatilgan.</div>';
+                showNoCode("Partiya topilmadi yoki tugatilgan (havola eskirgan bo'lishi mumkin).");
             }
         });
     }
@@ -94,24 +127,40 @@
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const text = input.value.trim();
-        if (!text) return;
+        if (!text || !code) return;
         input.value = "";
         const c = window.TWPresence.connection;
         if (c) await c.invoke("SendPartyMessage", code, text).catch(() => {});
     });
 
-    // ── Ulanish tayyor bo'lgach handlerlarni ro'yxatga olamiz va partiyaga qo'shilamiz ──
-    if (window.TWPresence) {
-        window.TWPresence.onConnection(c => {
-            wire(c);
-            c.invoke("JoinParty", code).catch(() => {});
-        });
-        // 5s ichida hech qanday a'zo ro'yxati kelmasa — "Yuklanmoqda…" da qotib
-        // qolmasin, aniq xabar ko'rsatamiz.
-        setTimeout(() => {
-            if (!membersEl.querySelector(".tw-duel-member")) {
-                membersEl.innerHTML = '<div class="tw-duel-empty">Partiyaga ulanib bo\'lmadi. Sahifani yangilang.</div>';
-            }
-        }, 5000);
+    // ── Ulanish ──
+    // MUHIM: JoinParty ni ulanish HAQIQATAN "Connected" bo'lgach chaqiramiz
+    // (aks holda invoke "not connected" xatosi bilan yiqilib, a'zolar yuklanmaydi).
+    // whenConnected har reconnect'da ham qayta ishga tushadi → guruhga qayta qo'shilamiz.
+    let joinAttempted = false;
+    function rejoin() {
+        const c = window.TWPresence.connection;
+        if (!c || !code) return;
+        joinAttempted = true;
+        c.invoke("JoinParty", code).catch(() => {});
     }
+
+    window.TWPresence.onConnection(wire);      // .on handlerlarini bir marta ro'yxatga olamiz
+    window.TWPresence.whenConnected(rejoin);   // tayyor bo'lgach (+ reconnect) partiyaga qo'shilamiz
+
+    if (!code) {
+        showNoCode("Partiya kodi ko'rsatilmagan. ");
+    }
+
+    // Ulanib, JoinParty yuborilgan bo'lsa-yu, hech qanday a'zo kelmasa —
+    // "Yuklanmoqda…" da qotib qolmasin.
+    setTimeout(() => {
+        if (code && joinAttempted && !membersEl.querySelector(".tw-duel-member")
+            && !membersEl.querySelector(".tw-duel-empty-actions")) {
+            showNoCode("Partiyaga ulanib bo'lmadi yoki partiya tugatilgan. ");
+        } else if (code && !joinAttempted) {
+            // Ulanish umuman tayyor bo'lmadi (tarmoq muammosi)
+            membersEl.innerHTML = '<div class="tw-duel-empty">Serverga ulanib bo\'lmadi. Sahifani yangilang.</div>';
+        }
+    }, 7000);
 })();
