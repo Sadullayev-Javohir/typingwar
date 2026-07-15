@@ -18,6 +18,44 @@
 
     <div id="tw-room-err" class="text-danger text-center"></div>
 
+    <!-- Host poyga sozlamalari (til/rejim/so'z soni/uzunlik) — faqat host ko'radi, poyga boshlanishidan oldin -->
+    <div id="tw-room-cfg-card" class="tw-card tw-room-cfg d-none mb-3">
+        <div class="tw-room-cfg-head">
+            <i class="bi bi-sliders"></i>
+            <span>Poyga sozlamalari</span>
+            <small class="text-secondary">— faqat siz (host) o'zgartira olasiz</small>
+        </div>
+        <div class="tw-config tw-room-config" id="tw-room-config">
+            <div class="tw-config-group" data-group="language">
+                <span class="tw-config-label"><i class="bi bi-translate"></i>Til:</span>
+                <button type="button" class="tw-opt" data-key="language" data-value="Uzbek">uz</button>
+                <button type="button" class="tw-opt" data-key="language" data-value="English">en</button>
+            </div>
+            <div class="tw-config-group" data-group="mode">
+                <span class="tw-config-label"><i class="bi bi-type"></i>Rejim:</span>
+                <button type="button" class="tw-opt" data-key="textMode" data-value="Words">so'z</button>
+                <button type="button" class="tw-opt" data-key="textMode" data-value="Sentences">Iqtiboslar</button>
+                <button type="button" class="tw-opt" data-key="textMode" data-value="Numbers">raqam</button>
+                <button type="button" class="tw-opt" data-key="textMode" data-value="Code">kod</button>
+            </div>
+            <div class="tw-config-group" data-group="quote" style="display:none">
+                <span class="tw-config-label"><i class="bi bi-rulers"></i>Uzunlik:</span>
+                <button type="button" class="tw-opt" data-key="quoteLength" data-value="all">barchasi</button>
+                <button type="button" class="tw-opt" data-key="quoteLength" data-value="short">qisqa</button>
+                <button type="button" class="tw-opt" data-key="quoteLength" data-value="medium">o'rta</button>
+                <button type="button" class="tw-opt" data-key="quoteLength" data-value="long">uzun</button>
+                <button type="button" class="tw-opt" data-key="quoteLength" data-value="thick">juda uzun</button>
+            </div>
+            <div class="tw-config-group" data-group="count">
+                <span class="tw-config-label"><i class="bi bi-hash"></i>So'z:</span>
+                <button type="button" class="tw-opt" data-key="wordCount" data-value="10">10</button>
+                <button type="button" class="tw-opt" data-key="wordCount" data-value="25">25</button>
+                <button type="button" class="tw-opt" data-key="wordCount" data-value="50">50</button>
+                <button type="button" class="tw-opt" data-key="wordCount" data-value="100">100</button>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-3">
         <div class="col-md-4">
             <h6 class="text-secondary">O'yinchilar</h6>

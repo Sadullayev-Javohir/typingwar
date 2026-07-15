@@ -876,6 +876,12 @@ body.tw-record {
 .tw-room-config .tw-config-group { flex-wrap: wrap; gap: .25rem; }
 .tw-room-config .tw-config-label { min-width: 58px; }
 
+/* Room — host poyga sozlamalari kartasi */
+.tw-room-cfg-head { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem; font-weight: 700; color: #fff; margin-bottom: .5rem; }
+.tw-room-cfg-head i { color: var(--tw-accent); }
+.tw-room-cfg-head small { font-weight: 400; }
+.tw-room-cfg .tw-config { margin: 0; }
+
 /* ───── Xona poyga natijalari (barcha o'yinchilar bitta oynada) ───── */
 .tw-room-result {
     background: var(--tw-surface); border: 1px solid var(--tw-border);

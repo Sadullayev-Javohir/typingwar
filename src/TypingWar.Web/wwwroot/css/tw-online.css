@@ -57,11 +57,13 @@
 .tw-duel-hint { color: var(--tw-muted); font-size: .82rem; background: var(--tw-glass-2); border: 1px solid var(--tw-glass-border); border-radius: 12px; padding: 8px 12px; margin-bottom: 12px; }
 .tw-duel-hint a { color: #fff; text-decoration: underline; }
 .tw-duel-hint i { color: #ffd34d; }
-.tw-duel-member { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px; background: var(--tw-glass-2); border: 1px solid var(--tw-glass-border); }
+.tw-duel-member { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 12px; border-radius: 14px; background: var(--tw-glass-2); border: 1px solid var(--tw-glass-border); }
 .tw-duel-m-info { flex: 1 1 auto; min-width: 0; }
-.tw-duel-m-name { font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
-.tw-duel-owner { font-size: .7rem; background: var(--tw-glass); border: 1px solid var(--tw-glass-border); color: var(--tw-muted); padding: 1px 8px; border-radius: 999px; }
+.tw-duel-m-name { font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; min-width: 0; overflow: hidden; }
+.tw-duel-m-name > .tw-duel-m-uname { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tw-duel-owner { font-size: .7rem; background: var(--tw-glass); border: 1px solid var(--tw-glass-border); color: var(--tw-muted); padding: 1px 8px; border-radius: 999px; flex-shrink: 0; }
 .tw-duel-m-meta { display: flex; gap: 12px; flex-wrap: wrap; color: var(--tw-muted); font-size: .82rem; margin-top: 3px; }
+.tw-duel-duel { flex-shrink: 0; margin-left: auto; }
 
 .tw-duel-chat { display: flex; flex-direction: column; min-height: 420px; }
 .tw-duel-msgs { flex: 1 1 auto; overflow-y: auto; display: grid; gap: 12px; padding: 4px 6px 12px; max-height: 460px; }

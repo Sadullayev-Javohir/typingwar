@@ -47,6 +47,8 @@ public class LobbyHub : Hub
     private Guid? UserId =>
         Guid.TryParse(Context.User?.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
 
+    private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNameCaseInsensitive = true };
+
     private static object View(RoomPlayerLive p) => new
     {
         connId = p.ConnectionId,
@@ -135,6 +137,7 @@ public class LobbyHub : Hub
         {
             code,
             isHost,
+            settings = live.Settings,
             status = live.Status.ToString(),
             // Poyga allaqachon ketayotgan bo'lsa — joriy matnni ham yuboramiz. Shunda kech
             // qo'shilgan / qayta ulangan o'yinchi lobbyda qotib qolmasdan poygaga ulanadi
@@ -177,6 +180,71 @@ public class LobbyHub : Hub
 
         // Poyga 5 daqiqada tugamasa — xona avtomatik o'chadi (taymerni qayta o'rnatamiz)
         ScheduleRaceTimeout(live, code);
+    }
+
+    /// <summary>
+    /// Host xonadagi poyga sozlamalarini (til/rejim/so'z soni/uzunlik) poyga boshlanishidan
+    /// oldin o'zgartirishi mumkin — xuddi /Race sahifasidagi kabi. Sozlamalar live holatga
+    /// va (qayta ulanish uchun) DB ga yoziladi. Faqat host chaqira oladi.
+    /// </summary>
+    public async Task UpdateSettings(string code, string settingsJson)
+    {
+        code = code.ToUpperInvariant();
+        if (!_state.TryGet(code, out var live)) return;
+
+        if (!live.Players.TryGetValue(Context.ConnectionId, out var me) || !me.IsHost)
+        {
+            await Clients.Caller.SendAsync("Error", "Faqat host sozlamalarni o'zgartira oladi.");
+            return;
+        }
+
+        if (!TryNormalizeSettings(settingsJson, out var normalized))
+        {
+            await Clients.Caller.SendAsync("Error", "Sozlamalar noto'g'ri.");
+            return;
+        }
+
+        live.Settings = normalized;
+        await Clients.Caller.SendAsync("SettingsUpdated", normalized);
+        _ = PersistSettingsAsync(live.RoomId, normalized);
+    }
+
+    /// <summary>
+    /// Host yuborgan sozlama JSON ini tekshiradi va normalashtiradi (enum/sonlar
+    /// chegarasi). To'g'ri bo'lsa — normalashtirilgan JSON qaytaradi.
+    /// </summary>
+    private static bool TryNormalizeSettings(string json, out string normalized)
+    {
+        normalized = "";
+        if (string.IsNullOrWhiteSpace(json)) return false;
+        RoomRaceSettings s;
+        try { s = JsonSerializer.Deserialize<RoomRaceSettings>(json, JsonOpts) ?? new RoomRaceSettings(); }
+        catch { return false; }
+
+        var mode = Enum.TryParse<TextMode>(s.TextMode, true, out var m) ? m : TextMode.Sentences;
+        var lang = Enum.TryParse<Language>(s.Language, true, out var l) ? l : Language.Uzbek;
+        var count = s.WordCount is >= 5 and <= 200 ? s.WordCount : 25;
+        var quote = string.IsNullOrWhiteSpace(s.QuoteLength) ? "all" : s.QuoteLength;
+        var norm = new RoomRaceSettings(l.ToString(), m.ToString(), count, quote);
+        normalized = JsonSerializer.Serialize(norm);
+        return true;
+    }
+
+    /// <summary>Sozlamalarni DB ga yozadi (qayta ulanishda saqlanib qolishi uchun). Fon rejimida, xato poygani to'xtatmaydi.</summary>
+    private async Task PersistSettingsAsync(Guid roomId, string json)
+    {
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+            var room = await db.Rooms.FirstOrDefaultAsync(r => r.Id == roomId);
+            if (room is not null && room.Status == RoomStatus.Waiting)
+            {
+                room.Settings = json;
+                await db.SaveChangesAsync();
+            }
+        }
+        catch { /* background saqlash — xato poygani to'xtatmasin */ }
     }
 
     /// <summary>Host tanlagan sozlamalardan (JSON) matn so'rovini quradi. Xatolik bo'lsa — standart (o'zbek iqtibos).</summary>

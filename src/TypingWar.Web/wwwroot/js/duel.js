@@ -81,7 +81,7 @@
             return `<div class="tw-duel-member" data-uid="${esc(m.userId)}">
                 ${avatar(m.avatarUrl, m.username)}
                 <div class="tw-duel-m-info">
-                    <div class="tw-duel-m-name">${esc(m.username)} ${m.isOwner ? '<span class="tw-duel-owner">egasi</span>' : ""}</div>
+                    <div class="tw-duel-m-name"><span class="tw-duel-m-uname">${esc(m.username)}</span>${m.isOwner ? '<span class="tw-duel-owner">egasi</span>' : ""}</div>
                     <div class="tw-duel-m-meta">
                         <span><i class="bi bi-speedometer2"></i> ${esc(m.avgWpm)} WPM</span>
                         ${regionName(m.regionCode) ? `<span><i class="bi bi-geo-alt"></i> ${esc(regionName(m.regionCode))}</span>` : ""}

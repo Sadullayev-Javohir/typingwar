@@ -26,6 +26,52 @@
         sabPanel = $("tw-sabotage"), sabBanner = $("tw-sab-banner"), sabFeed = $("tw-sab-feed");
     const wpmEl = $("tw-wpm"), accEl = $("tw-acc"), timerEl = $("tw-timer");
 
+    // ── Host poyga sozlamalari (xonada, poyga boshlanishidan oldin) ──
+    // Host /Race sahifasidagidek til/rejim/so'z soni/uzunlikni tanlashi mumkin.
+    // Tanlov serverga (UpdateSettings) yuboriladi va poyga boshlanganda shu matn olinadi.
+    const roomCfgCard = $("tw-room-cfg-card");
+    const roomCfgEl = $("tw-room-config");
+    const roomCfg = { language: "Uzbek", textMode: "Sentences", wordCount: 25, quoteLength: "all" };
+
+    function rnum(v, d) { const n = parseInt(v, 10); return isNaN(n) ? d : n; }
+
+    function refreshRoomCfg() {
+        if (!roomCfgEl) return;
+        const uzbek = roomCfg.language === "Uzbek";
+        const codeBtn = roomCfgEl.querySelector('.tw-opt[data-key="textMode"][data-value="Code"]');
+        if (codeBtn) codeBtn.style.display = uzbek ? "none" : "";
+        if (uzbek && roomCfg.textMode === "Code") roomCfg.textMode = "Words"; // o'zbekda kod rejimi yo'q
+        roomCfgEl.querySelectorAll(".tw-opt").forEach(btn => {
+            const key = btn.dataset.key, val = btn.dataset.value;
+            const cur = roomCfg[key];
+            const active = typeof cur === "number" ? (rnum(val, NaN) === cur) : (String(cur) === val);
+            btn.classList.toggle("tw-active", active);
+        });
+        // Iqtibos rejimida "So'z soni" o'rniga "Uzunlik" ko'rinadi
+        const quote = roomCfg.textMode === "Sentences";
+        const quoteGroup = roomCfgEl.querySelector('.tw-config-group[data-group="quote"]');
+        const countGroup = roomCfgEl.querySelector('.tw-config-group[data-group="count"]');
+        if (quoteGroup) quoteGroup.style.display = quote ? "" : "none";
+        if (countGroup) countGroup.style.display = quote ? "none" : "";
+    }
+
+    function showRoomCfg(show) {
+        if (!roomCfgCard) return;
+        roomCfgCard.classList.toggle("d-none", !show);
+    }
+
+    if (roomCfgEl) {
+        roomCfgEl.querySelectorAll(".tw-opt").forEach(btn => {
+            btn.addEventListener("click", () => {
+                if (!isHost) return;
+                const key = btn.dataset.key, val = btn.dataset.value;
+                roomCfg[key] = (key === "wordCount") ? rnum(val, 25) : val;
+                refreshRoomCfg();
+                conn.invoke("UpdateSettings", code, JSON.stringify(roomCfg)).catch(() => { });
+            });
+        });
+    }
+
     const MIN_SABOTAGE_PLAYERS = 3;
     const SAB_CLASS = {
         Blackout: "sab-blackout", Shuffle: "sab-shuffle", Shake: "sab-shake",
@@ -150,6 +196,20 @@
         s.players.forEach(p => players.set(p.connId, p));
         updateHostUi();
         renderPlayers();
+
+        // Host sozlamalarini serverdan o'qib, konfig kartasini to'ldiramiz
+        if (s.settings) {
+            try {
+                const o = JSON.parse(s.settings);
+                if (o.Language) roomCfg.language = o.Language;
+                if (o.TextMode) roomCfg.textMode = o.TextMode;
+                if (o.WordCount) roomCfg.wordCount = rnum(o.WordCount, 25);
+                if (o.QuoteLength) roomCfg.quoteLength = o.QuoteLength;
+                refreshRoomCfg();
+            } catch { }
+        }
+        // Sozlama kartasi faqat host va poyga kutilayotgan (Waiting) bo'lsa ko'rinadi
+        showRoomCfg(isHost && s.status === "Waiting");
 
         // Kech qo'shilgan / qayta ulangan o'yinchi: host "Boshlash"ni bosgan lahzada guruhda
         // bo'lmaganmiz — RaceStarting kelmagan. Poyga davom etayotgan bo'lsa (matn RoomState
@@ -343,6 +403,7 @@
         raceEl.classList.remove("d-none");
         applyStatVisibility();
         wordsEl.focus();
+        showRoomCfg(false); // poyga boshlandi — sozlamalarni yashiramiz
         // Poyga boshlandi: host tugmasi endi "Qaytadan boshlash" bo'ladi (poyga davomida ham
         // ko'rinadi — kimdir yozmay tursa host yangi poygani boshlashi mumkin). Non-host uchun
         // "Host kuting…" matni poyga davomida o'rinsiz — yashiramiz.
@@ -575,6 +636,9 @@
         raceEl.classList.add("d-none");
         cdEl.classList.add("d-none");
         resultEl.classList.remove("d-none");
+
+        // Natija oynasida (lobby ga qaytgan) host yangi sozlamalarni tanlashi mumkin
+        showRoomCfg(isHost);
 
         lastResults = results;
 
