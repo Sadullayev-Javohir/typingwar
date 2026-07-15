@@ -322,7 +322,7 @@
         // Joriy autentifikatsiya holati — global presence/notification tizimi uchun
         window.TWAuth = {
             isAuthenticated: @(User.Identity?.IsAuthenticated == true ? "true" : "false"),
-            userId: @(User.Identity?.IsAuthenticated == true && User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value is string uid ? $"\"{uid}\"" : "null")
+            userId: @Html.Raw(User.Identity?.IsAuthenticated == true && User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value is string uid ? $"\"{uid}\"" : "null")
         };
         document.getElementById("tw-logout")?.addEventListener("click", async (e) => {
             e.preventDefault();
@@ -333,7 +333,7 @@
         // Versiyalangan URL: Cloudflare bare "/sw.js"ni eski cache'lagan bo'lsa ham
         // "?v=79" yangi URL => edge BYPASS => yangi worker darhol o'rnatiladi (o'z-o'zini tuzatadi).
         if ("serviceWorker" in navigator)
-            window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js?v=85").catch(() => { }));
+            window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js?v=86").catch(() => { }));
 
         // ─── YUKLANISH EKRANINI YASHIRISH ───
         // Sahifa tayyor bo'lgach loader silliq yo'qoladi. Bir necha signal:

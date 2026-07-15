@@ -851,6 +851,13 @@ Yaxshilanishlar:
     PracticeTextDto'ga Source qo'shildi, natija ekranida "Manba: ..." ko'rsatiladi
     (typing-engine.js + .tw-r-source CSS). Build OK, 70 test, endpoint sinaldi.
 Tuzatilgan xatolar:
+  - [2026-07-11] /Online sahifasida "Unexpected token '&'" (Online:296) xatosi va onlayn
+    foydalanuvchilar umuman ko'rinmasligi: _Layout.cshtml dagi TWAuth inline skriptida
+    `userId` qiymati Razor tomonidan HTML-encode qilinib `&quot;guid&quot;` ko'rinishida
+    chiqarilardi — brauzer buni noto'g'ri JS deb hisoblab butun skriptni (va shu bilan
+    online.js + presence hub ni) sindirardi. Tuzatildi: userId `@Html.Raw(...)` bilan
+    xom chiqariladi (Guid xavfsiz). Shuningdek SW cache v85→v86 (va /sw.js?v=86) ko'tarildi
+    — eski cache'langan buzilgan sahifa darhol yangilanadi. Build OK (0 warning).
   - [2026-07-07] Eski akkauntda matn KO'K bo'lib qotib qolishi (tema): tema tanlagichi
     Sozlamalardan olib tashlangan (tw-theme-grid yo'q, settings-page.js o'lik kod), lekin
     ba'zi akkauntlarda (masalan javohirsadullayev836@gmail.com) DBda eski "Blue" (Nord) tema
