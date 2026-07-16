@@ -2,26 +2,30 @@
 
 // Cheetah runner helper: creates track HTML with animated cheetah SVG
 window.TwCheetah = (function () {
+    // O'z mushugim (mening o'yinchim) — har sahifada bir xil oltin/amber rangda
+    const ME_COLOR = 'tw-cheetah-gold';
+    // Boshqa foydalanuvchilar — har biriga alohida, tasodifiy ko'rinadigan ranglar
+    // (ko'k birinchi emas — shunda hamma ko'k bo'lib qolmaydi)
     const COLORS = [
-        'tw-cheetah-gold',   // 0 — host (oltin/ko'k)
-        'tw-cheetah-blue',   // 1
-        'tw-cheetah-green',  // 2
-        'tw-cheetah-purple', // 3
-        'tw-cheetah-red',    // 4
-        'tw-cheetah-cyan',   // 5
-        'tw-cheetah-pink',   // 6
-        'tw-cheetah-orange', // 7
-        'tw-cheetah-teal',   // 8
-        'tw-cheetah-violet'  // 9
+        'tw-cheetah-green',   // 0
+        'tw-cheetah-purple',  // 1
+        'tw-cheetah-red',     // 2
+        'tw-cheetah-cyan',    // 3
+        'tw-cheetah-pink',    // 4
+        'tw-cheetah-orange',  // 5
+        'tw-cheetah-teal',    // 6
+        'tw-cheetah-violet',  // 7
+        'tw-cheetah-blue',    // 8
+        'tw-cheetah-cyan'     // 9 (varag'i)
     ];
 
     function calcLeft(pct) {
         return 2 + Math.min(100, pct || 0) * 0.82;
     }
 
-    function makeHtml(colorIdx, progress, runnerId) {
+    function makeHtml(colorIdx, progress, runnerId, isMe) {
         const tpl = document.getElementById('tw-ch-tpl');
-        const color = COLORS[colorIdx % COLORS.length] || 'tw-cheetah-gold';
+        const color = isMe ? ME_COLOR : (COLORS[colorIdx % COLORS.length] || 'tw-cheetah-blue');
         const left = calcLeft(progress || 0);
 
         if (tpl) {
@@ -56,7 +60,7 @@ window.TwCheetah = (function () {
         el.style.setProperty('--tw-gallop-dur', dur + 's');
     }
 
-    return { makeHtml, setPos, setRunning, setSpeed, calcLeft, COLORS };
+    return { makeHtml, setPos, setRunning, setSpeed, calcLeft, COLORS, ME_COLOR };
 })();
 
 // Caps Lock ogohlantirishi — har typing sahifasida qayta ishlatiladi

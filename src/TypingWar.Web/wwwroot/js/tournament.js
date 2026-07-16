@@ -543,8 +543,8 @@
     }
 
     // ── Lanes (mening + raqib mushuk yo'lakchasi) ──
-    function laneHtml(name, colorIdx, prog) {
-        const track = window.TwCheetah ? window.TwCheetah.makeHtml(colorIdx, prog)
+    function laneHtml(name, colorIdx, prog, isMe) {
+        const track = window.TwCheetah ? window.TwCheetah.makeHtml(colorIdx, prog, null, isMe)
             : `<div class="tw-bar"><div class="tw-bar-fill" style="width:${prog}%"></div></div>`;
         return `<div class="tw-lane-top"><span>${esc(name)}</span><span class="tw-lane-wpm">0 <small>wpm</small></span></div>${track}`;
     }
@@ -552,8 +552,8 @@
         if (!myMatch) return;
         $("tw-me-name").textContent = "Siz";
         $("tw-opp-name").textContent = myMatch.oppName || "Raqib";
-        $("tw-lane-me").innerHTML = laneHtml("Siz", 0, 0);
-        $("tw-lane-opp").innerHTML = laneHtml(myMatch.oppName || "Raqib", 1, 0);
+        $("tw-lane-me").innerHTML = laneHtml("Siz", 0, 0, true);
+        $("tw-lane-opp").innerHTML = laneHtml(myMatch.oppName || "Raqib", 1, 0, false);
     }
     function updateLane(laneEl, prog, wpm, fin) {
         if (!laneEl) return;

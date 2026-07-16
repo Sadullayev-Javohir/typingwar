@@ -53,12 +53,13 @@
     }
 
     // ── Rang palitrasi (har o'yinchiga grafikda alohida rang, mushuk rangiga mos) ──
+    const ME_CHART_COLOR = "#f5a623"; // mening mushugim — oltin/amber
     const CHART_COLORS = [
-        "#0070f3", "#5aa0ff", "#40d870", "#c060ff", "#ff5566",
-        "#40d8e8", "#ff5599", "#ff9933", "#2dd4bf", "#8b5cf6"
+        "#40d870", "#c060ff", "#ff5566", "#40d8e8", "#ff5599",
+        "#ff9933", "#2dd4bf", "#8b5cf6", "#5aa0ff", "#40d8e8"
     ];
     function colorFor(idx) { return CHART_COLORS[(idx || 0) % CHART_COLORS.length]; }
-    function colorOf(r) { return colorFor(r ? (r.colorIndex || 0) : 0); }
+    function colorOf(r) { if (r && r.connId === myConnId) return ME_CHART_COLOR; return colorFor(r ? (r.colorIndex || 0) : 0); }
 
     // ── O'yinchilar ro'yxati (A va B jamoalari, har birida mushuk) ──
     function renderPlayers() {
@@ -72,7 +73,7 @@
             const li = document.createElement("li");
             li.className = "tw-player" + (p.finished ? " tw-done" : "");
             const track = window.TwCheetah
-                ? window.TwCheetah.makeHtml(colorIdx, p.progress || 0)
+                ? window.TwCheetah.makeHtml(colorIdx, p.progress || 0, null, isMe)
                 : `<div class="tw-bar"><div class="tw-bar-fill" style="width:${p.progress || 0}%"></div></div>`;
             li.innerHTML = `<div class="tw-player-top">
                 <span>${crown}${esc(p.name)}${me}</span>
