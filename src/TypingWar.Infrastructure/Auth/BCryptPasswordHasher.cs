@@ -4,8 +4,7 @@ using TypingWar.Infrastructure.Identity;
 namespace TypingWar.Infrastructure.Auth;
 
 /// <summary>
-/// ASP.NET Identity ning IPasswordHasher implementatsiyasi — BCrypt.Net-Next orqali
-/// (CLAUDE.md talabi: parol xeshlash BCrypt bilan).
+/// ASP.NET Identity uchun BCrypt.Net-Next asosidagi parol xeshlash implementatsiyasi.
 /// </summary>
 public class BCryptPasswordHasher : IPasswordHasher<ApplicationUser>
 {

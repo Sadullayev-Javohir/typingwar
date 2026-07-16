@@ -3,7 +3,7 @@ using TypingWar.Domain.Constants;
 namespace TypingWar.Domain.Services;
 
 /// <summary>
-/// AI raqibning belgi-belgi yozish jadvalini quradi (CLAUDE.md §10):
+/// AI raqibning belgi-belgi yozish jadvalini quradi:
 /// har belgi (60000/wpm/5)ms = 12000/wpm ms, ±15ms jitter, ±3 WPM og'ish.
 /// Natija — boshlanishdan kumulyativ ms (har belgi qachon "yoziladi").
 /// </summary>

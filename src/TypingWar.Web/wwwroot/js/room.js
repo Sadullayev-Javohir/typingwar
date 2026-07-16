@@ -618,14 +618,20 @@
     }
 
     // ── Rang palitrasi (har o'yinchiga grafikda alohida rang) ──
-    // Mushuk ranglariga mos (site.css .tw-cheetah-*) — natija grafigi rangi == jonli mushuk rangi
-    const ME_CHART_COLOR = "#f5a623"; // mening mushugim — oltin/amber
-    const CHART_COLORS = [
-        "#40d870", "#c060ff", "#ff5566", "#40d8e8", "#ff5599",
-        "#ff9933", "#2dd4bf", "#8b5cf6", "#5aa0ff", "#40d8e8"
-    ];
-    function colorFor(idx) { return CHART_COLORS[(idx || 0) % CHART_COLORS.length]; }
-    function colorOf(r) { if (r && r.connId === myConnId) return ME_CHART_COLOR; return colorFor(r ? (r.colorIndex || 0) : 0); } // o'yinchining barqaror rangi
+    // RANG SERVERDAGI colorIndex ga bog'liq (TwCheetah bilan bir xil), shuning uchun
+    // bir xonadagi barcha oynalarda bir xil o'yinchi bir xil rangda ko'rinadi. "Men" uchun
+    // alohida oltin yo'q — har o'yinchi o'z colorIndex rangi bilan (100+ farqli rang imkoni).
+    // Mushuk (jonli track) rangi == natija grafigi rangi == legend rangi.
+    function colorOf(r) {
+        const idx = r ? (r.colorIndex || 0) : 0;
+        return (window.TWColors ? window.TWColors.colorFor(idx) : colorFor(idx));
+    }
+    function colorFor(idx) {
+        if (window.TWColors) return window.TWColors.colorFor(idx);
+        const LEG = ["#40d870", "#c060ff", "#ff5566", "#40d8e8", "#ff5599",
+            "#ff9933", "#2dd4bf", "#8b5cf6", "#5aa0ff", "#40d8e8"];
+        return LEG[(idx || 0) % LEG.length];
+    }
 
     // ── Natijalar oynasi (barcha o'yinchilar statistikasi bitta oynada) ──
     // Bu funksiya faqat oxirgi o'yinchi ham yozib bo'lgach (RaceFinished) chaqiriladi.

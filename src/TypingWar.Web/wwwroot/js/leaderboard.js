@@ -7,7 +7,7 @@
     const tabs = document.querySelectorAll(".tw-tab");
     let mode = "Thirty";
 
-    // Hudud kodi → o'qiladigan nom (CLAUDE.md §7)
+    // Hudud kodi → o'qiladigan nom.
     const REGIONS = {
         TASHKENT_CITY: "Toshkent sh.", TASHKENT_REGION: "Toshkent vil.",
         ANDIJAN: "Andijon", FERGANA: "Farg'ona", NAMANGAN: "Namangan",

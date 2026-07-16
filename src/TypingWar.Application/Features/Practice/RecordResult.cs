@@ -36,7 +36,7 @@ public class RecordResultCommandHandler : IRequestHandler<RecordResultCommand, R
     {
         var metrics = TypingCalculator.Calculate(request.CorrectChars, request.IncorrectChars, request.ElapsedSeconds);
 
-        // Aldash himoyasi (CLAUDE.md §12: >250 WPM rad etiladi)
+        // Aldash himoyasi: 250 WPM dan yuqori natija rad etiladi.
         if (!TypingCalculator.IsPlausible(metrics.Wpm) || !TypingCalculator.IsPlausible(metrics.RawWpm))
             throw new InvalidOperationException($"Natija haqiqiy emas (WPM={metrics.Wpm}). Maksimal ruxsat etilgan: 250.");
 

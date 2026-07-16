@@ -53,13 +53,14 @@
     }
 
     // ── Rang palitrasi (har o'yinchiga grafikda alohida rang, mushuk rangiga mos) ──
-    const ME_CHART_COLOR = "#f5a623"; // mening mushugim — oltin/amber
-    const CHART_COLORS = [
-        "#40d870", "#c060ff", "#ff5566", "#40d8e8", "#ff5599",
-        "#ff9933", "#2dd4bf", "#8b5cf6", "#5aa0ff", "#40d8e8"
-    ];
-    function colorFor(idx) { return CHART_COLORS[(idx || 0) % CHART_COLORS.length]; }
-    function colorOf(r) { if (r && r.connId === myConnId) return ME_CHART_COLOR; return colorFor(r ? (r.colorIndex || 0) : 0); }
+    // RANG colorIndex ga bog'liq (TwCheetah bilan bir xil) — barcha oynalarda bir xil.
+    function colorFor(idx) {
+        if (window.TWColors) return window.TWColors.colorFor(idx);
+        const LEG = ["#40d870", "#c060ff", "#ff5566", "#40d8e8", "#ff5599",
+            "#ff9933", "#2dd4bf", "#8b5cf6", "#5aa0ff", "#40d8e8"];
+        return LEG[(idx || 0) % LEG.length];
+    }
+    function colorOf(r) { return colorFor(r ? (r.colorIndex || 0) : 0); }
 
     // ── O'yinchilar ro'yxati (A va B jamoalari, har birida mushuk) ──
     function renderPlayers() {

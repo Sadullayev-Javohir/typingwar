@@ -32,6 +32,3 @@ appsettings.*.Local.json
 nginx/ssl/*.pem
 nginx/ssl/*.key
 nginx/ssl/*.crt
-
-# Claude Code worktrees
-.claude/worktrees/

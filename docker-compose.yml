@@ -8,8 +8,7 @@ services:
       POSTGRES_USER: typingwar
       POSTGRES_PASSWORD: typingwar_dev
     ports:
-      # CLAUDE.md qoida #4 da 5433 ko'rsatilgan, lekin host 5433 boshqa loyiha (meningvaqtim)
-      # tomonidan band — konflikt oldini olish maqsadida 5434 ishlatilmoqda.
+      # Mahalliy PostgreSQL xizmatlari bilan port to'qnashmasligi uchun 5434 ishlatiladi.
       - "5434:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -24,7 +23,7 @@ services:
     container_name: typingwar-redis
     restart: unless-stopped
     ports:
-      - "6380:6379"   # local konflikt oldini olish (CLAUDE.md qoida #4)
+      - "6380:6379"   # Mahalliy Redis xizmati bilan port to'qnashmasligi uchun.
     volumes:
       - redisdata:/data
     healthcheck:

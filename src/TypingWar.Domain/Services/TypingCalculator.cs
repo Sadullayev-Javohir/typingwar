@@ -6,7 +6,7 @@ namespace TypingWar.Domain.Services;
 public readonly record struct TypingMetrics(double Wpm, double RawWpm, double Accuracy);
 
 /// <summary>
-/// WPM, Raw WPM va aniqlikni hisoblaydi (CLAUDE.md §8 formulalari).
+/// WPM, Raw WPM va aniqlikni hisoblaydi.
 /// 5 harf = 1 so'z. Backspace xatoni to'g'irlaydi, lekin Raw WPM ga ta'sir qilmaydi.
 /// </summary>
 public static class TypingCalculator

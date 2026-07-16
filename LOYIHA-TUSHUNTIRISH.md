@@ -1,8 +1,8 @@
 # TypingWar.uz — Loyihani to'liq tushunish uchun qo'llanma
 
-> Bu hujjat sen (loyiha egasi) dasturlashni bilmasang ham, **HR yoki texnik suhbatda** loyiha haqida
-> ishonchli va aniq gapira olishing uchun yozilgan. Har bir bo'lim: **nima qilingan**, **nima uchun**,
-> va **qanday ishlaydi** — oddiy tilda tushuntiriladi. Oxirida tez-tez so'raladigan savol-javoblar bor.
+Bu qo'llanma loyihaning arxitekturasi, asosiy funksiyalari va tekshirish tartibini tushuntiradi.
+Har bir bo'limda tegishli komponentning vazifasi va ishlash usuli keltirilgan.
+Joriy xatti-harakatni tekshirish uchun manba kodi, testlar va deploy sozlamalariga murojaat qiling.
 
 ---
 
@@ -22,22 +22,28 @@ xaritasi bo'yicha statistika** kabi noyob funksiyalar bor.
 
 ---
 
-## 2. Ishlab chiqish usuli — bu haqda qanday gapirish kerak
+## 2. Texnik qarorlar va tekshirish
 
-Loyiha **AI (Claude Code)** yordamida yozilgan — bu HR uchun **kamchilik emas, kuchli tomon**,
-chunki:
-- Zamonaviy dasturchilar ham AI vositalaridan (Copilot, Cursor, Claude Code) foydalanadi — bu **sanoat
-  standarti**ga aylangan
-- Muhim narsa — AI yozgan kodni **tushunish, boshqarish, talab qo'yish va sifatni nazorat qilish**
-  qobiliyati. Sen har bosqichda **aniq texnik talablar** (CLAUDE.md fayl orqali: arxitektura, xavfsizlik
-  qoidalari, jadval tuzilishi, formulalar) qo'yib, natijani nazorat qilgansan
-- Loyihada **Clean Architecture**, **CQRS**, **avtomatik testlar (105 dona)**, **CI/CD**, **xavfsizlik
-  qatlamlari** kabi professional standartlar qo'llanilgan — bu tasodifiy emas, aniq rejalashtirilgan
+Loyiha Domain, Application, Infrastructure va Web qatlamlariga ajratilgan. Biznes qoidalari
+Domain qatlamida, so'rov va buyruqlar Application qatlamida, tashqi xizmatlar bilan ishlash esa
+Infrastructure qatlamida joylashgan.
 
-**Agar HR so'rasa:** *"Loyihani AI bilan yaratdim, lekin har bir bosqichni o'zim rejalashtirdim,
-arxitektura va xavfsizlik talablarini o'zim belgiladim, natijani test qildim va boshqardim. Bu menga
-zamonaviy AI-yordamida dasturlash (AI-assisted engineering) tajribasini berdi — bugungi sanoatda bu
-tobora muhim ko'nikma."*
+Asosiy hisob-kitoblar va qoidalarni quyidagi fayllardan tekshirish mumkin:
+- `src/TypingWar.Domain/Services/TypingCalculator.cs` — WPM, Raw WPM va aniqlik formulalari.
+- `src/TypingWar.Domain/Services/AiTypingSimulator.cs` — adaptiv raqibning yozish jadvali.
+- `tests/TypingWar.UnitTests/` — hisob-kitoblar, turnirlar va boshqa biznes qoidalari testlari.
+- `.github/workflows/ci.yml` — avtomatik restore, build va test buyruqlari.
+
+Tekshirish buyruqlari repository ildizida bajariladi:
+
+```bash
+dotnet restore TypingWar.sln
+dotnet build TypingWar.sln -c Release --no-restore
+dotnet test TypingWar.sln -c Release --no-build
+```
+
+Unit test natijalari jonli server yoki haqiqiy ma'lumotlar bazasi bilan integratsiya
+tekshirilganini anglatmaydi. Bunday tekshiruv natijalarini alohida qayd etish kerak.
 
 ---
 
@@ -80,7 +86,7 @@ tobora muhim ko'nikma."*
 | **Nginx** | Server oldidagi "qorovul" (reverse proxy) | Internet trafigini xavfsiz boshqaradi, SSL (https) ni ta'minlaydi, hujumlarni cheklaydi |
 | **Let's Encrypt** | Bepul SSL sertifikat | Sayt manzili `https://` bilan boshlanishi, ma'lumot shifrlanishi uchun |
 | **GitHub Actions** | Avtomatik build/test/deploy (CI/CD) | Kod har push qilinganda avtomatik tekshiriladi va serverga joylanadi — qo'lda ish kamayadi, xato kamroq |
-| **Hetzner** (bulut server) | Dastur ishlaydigan jismoniy/virtual kompyuter | Arzon va ishonchli Yevropa bulut xizmati (CLAUDE.md'da dastlab DigitalOcean rejalashtirilgan edi, lekin amalda Hetzner ishlatilgan) |
+| **Hetzner** (bulut server) | Dastur ishlaydigan jismoniy/virtual kompyuter | Deploy infratuzilmasi uchun tanlangan bulut xizmati |
 
 ### 3.4 Autentifikatsiya (kirish tizimi)
 
@@ -255,14 +261,14 @@ tayyor javob berishing uchun:
    — bu **faqat mahalliy dasturlash (development) uchun**. Jonli serverda bu albatta boshqa, tasodifiy
    va maxfiy qiymat bilan almashtirilgan bo'lishi kerak (muhim: agar bu qiymat asl holida production'da
    qolib ketsa, xavfsizlik zaifligi bo'ladi — buni tekshirib turish kerak).
-   deploy/.env fayli orqali bu avtomatik generatsiya qilinishi CLAUDE.md'da qayd etilgan.
+   Kalitni yaratish buyrug'i `deploy/DEPLOY.md`da, `JWT_KEY` sozlamasi esa
+   `deploy/.env.example`da keltirilgan.
 8. **Ovoz effekti (SoundOnClick) sozlamasi UI'da bor, lekin to'liq ulanmagan** deb qayd etilgan (eski
    yozuvlarda) — bu kichik, tugallanmagan detal.
-9. **Bir nechta rivojlantirish jurnalida "brauzer orqali qo'lda tekshirilishi kerak" (⚠️) degan
-   eslatmalar ko'p uchraydi** — chunki AI dasturlash muhitida Docker/PostgreSQL har doim ishga
-   tushirilavermagan, shu sabab ba'zi funksiyalar avtomatik test bilan emas, faqat vizual/qo'lda
-   tekshirilgan. Bu ishlab chiqarishga chiqarishdan oldin **yana bir bor real brauzerda, real
-   ma'lumotlar bazasi bilan sinovdan o'tkazish tavsiya etiladi** degani.
+9. **Brauzer va haqiqiy ma'lumotlar bazasi bilan tekshirish alohida bajarilishi kerak.**
+   Unit testlar interfeysni, tarmoq aloqasini va production sozlamalarini to'liq qamramaydi.
+   Chiqarishdan oldin asosiy foydalanuvchi oqimlarini ishlayotgan PostgreSQL va Redis
+   xizmatlari bilan sinovdan o'tkazish kerak.
 
 > Bu ro'yxat loyihaning "yomon" ekanini emas — **haqiqiy, tirik loyihalarda har doim bo'ladigan, keyingi
 > bosqichda hal qilinadigan tabiiy holatlar** ekanini bildiradi. Intervyuda buni shunday tushuntirish —
@@ -311,7 +317,7 @@ J: Real vaqt sinxronizatsiyasi — masalan bir nechta o'yinchining poygasini bir
 haqiqiy ishtirokchilar soniga avtomatik moslashtirish kabi masalalar ancha murakkab mantiq talab qildi.
 
 **S: AI raqib chindan sun'iy intellektmi?**
-J: Yo'q, bu "haqiqiy AI" (masalan ChatGPT kabi) emas — bu **adaptiv algoritm**: foydalanuvchining
+J: Bu til modelidan foydalanmaydigan **adaptiv algoritm**: foydalanuvchining
 so'nggi natijalariga qarab formulaviy tarzda hisoblanadigan raqib tezligi. Lekin foydalanuvchiga
 "aqlli moslashuvchi raqib" tajribasini beradi.
 
@@ -338,14 +344,12 @@ so'nggi natijalariga qarab formulaviy tarzda hisoblanadigan raqib tezligi. Lekin
 
 ---
 
-## 13. Xulosa — HR bilan suhbatda qanday taqdim etish kerak
+## 13. Qisqa texnik tavsif
 
-Qisqa versiya (30 soniyalik javob):
+TypingWar.uz — ASP.NET Core, PostgreSQL, Redis va SignalR asosidagi typing musobaqa platformasi.
+Asosiy imkoniyatlar: yozish tezligi va aniqligini o'lchash, do'stlar bilan poyga, adaptiv raqib,
+turnirlar, jamoaviy musobaqa va hududlar bo'yicha statistika.
 
-> *"TypingWar.uz — o'zbek tilidagi typing tezligi platformasi. ASP.NET Core (C#), PostgreSQL, Redis va
-> SignalR (real vaqt) texnologiyalari asosida, Clean Architecture va CQRS naqshi bilan qurilgan. 15+
-> funksiya (do'stlar bilan poyga, AI raqib, turnir, jamoaviy musobaqa, O'zbekiston xaritasi statistikasi)
-> ishlab chiqilgan, 105 avtomatik test bilan qamrab olingan, Docker orqali bulut serverda joylashtirilgan
-> va CI/CD bilan avtomatlashtirilgan. Loyihani AI-yordamida (Claude Code) qurdim, lekin arxitektura,
-> xavfsizlik talablari va sifat nazoratini o'zim boshqardim — bu menga zamonaviy AI-assisted software
-> engineering tajribasini berdi."*
+Kod Clean Architecture qatlamlariga ajratilgan. Biznes qoidalari unit testlarda,
+build va test jarayoni GitHub Actions'da, joylashtirish sozlamalari esa `deploy/` katalogida
+saqlanadi. Texnik baholashda shu fayllar va qayta bajarilgan tekshiruv natijalariga tayanish kerak.
